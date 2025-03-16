@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "bun-plugin-svelte": "^0.0.5",
+    "bun-plugin-tailwind": "^0.0.15",
+    "daisyui": "^5.0.4",
+    "tailwindcss": "^4.0.14"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "module": "index.ts",
+  "name": "gots",
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "bun src/dev.ts"
+  },
+  "type": "module"
+}
