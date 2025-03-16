@@ -5,10 +5,15 @@
     asideL?: Snippet;
     asideR?: Snippet;
     header?: Snippet;
-    main: Snippet;
+    children?: Snippet;
     footer?: Snippet;
   }
-  let { asideL, asideR, header, main, footer }: Props = $props();
+
+  let { asideL, asideR, children, header, footer }: Props = $props();
+
+  let cols = [asideL && "auto", "1fr", asideR && "auto"]
+    .filter(Boolean)
+    .join("_");
 </script>
 
 <!-- https://www.skeleton.dev/docs/guides/layouts -->
@@ -21,15 +26,15 @@
     </header>
   {/if}
 
-  <div class="grid grid-cols-1 md:grid-cols-[auto_1fr_auto]">
+  <div class={`grid grid-cols-1 md:grid-cols-[${cols}]`}>
     {#if asideL}
       <aside class="bg-base-200 text-base-content p-4">
         {@render asideL()}
       </aside>
     {/if}
 
-    <main class="bg-base-100 text-primary-content p-4 space-y-4">
-      {@render main()}
+    <main class="bg-base-100 p-4 space-y-4">
+      {@render children?.()}
     </main>
 
     {#if asideR}

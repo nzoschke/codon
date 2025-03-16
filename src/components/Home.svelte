@@ -11,11 +11,11 @@
     aside left
   {/snippet}
 
-  {#snippet main()}
-    <p class="h-[512px] bg-primary p-4">Paragraph 1</p>
+  <div class="text-primary-content">
+    <p class="h-[512px] bg-primary p-4 border-2">Paragraph 1</p>
     <p class="h-[512px] bg-primary p-4">Paragraph 2</p>
     <p class="h-[512px] bg-primary p-4">Paragraph 3</p>
-  {/snippet}
+  </div>
 
   {#snippet asideR()}
     aside right

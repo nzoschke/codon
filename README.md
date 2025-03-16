@@ -36,3 +36,20 @@ bunx serve build/dist
 go build -o app cmd/app/main.go
 ./app
 ```
+
+## Philosophy
+
+- All things equal the shorter solution is better
+- Reduce dependencies
+
+This leads us to:
+
+- Bun and its build tools
+- Go and its tools and stdlib
+- Svelte and its compiler (and without SvelteKit)
+- SQLite and its file and memory backed databases
+- Tailwind
+
+References:
+
+- https://dev.to/danielgtaylor/reducing-go-dependencies-dec

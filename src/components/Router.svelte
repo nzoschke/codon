@@ -1,16 +1,18 @@
 <script lang="ts">
+  import { type Component, mount, unmount } from "svelte";
+  import NotFound from "~/components/NotFound.svelte";
+
   export interface Route {
     component: Component<any>;
     hash: string;
     props?: Record<string, any>;
   }
 
-  import NotFound from "~/components/NotFound.svelte";
-  import { type Component, mount, onMount, unmount } from "svelte";
-
   let { routes }: { routes: Route[] } = $props();
   let mounted: Component | undefined;
-  let target: HTMLSpanElement;
+
+  let target = document.createElement("span");
+  document.body.appendChild(target);
 
   const change = (hash: string) => {
     let r = routes.find((r) => r.hash == (hash || "#/")) || {
@@ -28,14 +30,9 @@
     });
   };
 
-  onMount(() => {
-    target = document.createElement("span");
-    document.body.appendChild(target);
-
-    change(window.location.hash);
-  });
-
   addEventListener("hashchange", () => {
     change(window.location.hash);
   });
+
+  change(window.location.hash);
 </script>
