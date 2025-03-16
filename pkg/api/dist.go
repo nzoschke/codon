@@ -8,7 +8,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/nzoschke/gots/build"
+	"github.com/nzoschke/codon/build"
 	"github.com/pkg/errors"
 )
 

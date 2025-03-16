@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/nzoschke/gots/pkg/api"
-	"github.com/nzoschke/gots/pkg/db"
+	"github.com/nzoschke/codon/pkg/api"
+	"github.com/nzoschke/codon/pkg/db"
 	"github.com/pkg/errors"
 )
 

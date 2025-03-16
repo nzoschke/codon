@@ -1,4 +1,4 @@
-module github.com/nzoschke/gots
+module github.com/nzoschke/codon
 
 go 1.24.0
 

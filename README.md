@@ -1,13 +1,14 @@
-# Codon
+# CODON
 
-Codon is a minimal Go and Bun TypeScript toolkit that makes deployment trivial.
+Codon is a minimal Go and TypeScript toolkit that makes web app packaging and
+deploys trivial.
 
 Static sites are built with Bun and can be deployed as a directory.
 
-Dynamic sites are built with Go and deployed as a single binary.
+Dynamic sites are built with Go + SQLite and deployed as a single binary.
 
-Goals are to increase productivity cranking out web apps, while reducing
-dependencies, config files, and layers of cruft.
+The goals are to increase productivity building and hosting web apps, while
+reducing dependencies, build steps, config files, and other layers of cruft.
 
 ## Go
 
