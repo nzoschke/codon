@@ -3,5 +3,5 @@
 </script>
 
 <main>
-  <h1 class="text-3xl bg-red-400">Hello {name}?</h1>
+  <h1 class="text-2xl">Hello {name}?</h1>
 </main>

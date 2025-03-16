@@ -15,7 +15,8 @@
   },
   "private": true,
   "scripts": {
-    "dev": "bun src/dev.ts"
+    "build": "bun src/scripts/build.ts",
+    "dev": "bun src/scripts/dev.ts"
   },
   "type": "module"
 }
