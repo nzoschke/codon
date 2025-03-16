@@ -3,7 +3,12 @@
   <head>
     <title>VizLab</title>
     <link rel="stylesheet" href="./index.css" />
-    <!-- https://github.com/oven-sh/bun/issues/12878 -->
+    <!-- use CDN until .svelte + tailwind is fixed via https://github.com/oven-sh/bun/issues/12878 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@5"
+      rel="stylesheet"
+      type="text/css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="./index.ts" type="module"></script>
   </head>
