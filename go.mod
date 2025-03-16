@@ -2,7 +2,10 @@ module github.com/nzoschke/codon
 
 go 1.24.0
 
-require github.com/pkg/errors v0.9.1
+require (
+	github.com/pkg/errors v0.9.1
+	zombiezen.com/go/sqlite v1.4.0
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -18,7 +21,6 @@ require (
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.33.1 // indirect
-	zombiezen.com/go/sqlite v1.4.0 // indirect
 )
 
 tool github.com/mitranim/gow
