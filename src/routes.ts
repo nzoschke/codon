@@ -1,9 +1,9 @@
-import Counter from "~/components/Counter.svelte";
+import Home from "~/components/Home.svelte";
 import { type Route } from "~/components/Router.svelte";
 
 export const routes: Route[] = [
   {
-    component: Counter,
+    component: Home,
     hash: "#/",
   },
 ];
