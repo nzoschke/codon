@@ -1,7 +1,7 @@
 # Deploy (Linux)
 
 ```bash
-USER=root
+USER=root!
 HOST=5.161.76.175
 rsync -avz -e ssh build/dist/* $USER@$HOST:/srv/codon/
 rsync -avz -e ssh src/scripts/Caddyfile $USER@$HOST:/etc/caddy/sites/codon
