@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  logs: false;
+  themes: silk --default;
+}

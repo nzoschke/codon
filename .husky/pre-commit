@@ -1,0 +1,2 @@
+deno fmt --unstable-component --unstable-sql $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') || true
+git update-index --again

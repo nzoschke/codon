@@ -1,0 +1,79 @@
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "gots",
+      "dependencies": {
+        "bun-plugin-svelte": "^0.0.5",
+        "bun-plugin-tailwind": "^0.0.15",
+        "daisyui": "^5.0.4",
+        "tailwindcss": "^4.0.14",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
+  },
+  "packages": {
+    "@ampproject/remapping": ["@ampproject/remapping@2.3.0", "", { "dependencies": { "@jridgewell/gen-mapping": "^0.3.5", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw=="],
+
+    "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.8", "", { "dependencies": { "@jridgewell/set-array": "^1.2.1", "@jridgewell/sourcemap-codec": "^1.4.10", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA=="],
+
+    "@jridgewell/resolve-uri": ["@jridgewell/resolve-uri@3.1.2", "", {}, "sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw=="],
+
+    "@jridgewell/set-array": ["@jridgewell/set-array@1.2.1", "", {}, "sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A=="],
+
+    "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.0", "", {}, "sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ=="],
+
+    "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.25", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ=="],
+
+    "@sveltejs/acorn-typescript": ["@sveltejs/acorn-typescript@1.0.5", "", { "peerDependencies": { "acorn": "^8.9.0" } }, "sha512-IwQk4yfwLdibDlrXVE04jTZYlLnwsTT2PIOQQGNLWfjavGifnk1JD1LcZjZaBTRcxZu2FfPfNLOE04DSu9lqtQ=="],
+
+    "@types/bun": ["@types/bun@1.2.5", "", { "dependencies": { "bun-types": "1.2.5" } }, "sha512-w2OZTzrZTVtbnJew1pdFmgV99H0/L+Pvw+z1P67HaR18MHOzYnTYOi6qzErhK8HyT+DB782ADVPPE92Xu2/Opg=="],
+
+    "@types/estree": ["@types/estree@1.0.6", "", {}, "sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw=="],
+
+    "@types/node": ["@types/node@22.13.10", "", { "dependencies": { "undici-types": "~6.20.0" } }, "sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw=="],
+
+    "@types/ws": ["@types/ws@8.5.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-bd/YFLW+URhBzMXurx7lWByOu+xzU9+kb3RboOteXYDfW+tr+JZa99OyNmPINEGB/ahzKrEuc8rcv4gnpJmxTw=="],
+
+    "acorn": ["acorn@8.14.1", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg=="],
+
+    "aria-query": ["aria-query@5.3.2", "", {}, "sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw=="],
+
+    "axobject-query": ["axobject-query@4.1.0", "", {}, "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ=="],
+
+    "bun-plugin-svelte": ["bun-plugin-svelte@0.0.5", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-b+f+B8IlhhTZRglgTVwn/jTd9lmbWZR1Y281j6E0W9KTrQmrcKhcpXOcU8M5tGh5h1/hs8A1x/XRc7RZdBXrwg=="],
+
+    "bun-plugin-tailwind": ["bun-plugin-tailwind@0.0.15", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-qtAXMNGG4R0UGGI8zWrqm2B7BdXqx48vunJXBPzfDOHPA5WkRUZdTSbE7TFwO4jLhYqSE23YMWsM9NhE6ovobw=="],
+
+    "bun-types": ["bun-types@1.2.5", "", { "dependencies": { "@types/node": "*", "@types/ws": "~8.5.10" } }, "sha512-3oO6LVGGRRKI4kHINx5PIdIgnLRb7l/SprhzqXapmoYkFl5m4j6EvALvbDVuuBFaamB46Ap6HCUxIXNLCGy+tg=="],
+
+    "clsx": ["clsx@2.1.1", "", {}, "sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA=="],
+
+    "daisyui": ["daisyui@5.0.4", "", {}, "sha512-9X3oX/k9hPBCslAECk8kYfvwgrz6Grs0lN7VI0/ZTM/hUfq1uFREHxCcBCCq0QROpN183N19B1hTNRWGipO2Eg=="],
+
+    "esm-env": ["esm-env@1.2.2", "", {}, "sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA=="],
+
+    "esrap": ["esrap@1.4.5", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.4.15" } }, "sha512-CjNMjkBWWZeHn+VX+gS8YvFwJ5+NDhg8aWZBSFJPR8qQduDNjbJodA2WcwCm7uQa5Rjqj+nZvVmceg1RbHFB9g=="],
+
+    "is-reference": ["is-reference@3.0.3", "", { "dependencies": { "@types/estree": "^1.0.6" } }, "sha512-ixkJoqQvAP88E6wLydLGGqCJsrFUnqoH6HnaczB8XmDH1oaWU+xxdptvikTgaEhtZ53Ky6YXiBuUI2WXLMCwjw=="],
+
+    "locate-character": ["locate-character@3.0.0", "", {}, "sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA=="],
+
+    "magic-string": ["magic-string@0.30.17", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0" } }, "sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA=="],
+
+    "svelte": ["svelte@5.23.0", "", { "dependencies": { "@ampproject/remapping": "^2.3.0", "@jridgewell/sourcemap-codec": "^1.5.0", "@sveltejs/acorn-typescript": "^1.0.5", "@types/estree": "^1.0.5", "acorn": "^8.12.1", "aria-query": "^5.3.1", "axobject-query": "^4.1.0", "clsx": "^2.1.1", "esm-env": "^1.2.1", "esrap": "^1.4.3", "is-reference": "^3.0.3", "locate-character": "^3.0.0", "magic-string": "^0.30.11", "zimmerframe": "^1.1.2" } }, "sha512-v0lL3NuKontiCxholEiAXCB+BYbndlKbwlDMK0DS86WgGELMJSpyqCSbJeMEMBDwOglnS7Ar2Rq0wwa/z2L8Vg=="],
+
+    "tailwindcss": ["tailwindcss@4.0.14", "", {}, "sha512-92YT2dpt671tFiHH/e1ok9D987N9fHD5VWoly1CdPD/Cd1HMglvZwP3nx2yTj2lbXDAHt8QssZkxTLCCTNL+xw=="],
+
+    "typescript": ["typescript@5.8.2", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ=="],
+
+    "undici-types": ["undici-types@6.20.0", "", {}, "sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg=="],
+
+    "zimmerframe": ["zimmerframe@1.1.2", "", {}, "sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w=="],
+  }
+}
