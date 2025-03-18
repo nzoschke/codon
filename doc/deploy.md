@@ -1,3 +1,10 @@
+---
+order: 2
+section: dev
+slug: deploy
+title: Deploy
+---
+
 # Deploy (Linux)
 
 ```bash

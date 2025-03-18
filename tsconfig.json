@@ -16,6 +16,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "paths": {
+      "@/*": ["./*"],
       "~/*": ["./src/*"]
     },
     "skipLibCheck": true,

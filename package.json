@@ -3,6 +3,7 @@
     "bun-plugin-svelte": "^0.0.5",
     "bun-plugin-tailwind": "^0.0.15",
     "daisyui": "^5.0.4",
+    "front-matter": "^4.0.2",
     "marked": "^15.0.7",
     "tailwindcss": "^4.0.14"
   },

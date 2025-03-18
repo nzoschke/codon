@@ -1,30 +1,23 @@
 import type { BunPlugin } from "bun";
-import { compile } from "svelte/compiler";
+import fm from "front-matter";
 import { marked } from "marked";
 
 const plugin: BunPlugin = {
   name: "markdown",
 
   async setup(build) {
-    const out = compile(
-      `
-      <script>
-        let content = "<i>content</i>";
-      </script>
-
-      <article class="prose">{@html content}</article>`,
-      {
-        filename: "Markdown.svelte",
-        generate: "client",
-      },
-    );
-
     build.onLoad({ filter: /\.md/ }, async ({ path }) => {
-      let md = await Bun.file(path).text();
-      let html = marked.parse(md);
+      const src = await Bun.file(path).text();
+      const res = fm(src);
+      const html = marked.parse(res.body, {
+        gfm: true,
+      });
 
       return {
-        contents: out.js.code.replace('"<i>content</i>"', JSON.stringify(html)),
+        contents: `export default {
+          attrs: ${JSON.stringify(res.attributes)},
+          html: ${JSON.stringify(html)},
+        }`,
         loader: "js",
       };
     });
