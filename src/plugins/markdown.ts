@@ -1,5 +1,5 @@
 import type { BunPlugin } from "bun";
-import fm from "front-matter";
+import { parse } from "yaml";
 import { marked } from "marked";
 
 const plugin: BunPlugin = {
@@ -7,15 +7,25 @@ const plugin: BunPlugin = {
 
   async setup(build) {
     build.onLoad({ filter: /\.md/ }, async ({ path }) => {
-      const src = await Bun.file(path).text();
-      const res = fm(src);
-      const html = marked.parse(res.body, {
+      let md = await Bun.file(path).text();
+      let yaml = "";
+
+      const matches = md.match(/^---\n(.*?)\n---\n/ms);
+      if (matches) {
+        console.log(matches);
+        yaml = matches[1]!;
+        md = md.replace(matches[0], "");
+      }
+
+      const attrs = parse(yaml);
+      // console.log(attrs[0].)
+      const html = marked.parse(md, {
         gfm: true,
       });
 
       return {
         contents: `export default {
-          attrs: ${JSON.stringify(res.attributes)},
+          attrs: ${JSON.stringify(attrs)},
           html: ${JSON.stringify(html)},
         }`,
         loader: "js",
