@@ -4,6 +4,8 @@
     "": {
       "name": "gots",
       "dependencies": {
+        "@steeze-ui/heroicons": "^2.4.2",
+        "@steeze-ui/svelte-icon": "^1.6.2",
         "bun-plugin-svelte": "^0.0.5",
         "bun-plugin-tailwind": "^0.0.15",
         "daisyui": "^5.0.4",
@@ -31,6 +33,10 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.0", "", {}, "sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.25", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ=="],
+
+    "@steeze-ui/heroicons": ["@steeze-ui/heroicons@2.4.2", "", {}, "sha512-66luL+uaxyC6mcZigewH4phfDxNWj4sH+n6qK2VnY3zcgpMmNAgVQbMGfZYfKhLqrUo13BlqpmhWuHqAUpehlA=="],
+
+    "@steeze-ui/svelte-icon": ["@steeze-ui/svelte-icon@1.6.2", "", { "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-Q2WP/RkM1JhMueX0FJogSj4J1bncSHaAiiPCqjcseRcHKqfpjYFPJa8bA50I+4KbyOVJ9fdUvTQ3ww9X0ITRxQ=="],
 
     "@sveltejs/acorn-typescript": ["@sveltejs/acorn-typescript@1.0.5", "", { "peerDependencies": { "acorn": "^8.9.0" } }, "sha512-IwQk4yfwLdibDlrXVE04jTZYlLnwsTT2PIOQQGNLWfjavGifnk1JD1LcZjZaBTRcxZu2FfPfNLOE04DSu9lqtQ=="],
 

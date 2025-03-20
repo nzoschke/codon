@@ -5,7 +5,7 @@ slug: deploy
 title: Deploy
 ---
 
-# Deploy (Linux)
+# Deploy
 
 Build a static site and deploy under Caddy
 
@@ -25,4 +25,10 @@ https://$SITE.lab.mixable.net {
 	root * /srv/codon
 }
 EOF
+```
+
+Build an app and deploy under systemd + caddy
+
+```bash
+TODO
 ```

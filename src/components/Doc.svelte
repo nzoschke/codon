@@ -2,6 +2,7 @@
   import Layout from "~/src/components/Layout.svelte";
   import Deploy from "~/doc/deploy.md";
   import Dev from "~/doc/dev.md";
+  import Header from "~/src/components/Header.svelte";
 
   const sections: Markdown[] = [Deploy, Dev].sort(
     (a, b) => a.attrs.order - b.attrs.order,
@@ -14,7 +15,7 @@
 
 <Layout>
   {#snippet header()}
-    header
+    <Header />
   {/snippet}
 
   {#snippet asideL()}
