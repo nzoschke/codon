@@ -1,9 +1,9 @@
 import { serve } from "bun";
-import homepage from "~/index.html";
+import Index from "~/src/index.html";
 
 const server = serve({
   routes: {
-    "/": homepage,
+    "/": Index,
   },
 
   development: true,

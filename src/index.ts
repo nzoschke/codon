@@ -1,6 +1,6 @@
 import { mount } from "svelte";
-import Router from "~/components/Router.svelte";
-import { routes } from "~/routes";
+import Router from "~/src/components/Router.svelte";
+import { routes } from "~/src/routes";
 
 const target = document.createElement("span");
 document.body.appendChild(target);

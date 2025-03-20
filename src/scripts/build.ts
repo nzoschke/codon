@@ -1,4 +1,4 @@
-import markdown from "~/plugins/markdown";
+import markdown from "~/src/plugins/markdown";
 import svelte from "bun-plugin-svelte";
 import tailwind from "bun-plugin-tailwind";
 

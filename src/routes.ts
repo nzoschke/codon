@@ -1,6 +1,6 @@
-import Home from "~/components/Home.svelte";
-import Doc from "~/components/Doc.svelte";
-import { type Route } from "~/components/Router.svelte";
+import Home from "~/src/components/Home.svelte";
+import Doc from "~/src/components/Doc.svelte";
+import { type Route } from "~/src/components/Router.svelte";
 
 export const routes: Route[] = [
   {

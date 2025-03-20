@@ -7,4 +7,6 @@ slug: develop
 
 # Dev
 
-Hello world!
+```bash
+go tool gow run cmd/app/main.go
+```

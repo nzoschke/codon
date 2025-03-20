@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Layout from "~/components/Layout.svelte";
-  import Deploy from "@/doc/deploy.md";
-  import Dev from "@/doc/dev.md";
+  import Layout from "~/src/components/Layout.svelte";
+  import Deploy from "~/doc/deploy.md";
+  import Dev from "~/doc/dev.md";
 
   const sections: Markdown[] = [Deploy, Dev].sort(
     (a, b) => a.attrs.order - b.attrs.order,
