@@ -12,7 +12,6 @@ const plugin: BunPlugin = {
 
       const matches = md.match(/^---\n(.*?)\n---\n/ms);
       if (matches) {
-        console.log(matches);
         yaml = matches[1]!;
         md = md.replace(matches[0], "");
       }
