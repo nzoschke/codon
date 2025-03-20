@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Layout from "~/components/Layout.svelte";
+  import Layout from "~/src/components/Layout.svelte";
 
   let { hash }: { hash: string } = $props();
 </script>

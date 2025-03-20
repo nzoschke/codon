@@ -1,2 +1,2 @@
 [serve.static]
-plugins = ["bun-plugin-svelte", "bun-plugin-tailwind"]
+plugins = ["./src/plugins/markdown", "bun-plugin-svelte", "bun-plugin-tailwind"]

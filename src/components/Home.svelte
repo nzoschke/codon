@@ -1,10 +1,11 @@
 <script lang="ts">
-  import Layout from "~/components/Layout.svelte";
+  import Layout from "~/src/components/Layout.svelte";
+  import Header from "~/src/components/Header.svelte";
 </script>
 
 <Layout>
   {#snippet header()}
-    header
+    <Header />
   {/snippet}
 
   {#snippet asideL()}

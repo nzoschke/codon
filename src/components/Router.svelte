@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type Component, mount, unmount } from "svelte";
-  import NotFound from "~/components/NotFound.svelte";
+  import NotFound from "~/src/components/NotFound.svelte";
 
   export interface Route {
     component: Component<any>;
