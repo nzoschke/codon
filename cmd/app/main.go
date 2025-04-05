@@ -1,7 +1,12 @@
 package main
 
 import (
-	"log"
+	"context"
+	"fmt"
+	"io"
+	"log/slog"
+	"os"
+	"os/signal"
 
 	"github.com/nzoschke/codon/pkg/api"
 	"github.com/nzoschke/codon/pkg/db"
@@ -9,13 +14,23 @@ import (
 )
 
 func main() {
-	if err := mainErr(); err != nil {
-		log.Fatalf("ERR: %+v\n", err)
+	ctx := context.Background()
+	if err := run(ctx, os.Stdout, os.Args); err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		os.Exit(1)
 	}
 }
 
-func mainErr() error {
-	if err := db.New(); err != nil {
+func run(ctx context.Context, w io.Writer, args []string) error {
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	defer cancel()
+
+	l := slog.New(slog.NewTextHandler(w, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+	slog.SetDefault(l)
+
+	if err := db.New(ctx); err != nil {
 		return errors.WithStack(err)
 	}
 
