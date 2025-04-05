@@ -9,31 +9,31 @@ import (
 	"net/url"
 
 	"github.com/nzoschke/codon/build"
-	"github.com/pkg/errors"
+	"github.com/olekukonko/errors"
 )
 
-func dist(devAddr string, mux *http.ServeMux) error {
-	if !dial(devAddr) {
-		slog.Info("static", "fs", "dist")
+func dist(dev bool, mux *http.ServeMux) error {
+	if dev {
+		slog.Info("api", "dist", "proxy")
 
-		dist, err := fs.Sub(build.Dist, "dist")
+		url, err := url.Parse("http://localhost:3000")
 		if err != nil {
 			return errors.WithStack(err)
 		}
 
-		mux.Handle("/", http.FileServerFS(dist))
+		mux.Handle("/", httputil.NewSingleHostReverseProxy(url))
 
 		return nil
 	}
 
-	slog.Info("static", "proxy", devAddr)
+	slog.Info("api", "dist", "embed")
 
-	url, err := url.Parse("http://" + devAddr)
+	dist, err := fs.Sub(build.Dist, "dist")
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	mux.Handle("/", httputil.NewSingleHostReverseProxy(url))
+	mux.Handle("/", http.FileServerFS(dist))
 
 	return nil
 }

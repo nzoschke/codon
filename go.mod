@@ -3,7 +3,8 @@ module github.com/nzoschke/codon
 go 1.24.0
 
 require (
-	github.com/pkg/errors v0.9.1
+	github.com/olekukonko/errors v0.0.0-20250405072817-4e6d85265da6
+	github.com/stretchr/testify v1.10.0
 	zombiezen.com/go/sqlite v1.4.0
 )
 
@@ -18,7 +19,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rjeczalik/notify v0.9.3 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.55.3 // indirect

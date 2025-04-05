@@ -11,13 +11,23 @@ The goals are to increase productivity building and hosting web apps, with
 modern tools that reduce dependencies, build steps, config files, and other
 layers of cruft.
 
-## Go
+## Quick start
 
 ```bash
-go tool gow run cmd/app/main.go
+go generate ./...
+go install ./...
+app
 ```
 
-## TS
+## Development
+
+### Go
+
+```bash
+go tool gow run cmd/app/main.go -dev
+```
+
+### TS
 
 ```bash
 bun install
@@ -27,14 +37,14 @@ bun run dev
 To build:
 
 ```bash
-bun run build
-
-# static server
-bunx serve build/dist
-
-# app server
+go generate ./...
 go build -o app cmd/app/main.go
 ./app
+
+# or
+bun install
+bun run build
+bunx serve build/dist
 ```
 
 ## Philosophy
@@ -53,3 +63,4 @@ This leads us to:
 References:
 
 - https://dev.to/danielgtaylor/reducing-go-dependencies-dec
+- https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/

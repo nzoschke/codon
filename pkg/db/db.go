@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/pkg/errors"
+	"github.com/olekukonko/errors"
 	"zombiezen.com/go/sqlite"
 	"zombiezen.com/go/sqlite/sqlitex"
 )
