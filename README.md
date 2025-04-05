@@ -14,9 +14,10 @@ layers of cruft.
 ## Quick start
 
 ```bash
+brew install bun go
 go generate ./...
-go install ./...
-app
+go build -o app cmd/app/main.go
+./app
 ```
 
 ## Development
@@ -27,13 +28,6 @@ app
 go tool gow run cmd/app/main.go -dev
 ```
 
-### TS
-
-```bash
-bun install
-bun run dev
-```
-
 To build:
 
 ```bash
@@ -41,7 +35,9 @@ go generate ./...
 go build -o app cmd/app/main.go
 ./app
 
-# or
+### TS
+
+```bash
 bun install
 bun run build
 bunx serve build/dist
