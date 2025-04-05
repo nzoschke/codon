@@ -10,25 +10,24 @@ import (
 
 	"github.com/nzoschke/codon/pkg/api"
 	"github.com/nzoschke/codon/pkg/db"
+	"github.com/nzoschke/codon/pkg/log"
 	"github.com/pkg/errors"
 )
 
 func main() {
 	ctx := context.Background()
-	if err := run(ctx, os.Stdout, os.Args); err != nil {
+	if err := run(ctx, os.Args, os.Getenv, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(ctx context.Context, w io.Writer, args []string) error {
+func run(ctx context.Context, args []string, getenv func(string) string, stdout io.Writer) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-	l := slog.New(slog.NewTextHandler(w, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
-	slog.SetDefault(l)
+	log.SetDefault(getenv, stdout)
+	slog.Debug("run", "args", args)
 
 	if err := db.New(ctx); err != nil {
 		return errors.WithStack(err)
