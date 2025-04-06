@@ -16,9 +16,6 @@ import (
 	"github.com/olekukonko/errors"
 )
 
-//go:generate bun install
-//go:generate bun run build
-
 var dev = flag.Bool("dev", false, "dev mode")
 
 func main() {

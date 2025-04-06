@@ -1,2 +1,3 @@
-deno fmt --unstable-component --unstable-sql $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
+set -x
+deno fmt --unstable-component --unstable-sql package.json $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
 git update-index --again
