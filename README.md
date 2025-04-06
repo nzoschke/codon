@@ -29,6 +29,13 @@ open http://localhost:1234
 go tool gow run cmd/app/main.go -dev
 ```
 
+To test:
+
+```bash
+go test -v ./...
+bun test
+```
+
 To build:
 
 ````bash

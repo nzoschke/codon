@@ -1,12 +1,11 @@
 <script lang="ts">
-  let count = $state(0);
+  import { Counter } from "./counter.svelte.ts";
+  let c = Counter();
 </script>
 
 <button
   class="btn btn-sm"
-  onclick={() => {
-    count += 1;
-  }}
+  onclick={c.inc}
 >
-  clicks: {count}
+  clicks: {c.count}
 </button>
