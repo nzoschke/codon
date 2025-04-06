@@ -53,6 +53,7 @@ bunx serve build/dist
 This leads us to:
 
 - Bun and its build tools
+- Deno and its fmt tool (until https://github.com/oven-sh/bun/issues/2246🤞)
 - Go and its tools and stdlib
 - Svelte and its compiler (and without SvelteKit)
 - SQLite and its file and memory backed databases
