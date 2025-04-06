@@ -11,31 +11,46 @@ The goals are to increase productivity building and hosting web apps, with
 modern tools that reduce dependencies, build steps, config files, and other
 layers of cruft.
 
-## Go
+## Quick start
 
 ```bash
-go tool gow run cmd/app/main.go
+brew install deno go oven-sh/bun/bun
+go generate ./...
+go build -o app cmd/app/main.go
+./app
+open http://localhost:1234
 ```
 
-## TS
+## Development
+
+### Go
 
 ```bash
-bun install
-bun run dev
+go tool gow run cmd/app/main.go -dev
+```
+
+To test:
+
+```bash
+go test -v ./...
+bun test
 ```
 
 To build:
 
-```bash
-bun run build
-
-# static server
-bunx serve build/dist
-
-# app server
+````bash
+go generate ./...
 go build -o app cmd/app/main.go
 ./app
-```
+
+### TS
+
+```bash
+cp src/scripts/pre-commit .git/hooks
+bun install
+bun run build
+bunx serve build/dist
+````
 
 ## Philosophy
 
@@ -45,6 +60,7 @@ go build -o app cmd/app/main.go
 This leads us to:
 
 - Bun and its build tools
+- Deno and its fmt tool (until https://github.com/oven-sh/bun/issues/2246🤞)
 - Go and its tools and stdlib
 - Svelte and its compiler (and without SvelteKit)
 - SQLite and its file and memory backed databases
@@ -53,3 +69,4 @@ This leads us to:
 References:
 
 - https://dev.to/danielgtaylor/reducing-go-dependencies-dec
+- https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/

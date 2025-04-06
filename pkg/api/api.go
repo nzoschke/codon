@@ -1,19 +1,37 @@
 package api
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
+	"time"
 
-	"github.com/pkg/errors"
+	"github.com/olekukonko/errors"
 )
 
-func New(addr string, devAddr string) error {
+func New(ctx context.Context, addr string, dev bool) error {
 	mux := http.NewServeMux()
 
-	dist(devAddr, mux)
+	dist(dev, mux)
 
-	slog.Info("app", "serve", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: mux,
+	}
+
+	go func() {
+		slog.Info("api", "serve", addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.Error("api", "err", err)
+		}
+	}()
+
+	<-ctx.Done()
+
+	sctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(sctx); err != nil {
 		return errors.WithStack(err)
 	}
 

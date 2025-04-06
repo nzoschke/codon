@@ -1,19 +1,22 @@
 package db
 
 import (
+	"context"
 	"log/slog"
 
-	"github.com/pkg/errors"
+	"github.com/olekukonko/errors"
 	"zombiezen.com/go/sqlite"
 	"zombiezen.com/go/sqlite/sqlitex"
 )
 
-func New() error {
+func New(ctx context.Context) error {
 	conn, err := sqlite.OpenConn(":memory:", sqlite.OpenReadWrite)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	defer conn.Close()
+
+	conn.SetInterrupt(ctx.Done())
 
 	err = sqlitex.ExecuteTransient(conn, "SELECT 'hello, world';", &sqlitex.ExecOptions{
 		ResultFunc: func(stmt *sqlite.Stmt) error {

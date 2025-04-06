@@ -13,7 +13,7 @@
     "@types/bun": "latest"
   },
   "module": "index.ts",
-  "name": "gots",
+  "name": "codon",
   "peerDependencies": {
     "typescript": "^5"
   },
