@@ -39,6 +39,7 @@ go build -o app cmd/app/main.go
 ### TS
 
 ```bash
+cp src/scripts/pre-commit .git/hooks
 bun install
 bun run build
 bunx serve build/dist
