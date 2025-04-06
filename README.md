@@ -40,7 +40,6 @@ go build -o app cmd/app/main.go
 
 ```bash
 bun install
-bun run husky
 bun run build
 bunx serve build/dist
 ````

@@ -21,7 +21,8 @@
   "private": true,
   "scripts": {
     "build": "bun src/scripts/build.ts",
-    "dev": "bun src/scripts/dev.ts"
+    "dev": "bun src/scripts/dev.ts",
+    "prepare": "husky"
   },
   "type": "module"
 }
