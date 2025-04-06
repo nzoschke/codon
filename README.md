@@ -14,7 +14,7 @@ layers of cruft.
 ## Quick start
 
 ```bash
-brew install bun go
+brew install go oven-sh/bun/bun
 go generate ./...
 go build -o app cmd/app/main.go
 ./app
