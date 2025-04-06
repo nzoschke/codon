@@ -14,10 +14,11 @@ layers of cruft.
 ## Quick start
 
 ```bash
-brew install go oven-sh/bun/bun
+brew install deno go oven-sh/bun/bun
 go generate ./...
 go build -o app cmd/app/main.go
 ./app
+open http://localhost:1234
 ```
 
 ## Development
@@ -30,7 +31,7 @@ go tool gow run cmd/app/main.go -dev
 
 To build:
 
-```bash
+````bash
 go generate ./...
 go build -o app cmd/app/main.go
 ./app
@@ -39,9 +40,10 @@ go build -o app cmd/app/main.go
 
 ```bash
 bun install
+bun run husky
 bun run build
 bunx serve build/dist
-```
+````
 
 ## Philosophy
 
