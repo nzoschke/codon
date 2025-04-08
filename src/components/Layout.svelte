@@ -28,7 +28,7 @@
       </aside>
     {/if}
 
-    <main class="bg-base-100 p-4 space-y-4 w-full">
+    <main class="bg-base-100 p-4 space-y-4 w-full min-h-[calc(100vh-8rem)]">
       {@render children?.()}
     </main>
 

@@ -3,6 +3,7 @@
   import Deploy from "~/doc/deploy.md";
   import Dev from "~/doc/dev.md";
   import Header from "~/src/components/Header.svelte";
+  import Footer from "~/src/components/Footer.svelte";
 
   const sections: Markdown[] = [Deploy, Dev].sort(
     (a, b) => a.attrs.order - b.attrs.order,
@@ -37,6 +38,6 @@
   {/snippet}
 
   {#snippet footer()}
-    footer
+    <Footer />
   {/snippet}
 </Layout>
