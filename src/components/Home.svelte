@@ -1,6 +1,7 @@
 <script lang="ts">
   import Layout from "~/src/components/Layout.svelte";
   import Header from "~/src/components/Header.svelte";
+  import Footer from "~/src/components/Footer.svelte";
 </script>
 
 <Layout>
@@ -9,7 +10,7 @@
   {/snippet}
 
   {#snippet asideL()}
-    aside left
+    <div class="">aside left</div>
   {/snippet}
 
   <div class="text-primary-content">
@@ -19,10 +20,10 @@
   </div>
 
   {#snippet asideR()}
-    aside right
+    <div class="">aside right</div>
   {/snippet}
 
   {#snippet footer()}
-    footer
+    <Footer />
   {/snippet}
 </Layout>

@@ -10,10 +10,6 @@
   }
 
   let { asideL, asideR, children, header, footer }: Props = $props();
-
-  let cols = [asideL && "auto", "1fr", asideR && "auto"]
-    .filter(Boolean)
-    .join("_");
 </script>
 
 <div>
@@ -25,14 +21,14 @@
     </header>
   {/if}
 
-  <div class={`grid grid-cols-1 md:grid-cols-[${cols}]`}>
+  <div class="flex flex-grow justify-end overflow-scroll flex-col lg:flex-row">
     {#if asideL}
       <aside class="bg-base-200 text-base-content p-4">
         {@render asideL()}
       </aside>
     {/if}
 
-    <main class="bg-base-100 p-4 space-y-4">
+    <main class="bg-base-100 p-4 space-y-4 w-full">
       {@render children?.()}
     </main>
 
@@ -44,7 +40,7 @@
   </div>
 
   {#if footer}
-    <footer class="bg-base-300 text-base-content p-4">
+    <footer class="bg-base-300 text-base-content">
       {@render footer()}
     </footer>
   {/if}
