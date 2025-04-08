@@ -16,11 +16,10 @@
     .join("_");
 </script>
 
-<!-- https://www.skeleton.dev/docs/guides/layouts -->
-<div class="grid min-h-screen grid-rows-[auto_1fr_auto]">
+<div>
   {#if header}
     <header
-      class="sticky top-0 z-10 bg-base-300/80 text-base-content backdrop-blur-sm p-4"
+      class="sticky top-0 z-10 bg-base-300/80 text-base-content backdrop-blur-sm"
     >
       {@render header()}
     </header>

@@ -1,5 +1,5 @@
 [serve.static]
-plugins = ["./src/plugins/markdown", "bun-plugin-svelte", "bun-plugin-tailwind"]
+plugins = ["./src/plugins/markdown", "bun-plugin-svelte"]
 
 [test]
 preload = ["./src/scripts/test.ts"]
