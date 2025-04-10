@@ -23,14 +23,13 @@
           A lean way to dev, build and deploy a web app
         </h1>
         <p class="text-2xl">
-          Built with <a class="underline font-bold" href="https://bun.sh">Bun</a
-          >,
+          Built with <a class="underline font-bold" href="https://bun.sh"
+          >Bun</a>,
           <a class="underline font-bold" href="https://go.dev">Go</a>,
           <a class="underline font-bold" href="https://svelte.dev">Svelte</a>,
           <a class="underline font-bold" href="https://sqlite.org">Sqlite</a>,
           <a class="underline font-bold" href="https://tailwindcss.com"
-            >Tailwind</a
-          >,
+          >Tailwind</a>,
           <a class="underline font-bold" href="https://daisyui.com">DaisyUI</a>
         </p>
         <button class="btn btn-primary">Get Started</button>
@@ -44,13 +43,13 @@
         Explore the Features
       </div>
       <div class="mt-4 text-xl font-bold">
-        And try them on this <span class="underline">fully functional demo</span
-        >
+        And try them on this <span class="underline"
+        >fully functional demo</span>
       </div>
     </div>
 
     <div class="flex flex-wrap justify-center gap-4 max-w-4xl">
-      {#each { length: 6 }, i}
+      {#each { length: 6 } as _, i}
         <div class="card bg-base-100 w-64 shadow-sm">
           <figure class="pt-6">
             <Icon src={Cog6Tooth} class="h-16" />
@@ -73,12 +72,14 @@
       <div class="hero-content flex-col lg:flex-row">
         <img
           src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-          class="max-w-sm rounded-lg shadow-2xl" alt="spiderman"
+          class="max-w-sm rounded-lg shadow-2xl"
+          alt="spiderman"
         />
         <div>
           <h1 class="text-5xl font-bold">See it in action</h1>
           <p class="py-6">
             Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
             a id nisi.
           </p>
           <button class="btn btn-primary">Get Started</button>
