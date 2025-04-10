@@ -2,6 +2,7 @@
   import type { Snippet } from "svelte";
 
   interface Props {
+    class?: string;
     asideL?: Snippet;
     asideR?: Snippet;
     header?: Snippet;
@@ -9,10 +10,11 @@
     footer?: Snippet;
   }
 
-  let { asideL, asideR, children, header, footer }: Props = $props();
+  let { asideL, asideR, children, class: cls, header, footer }: Props =
+    $props();
 </script>
 
-<div>
+<div class={cls}>
   {#if header}
     <header
       class="sticky top-0 z-10 bg-base-300/80 text-base-content backdrop-blur-sm"
@@ -28,7 +30,7 @@
       </aside>
     {/if}
 
-    <main class="bg-base-100 p-4 space-y-4 w-full min-h-[calc(100vh-8rem)]">
+    <main class="bg-base-100 p-4 space-y-4 w-full flex flex-col items-center">
       {@render children?.()}
     </main>
 
