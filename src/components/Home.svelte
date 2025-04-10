@@ -11,10 +11,6 @@
     <Header />
   {/snippet}
 
-  <!-- {#snippet asideL()}
-    <div class="">aside left</div>
-  {/snippet} -->
-
   <div class="text-base-content space-y-4 flex flex-col items-center">
     <div class="hero bg-base-200 min-h-[60vh]">
       <div class="hero-content text-center space-y-6 flex flex-col">
@@ -77,7 +73,7 @@
       <div class="hero-content flex-col lg:flex-row">
         <img
           src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-          class="max-w-sm rounded-lg shadow-2xl"
+          class="max-w-sm rounded-lg shadow-2xl" alt="spiderman"
         />
         <div>
           <h1 class="text-5xl font-bold">See it in action</h1>
@@ -91,10 +87,6 @@
       </div>
     </div>
   </div>
-
-  <!-- {#snippet asideR()}
-    <div class="">aside right</div>
-  {/snippet} -->
 
   {#snippet footer()}
     <Footer />
