@@ -2,6 +2,7 @@
   import type { Snippet } from "svelte";
 
   interface Props {
+    class?: string;
     asideL?: Snippet;
     asideR?: Snippet;
     header?: Snippet;
@@ -9,31 +10,27 @@
     footer?: Snippet;
   }
 
-  let { asideL, asideR, children, header, footer }: Props = $props();
-
-  let cols = [asideL && "auto", "1fr", asideR && "auto"]
-    .filter(Boolean)
-    .join("_");
+  let { asideL, asideR, children, class: cls, header, footer }: Props =
+    $props();
 </script>
 
-<!-- https://www.skeleton.dev/docs/guides/layouts -->
-<div class="grid min-h-screen grid-rows-[auto_1fr_auto]">
+<div class={cls}>
   {#if header}
     <header
-      class="sticky top-0 z-10 bg-base-300/80 text-base-content backdrop-blur-sm p-4"
+      class="sticky top-0 z-10 bg-base-300/80 text-base-content backdrop-blur-sm"
     >
       {@render header()}
     </header>
   {/if}
 
-  <div class={`grid grid-cols-1 md:grid-cols-[${cols}]`}>
+  <div class="flex flex-grow justify-end overflow-scroll flex-col lg:flex-row">
     {#if asideL}
       <aside class="bg-base-200 text-base-content p-4">
         {@render asideL()}
       </aside>
     {/if}
 
-    <main class="bg-base-100 p-4 space-y-4">
+    <main class="bg-base-100 p-4 space-y-4 w-full flex flex-col items-center">
       {@render children?.()}
     </main>
 
@@ -45,7 +42,7 @@
   </div>
 
   {#if footer}
-    <footer class="bg-base-300 text-base-content p-4">
+    <footer class="bg-base-300 text-base-content">
       {@render footer()}
     </footer>
   {/if}
