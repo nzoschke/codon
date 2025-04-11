@@ -14,7 +14,8 @@ layers of cruft.
 ## Quick start
 
 ```bash
-brew install deno go oven-sh/bun/bun
+brew install deno go oven-sh/bun/bun sqlc
+go install github.com/nzoschke/toolbelt/sqlc-gen-zombiezen@0290744
 go generate ./...
 go build -o app cmd/app/main.go
 ./app
