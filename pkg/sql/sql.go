@@ -2,5 +2,7 @@ package sql
 
 import "embed"
 
-//go:embed *.sql **/*.sql
+//go:embed **/*.sql
 var SQL embed.FS
+
+//go:generate ./sqlc.sh

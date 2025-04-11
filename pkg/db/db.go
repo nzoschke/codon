@@ -37,11 +37,11 @@ func New(ctx context.Context, path string) (DB, error) {
 }
 
 func (d *DB) Exec(ctx context.Context, query string, args []any, fn func(stmt *sqlite.Stmt) error) error {
-	conn, err := d.pool.Take(ctx)
+	conn, put, err := d.Take(ctx)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer d.pool.Put(conn)
+	defer put()
 
 	err = sqlitex.ExecuteTransient(conn,
 		query,
@@ -57,11 +57,11 @@ func (d *DB) Exec(ctx context.Context, query string, args []any, fn func(stmt *s
 }
 
 func (d *DB) Schema(ctx context.Context) ([]string, error) {
-	conn, err := d.pool.Take(ctx)
+	conn, put, err := d.Take(ctx)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer d.pool.Put(conn)
+	defer put()
 
 	tables := []string{}
 	if err := sqlitex.ExecuteTransient(conn,
@@ -79,12 +79,26 @@ func (d *DB) Schema(ctx context.Context) ([]string, error) {
 	return tables, nil
 }
 
-func (d *DB) Version(ctx context.Context) (string, error) {
+func (d *DB) Take(ctx context.Context) (*sqlite.Conn, func(), error) {
 	conn, err := d.pool.Take(ctx)
+
+	if err != nil {
+		return nil, nil, errors.WithStack(err)
+	}
+
+	f := func() {
+		d.pool.Put(conn)
+	}
+
+	return conn, f, nil
+}
+
+func (d *DB) Version(ctx context.Context) (string, error) {
+	conn, put, err := d.Take(ctx)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
-	defer d.pool.Put(conn)
+	defer put()
 
 	version := ""
 	if err := sqlitex.ExecuteTransient(conn,
