@@ -36,7 +36,8 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	log.SetDefault(getenv, stdout)
 	slog.Debug("run", "args", args)
 
-	if err := db.New(ctx); err != nil {
+	_, err := db.New(ctx, "codon.sqlite")
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
