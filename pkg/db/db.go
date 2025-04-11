@@ -36,6 +36,26 @@ func New(ctx context.Context, path string) (DB, error) {
 	return db, nil
 }
 
+func (d *DB) Exec(ctx context.Context, query string, args []any, fn func(stmt *sqlite.Stmt) error) error {
+	conn, err := d.pool.Take(ctx)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer d.pool.Put(conn)
+
+	err = sqlitex.ExecuteTransient(conn,
+		query,
+		&sqlitex.ExecOptions{
+			Args:       args,
+			ResultFunc: fn,
+		})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
 func (d *DB) Schema(ctx context.Context) ([]string, error) {
 	conn, err := d.pool.Take(ctx)
 	if err != nil {
