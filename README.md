@@ -16,8 +16,12 @@ layers of cruft.
 ```bash
 brew install deno go oven-sh/bun/bun sqlc
 go install github.com/nzoschke/toolbelt/sqlc-gen-zombiezen@0290744
+go install github.com/mitranim/gow@latest
+
 go generate ./...
+go test -v ./...
 go build -o app cmd/app/main.go
+
 ./app
 open http://localhost:1234
 ```
@@ -27,7 +31,7 @@ open http://localhost:1234
 ### Go
 
 ```bash
-go tool gow run cmd/app/main.go -dev
+gow run cmd/app/main.go -dev
 ```
 
 To test:
