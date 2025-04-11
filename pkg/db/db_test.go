@@ -61,13 +61,13 @@ func TestCRUD(t *testing.T) {
 	})
 	a.NoError(err)
 
-	found := false
+	exists := false
 	err = db.Exec(ctx, "SELECT email, name FROM users WHERE name = ?", []any{"user"}, func(stmt *sqlite.Stmt) error {
-		found = true
+		exists = true
 		return nil
 	})
 	a.NoError(err)
-	a.False(found)
+	a.False(exists)
 }
 
 func TestMigrate(t *testing.T) {
