@@ -13,25 +13,10 @@ import (
 
 	"github.com/nzoschke/codon/pkg/run"
 	"github.com/nzoschke/codon/pkg/sql/q"
-	"github.com/olekukonko/errors"
 	"github.com/stretchr/testify/assert"
 )
 
 var reISO8601 = regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z`)
-
-func TestHealth(t *testing.T) {
-	ctx := t.Context()
-	ctx, cancel := context.WithCancel(ctx)
-	t.Cleanup(cancel)
-
-	a := assert.New(t)
-
-	port := "11234"
-	go run.Run(ctx, []string{"test", "-db", "file::memory:?mode=memory&cache=shared", "-port", port}, func(string) string { return "DEBUG" }, os.Stdout)
-
-	err := waitForHealth(ctx, 100*time.Millisecond, port)
-	a.NoError(err)
-}
 
 func TestUser(t *testing.T) {
 	ctx := t.Context()
@@ -42,8 +27,7 @@ func TestUser(t *testing.T) {
 
 	port := "11234"
 	go run.Run(ctx, []string{"test", "-db", "file::memory:?mode=memory&cache=shared", "-port", port}, func(string) string { return "DEBUG" }, os.Stdout)
-
-	err := waitForHealth(ctx, 100*time.Millisecond, port)
+	err := run.Health(ctx, 100*time.Millisecond, port)
 	a.NoError(err)
 
 	tests := []struct {
@@ -58,13 +42,44 @@ func TestUser(t *testing.T) {
 				Name:  "user",
 			},
 			want: q.UserCreateRes{
-				CreatedAt: epoch(),
+				CreatedAt: timeAny(),
 				Email:     "user@example.com",
 				Id:        1,
 				Name:      "user",
 			},
 			method: http.MethodPost,
 			path:   "/api/users",
+		},
+		{
+			in: nil,
+			want: q.UserCreateRes{
+				CreatedAt: timeAny(),
+				Email:     "user@example.com",
+				Id:        1,
+				Name:      "user",
+			},
+			method: http.MethodGet,
+			path:   "/api/users/1",
+		},
+		{
+			in: q.UserUpdateParams{
+				Email: "user@new.com",
+				Name:  "user",
+			},
+			want: q.UserReadRes{
+				CreatedAt: timeAny(),
+				Email:     "user@new.com",
+				Id:        1,
+				Name:      "user",
+			},
+			method: http.MethodPut,
+			path:   "/api/users/1",
+		},
+		{
+			in:     nil,
+			want:   nil,
+			method: http.MethodDelete,
+			path:   "/api/users/1",
 		},
 	}
 
@@ -88,7 +103,7 @@ func TestUser(t *testing.T) {
 	}
 }
 
-func epoch() *time.Time {
+func timeAny() *time.Time {
 	t := time.Unix(0, 0).UTC()
 	return &t
 }
@@ -101,37 +116,9 @@ func JSONEq(a *assert.Assertions, expected any, actual any) {
 	a.NoError(err)
 
 	// replace all ISO 8601 UTC strings (eg "2025-04-12T16:25:32Z") with "1970-01-01T00:00:00Z"
-	e := *epoch()
-	be = reISO8601.ReplaceAll(be, []byte(e.Format("2006-01-02T15:04:05.999Z")))
-	ba = reISO8601.ReplaceAll(ba, []byte(e.Format("2006-01-02T15:04:05.999Z")))
+	t := *timeAny()
+	be = reISO8601.ReplaceAll(be, []byte(t.Format("2006-01-02T15:04:05.999Z")))
+	ba = reISO8601.ReplaceAll(ba, []byte(t.Format("2006-01-02T15:04:05.999Z")))
 
 	a.JSONEq(string(be), string(ba))
-}
-
-func waitForHealth(ctx context.Context, timeout time.Duration, port string) error {
-	client := http.Client{}
-	startTime := time.Now().UTC()
-	for {
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		res, err := client.Do(req)
-		if err == nil && res.StatusCode == http.StatusOK {
-			res.Body.Close()
-			return nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			if time.Since(startTime) >= timeout {
-				return fmt.Errorf("timeout reached while waiting for endpoint")
-			}
-
-			time.Sleep(25 * time.Millisecond)
-		}
-	}
 }

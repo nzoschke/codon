@@ -1,9 +1,10 @@
-package db
+package db_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/nzoschke/codon/pkg/db"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 	"zombiezen.com/go/sqlite"
@@ -18,7 +19,7 @@ func TestCRUDExec(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
-	db, err := New(ctx, "file::memory:?mode=memory&cache=shared")
+	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
 	a.NoError(err)
 
 	// create
@@ -76,7 +77,7 @@ func TestCRUDQ(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
-	db, err := New(ctx, "file::memory:?mode=memory&cache=shared")
+	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
 	a.NoError(err)
 
 	conn, put, err := db.Take(ctx)
@@ -137,7 +138,7 @@ func TestMigrate(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
-	db, err := New(ctx, "file::memory:?mode=memory&cache=shared")
+	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
 	a.NoError(err)
 
 	v, err := db.Version(ctx)
