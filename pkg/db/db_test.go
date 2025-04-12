@@ -2,6 +2,7 @@ package db
 
 import (
 	"testing"
+	"time"
 
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
@@ -87,6 +88,8 @@ func TestCRUDQ(t *testing.T) {
 		Name:  "user",
 	})
 	a.NoError(err)
+
+	a.Equal(time.Now().Format("2006-01-02"), out.CreatedAt.Format("2006-01-02"))
 
 	a.Equal(&q.UserCreateRes{
 		CreatedAt: out.CreatedAt,
