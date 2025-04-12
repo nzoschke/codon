@@ -21,6 +21,10 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 
 	dist(e, dev)
 
+	e.GET("/health", func(c echo.Context) error {
+		return c.String(http.StatusOK, "ok")
+	})
+
 	api := e.Group("/api")
 	users(api, db)
 
