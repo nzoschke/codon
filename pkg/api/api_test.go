@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"testing"
 	"time"
 
@@ -15,6 +16,8 @@ import (
 	"github.com/olekukonko/errors"
 	"github.com/stretchr/testify/assert"
 )
+
+var reISO8601 = regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z`)
 
 func TestHealth(t *testing.T) {
 	ctx := t.Context()
@@ -43,42 +46,80 @@ func TestUser(t *testing.T) {
 	err := waitForHealth(ctx, 100*time.Millisecond, port)
 	a.NoError(err)
 
-	bs, err := json.Marshal(q.UserCreateParams{
-		Email: "foo@bar.com",
-		Name:  "user",
-	})
+	tests := []struct {
+		in     any
+		want   any
+		method string
+		path   string
+	}{
+		{
+			in: q.UserCreateParams{
+				Email: "user@example.com",
+				Name:  "user",
+			},
+			want: q.UserCreateRes{
+				CreatedAt: epoch(),
+				Email:     "user@example.com",
+				Id:        1,
+				Name:      "user",
+			},
+			method: http.MethodPost,
+			path:   "/api/users",
+		},
+	}
+
+	for _, test := range tests {
+		bs, err := json.Marshal(test.in)
+		a.NoError(err)
+
+		req, err := http.NewRequestWithContext(ctx, test.method, fmt.Sprintf("http://localhost:%s%s", port, test.path), bytes.NewBuffer(bs))
+		a.NoError(err)
+		req.Header.Add("Content-Type", "application/json")
+
+		res, err := http.DefaultClient.Do(req)
+		a.NoError(err)
+
+		got := test.want
+		err = json.NewDecoder(res.Body).Decode(&got)
+		a.NoError(err)
+		defer res.Body.Close()
+
+		JSONEq(a, test.want, got)
+	}
+}
+
+func epoch() *time.Time {
+	t := time.Unix(0, 0).UTC()
+	return &t
+}
+
+func JSONEq(a *assert.Assertions, expected any, actual any) {
+	be, err := json.Marshal(expected)
 	a.NoError(err)
 
-	res, err := http.Post(fmt.Sprintf("http://localhost:%s/api/users", port), "application/json", bytes.NewBuffer(bs))
+	ba, err := json.Marshal(actual)
 	a.NoError(err)
 
-	out := q.UserCreateRes{}
-	err = json.NewDecoder(res.Body).Decode(&out)
-	a.NoError(err)
-	defer res.Body.Close()
+	// replace all ISO 8601 UTC strings (eg "2025-04-12T16:25:32Z") with "1970-01-01T00:00:00Z"
+	e := *epoch()
+	be = reISO8601.ReplaceAll(be, []byte(e.Format("2006-01-02T15:04:05.999Z")))
+	ba = reISO8601.ReplaceAll(ba, []byte(e.Format("2006-01-02T15:04:05.999Z")))
 
-	a.Equal(time.Now().Format("2006-01-02"), out.CreatedAt.Format("2006-01-02"))
-
-	a.Equal(q.UserCreateRes{
-		CreatedAt: out.CreatedAt,
-		Email:     "foo@bar.com",
-		Id:        1,
-		Name:      "user",
-	}, out)
+	a.JSONEq(string(be), string(ba))
 }
 
 func waitForHealth(ctx context.Context, timeout time.Duration, port string) error {
 	client := http.Client{}
-	startTime := time.Now()
+	startTime := time.Now().UTC()
 	for {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 
-		resp, err := client.Do(req)
-		if err == nil && resp.StatusCode == http.StatusOK {
-			resp.Body.Close()
+		res, err := client.Do(req)
+		if err == nil && res.StatusCode == http.StatusOK {
+			res.Body.Close()
 			return nil
 		}
 

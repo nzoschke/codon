@@ -14,7 +14,7 @@ type User struct {
 	Name  string
 }
 
-func TestCRUD(t *testing.T) {
+func TestCRUDExec(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
