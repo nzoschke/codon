@@ -26,6 +26,12 @@ go build -o app cmd/app/main.go
 open http://localhost:1234
 ```
 
+```bash
+curl -d '{"email":"user@example.com","name":"user"}' -H "Content-Type: application/json" http://localhost:1234/api/users
+
+{"created_at":"2025-04-12T14:55:20Z","email":"user@example.com","id":1,"name":"user"}
+```
+
 ## Development
 
 ### Go
