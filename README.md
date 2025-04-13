@@ -37,7 +37,7 @@ curl -d '{"email":"user@example.com","name":"user"}' -H "Content-Type: applicati
 ### Go
 
 ```bash
-gow run cmd/app/main.go -dev
+gow -v run cmd/app/main.go -dev
 ```
 
 To test:
