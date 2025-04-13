@@ -3,8 +3,10 @@ import Doc from "~/src/components/Doc.svelte";
 import Gallery from "~/src/components/Gallery.svelte";
 import Home from "~/src/components/Home.svelte";
 import { type Route } from "~/src/components/Router.svelte";
+import contacts from "~/src/components/contacts/routes";
 
-export const routes: Route[] = [
+export default [
+  ...contacts,
   {
     component: Home,
     hash: "#/",
@@ -21,4 +23,4 @@ export const routes: Route[] = [
     component: Gallery,
     hash: "#/gallery",
   },
-];
+] satisfies Route[];
