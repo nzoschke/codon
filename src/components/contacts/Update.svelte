@@ -68,9 +68,11 @@
         </fieldset>
 
         <div class="justify-end card-actions">
-          <a class="btn btn-warning" href="?id={contact.id}#/contacts/read"
+          <a
+            class="btn btn-warning btn-soft"
+            href="?id={contact.id}#/contacts/read"
           >Cancel</a>
-          <button class="btn btn-primary" type="submit">Update</button>
+          <button class="btn btn-success" type="submit">Update</button>
         </div>
       </div>
     </form>

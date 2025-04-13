@@ -19,7 +19,7 @@
   {/snippet}
 
   <div class="toast">
-    <a class="btn btn-accent" href="#/contacts/create">New Contact</a>
+    <a class="btn btn-info" href="#/contacts/create">Create Contact</a>
   </div>
 
   <div class="overflow-x-auto">

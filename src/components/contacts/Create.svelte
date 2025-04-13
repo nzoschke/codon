@@ -57,8 +57,8 @@
         </fieldset>
 
         <div class="justify-end card-actions">
-          <a class="btn btn-warning" href="#/contacts">Cancel</a>
-          <button class="btn btn-primary" type="submit">Create</button>
+          <a class="btn btn-warning btn-soft" href="#/contacts">Cancel</a>
+          <button class="btn btn-success" type="submit">Create</button>
         </div>
       </div>
     </form>
