@@ -27,9 +27,9 @@ func TestCRUD(t *testing.T) {
 	a.NoError(err)
 
 	// list
-	users := []Contact{}
+	rows := []Contact{}
 	err = db.Exec(ctx, "SELECT email, id, name FROM contacts", nil, func(stmt *sqlite.Stmt) error {
-		users = append(users, Contact{
+		rows = append(rows, Contact{
 			Email: stmt.ColumnText(0),
 			ID:    stmt.ColumnInt(1),
 			Name:  stmt.ColumnText(2),
@@ -42,12 +42,12 @@ func TestCRUD(t *testing.T) {
 		Email: "a@example.com",
 		ID:    1,
 		Name:  "Ann",
-	}}, users)
+	}}, rows)
 
 	// read
-	user := Contact{}
+	row := Contact{}
 	err = db.Exec(ctx, "SELECT email, id, name FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
-		user = Contact{
+		row = Contact{
 			Email: stmt.ColumnText(0),
 			ID:    stmt.ColumnInt(1),
 			Name:  stmt.ColumnText(2),
@@ -60,7 +60,7 @@ func TestCRUD(t *testing.T) {
 		Email: "a@example.com",
 		ID:    1,
 		Name:  "Ann",
-	}, user)
+	}, row)
 
 	// delete
 	err = db.Exec(ctx, "DELETE FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {

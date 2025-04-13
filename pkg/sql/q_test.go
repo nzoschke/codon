@@ -22,32 +22,32 @@ func TestCRUD(t *testing.T) {
 	a.NoError(err)
 	defer put()
 
-	out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+	res, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
 		Email: "a@example.com",
 		Name:  "Ann",
 	})
 	a.NoError(err)
 
-	a.Equal(time.Now().Format("2006-01-02"), out.CreatedAt.Format("2006-01-02"))
+	a.Equal(time.Now().Format("2006-01-02"), res.CreatedAt.Format("2006-01-02"))
 
 	a.Equal(&q.ContactCreateRes{
-		CreatedAt: out.CreatedAt,
+		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
-		UpdatedAt: out.UpdatedAt,
-	}, out)
+		UpdatedAt: res.UpdatedAt,
+	}, res)
 
-	rout, err := q.ContactRead(conn).Run(1)
+	rres, err := q.ContactRead(conn).Run(1)
 	a.NoError(err)
 
 	a.Equal(&q.ContactReadRes{
-		CreatedAt: out.CreatedAt,
+		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
-		UpdatedAt: out.UpdatedAt,
-	}, rout)
+		UpdatedAt: res.UpdatedAt,
+	}, rres)
 
 	// wait for CURRENT_TIMESTAMP to advance
 	time.Sleep(2 * time.Second)
@@ -59,25 +59,25 @@ func TestCRUD(t *testing.T) {
 	})
 	a.NoError(err)
 
-	rout, err = q.ContactRead(conn).Run(1)
+	rres, err = q.ContactRead(conn).Run(1)
 	a.NoError(err)
 
 	a.Equal(&q.ContactReadRes{
-		CreatedAt: rout.CreatedAt,
+		CreatedAt: rres.CreatedAt,
 		Email:     "a@new.com",
 		Id:        1,
 		Name:      "Ann",
-		UpdatedAt: rout.UpdatedAt,
-	}, rout)
+		UpdatedAt: rres.UpdatedAt,
+	}, rres)
 
-	a.True(rout.UpdatedAt.After(out.UpdatedAt))
+	a.True(rres.UpdatedAt.After(res.UpdatedAt))
 
 	err = q.ContactDelete(conn).Run(1)
 	a.NoError(err)
 
-	rout, err = q.ContactRead(conn).Run(1)
+	rres, err = q.ContactRead(conn).Run(1)
 	a.NoError(err)
-	a.Nil(rout)
+	a.Nil(rres)
 }
 
 func TestJSON(t *testing.T) {
