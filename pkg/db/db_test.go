@@ -11,6 +11,7 @@ import (
 )
 
 type Contact struct {
+	ID    int
 	Email string
 	Name  string
 }
@@ -23,49 +24,53 @@ func TestCRUDExec(t *testing.T) {
 	a.NoError(err)
 
 	// create
-	err = db.Exec(ctx, "INSERT INTO contacts (email, name) VALUES (?, ?)", []any{"user@example.com", "user"}, nil)
+	err = db.Exec(ctx, "INSERT INTO contacts (email, name) VALUES (?, ?)", []any{"a@example.com", "Ann"}, nil)
 	a.NoError(err)
 
 	// list
 	users := []Contact{}
-	err = db.Exec(ctx, "SELECT email, name FROM contacts", nil, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "SELECT email, id, name FROM contacts", nil, func(stmt *sqlite.Stmt) error {
 		users = append(users, Contact{
 			Email: stmt.ColumnText(0),
-			Name:  stmt.ColumnText(1),
+			ID:    stmt.ColumnInt(1),
+			Name:  stmt.ColumnText(2),
 		})
 		return nil
 	})
 	a.NoError(err)
 
 	a.Equal([]Contact{{
-		Email: "user@example.com",
-		Name:  "user",
+		Email: "a@example.com",
+		ID:    1,
+		Name:  "Ann",
 	}}, users)
 
 	// read
 	user := Contact{}
-	err = db.Exec(ctx, "SELECT email, name FROM contacts WHERE name = ?", []any{"user"}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "SELECT email, id, name FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		user = Contact{
 			Email: stmt.ColumnText(0),
-			Name:  stmt.ColumnText(1),
+			ID:    stmt.ColumnInt(1),
+			Name:  stmt.ColumnText(2),
 		}
 		return nil
 	})
 	a.NoError(err)
 
 	a.Equal(Contact{
-		Email: "user@example.com",
-		Name:  "user",
+		Email: "a@example.com",
+		ID:    1,
+		Name:  "Ann",
 	}, user)
 
 	// delete
-	err = db.Exec(ctx, "DELETE FROM contacts WHERE name = ?", []any{"user"}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "DELETE FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		return nil
 	})
 	a.NoError(err)
 
 	exists := false
-	err = db.Exec(ctx, "SELECT email, name FROM contacts WHERE name = ?", []any{"user"}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "SELECT id FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		exists = true
 		return nil
 	})
@@ -85,8 +90,8 @@ func TestCRUDQ(t *testing.T) {
 	defer put()
 
 	out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
-		Email: db.P("user@example.com"),
-		Name:  "user",
+		Email: db.P("a@example.com"),
+		Name:  "Ann",
 	})
 	a.NoError(err)
 
@@ -94,9 +99,9 @@ func TestCRUDQ(t *testing.T) {
 
 	a.Equal(&q.ContactCreateRes{
 		CreatedAt: out.CreatedAt,
-		Email:     db.P("user@example.com"),
+		Email:     db.P("a@example.com"),
 		Id:        1,
-		Name:      "user",
+		Name:      "Ann",
 	}, out)
 
 	rout, err := q.ContactRead(conn).Run(1)
@@ -104,14 +109,14 @@ func TestCRUDQ(t *testing.T) {
 
 	a.Equal(&q.ContactReadRes{
 		CreatedAt: out.CreatedAt,
-		Email:     db.P("user@example.com"),
+		Email:     db.P("a@example.com"),
 		Id:        1,
-		Name:      "user",
+		Name:      "Ann",
 	}, rout)
 
 	err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
-		Email: db.P("user@new.com"),
-		Name:  "user",
+		Email: db.P("a@new.com"),
+		Name:  "Ann",
 		Id:    1,
 	})
 	a.NoError(err)
@@ -121,9 +126,9 @@ func TestCRUDQ(t *testing.T) {
 
 	a.Equal(&q.ContactReadRes{
 		CreatedAt: out.CreatedAt,
-		Email:     db.P("user@new.com"),
+		Email:     db.P("a@new.com"),
 		Id:        1,
-		Name:      "user",
+		Name:      "Ann",
 	}, rout)
 
 	err = q.ContactDelete(conn).Run(1)

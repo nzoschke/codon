@@ -39,14 +39,14 @@ func TestUser(t *testing.T) {
 	}{
 		{
 			in: q.ContactCreateParams{
-				Email: db.P("user@example.com"),
-				Name:  "user",
+				Email: db.P("a@example.com"),
+				Name:  "Ann",
 			},
 			want: q.ContactCreateRes{
 				CreatedAt: timeAny(),
-				Email:     db.P("user@example.com"),
+				Email:     db.P("a@example.com"),
 				Id:        1,
-				Name:      "user",
+				Name:      "Ann",
 			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
@@ -55,23 +55,23 @@ func TestUser(t *testing.T) {
 			in: nil,
 			want: q.ContactCreateRes{
 				CreatedAt: timeAny(),
-				Email:     db.P("user@example.com"),
+				Email:     db.P("a@example.com"),
 				Id:        1,
-				Name:      "user",
+				Name:      "Ann",
 			},
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
 		},
 		{
 			in: q.ContactUpdateParams{
-				Email: db.P("user@new.com"),
-				Name:  "user",
+				Email: db.P("a@new.com"),
+				Name:  "Ann",
 			},
 			want: q.ContactReadRes{
 				CreatedAt: timeAny(),
-				Email:     db.P("user@new.com"),
+				Email:     db.P("a@new.com"),
 				Id:        1,
-				Name:      "user",
+				Name:      "Ann",
 			},
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
