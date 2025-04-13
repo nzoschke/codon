@@ -45,11 +45,10 @@ func TestUser(t *testing.T) {
 			method: http.MethodPost,
 			path:   "/api/contacts",
 			want: models.Contact{
-				CreatedAt: timeAny(),
-				Email:     "a@example.com",
-				Id:        1,
-				Meta:      map[string]any{},
-				Name:      "Ann",
+				Email: "a@example.com",
+				Id:    1,
+				Meta:  map[string]any{},
+				Name:  "Ann",
 			},
 		},
 		{
@@ -57,11 +56,10 @@ func TestUser(t *testing.T) {
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
 			want: models.Contact{
-				CreatedAt: timeAny(),
-				Email:     "a@example.com",
-				Id:        1,
-				Meta:      map[string]any{},
-				Name:      "Ann",
+				Email: "a@example.com",
+				Id:    1,
+				Meta:  map[string]any{},
+				Name:  "Ann",
 			},
 		},
 		{
@@ -72,11 +70,10 @@ func TestUser(t *testing.T) {
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
 			want: models.Contact{
-				CreatedAt: timeAny(),
-				Email:     "a@new.com",
-				Id:        1,
-				Meta:      map[string]any{},
-				Name:      "Ann",
+				Email: "a@new.com",
+				Id:    1,
+				Meta:  map[string]any{},
+				Name:  "Ann",
 			},
 		},
 		{
