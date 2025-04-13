@@ -10,18 +10,18 @@ export interface ContactAgeStmt {
 // source: contact_create.go
 
 export interface ContactCreateRes {
-  created_at?: string /* RFC3339 */;
-  email?: string;
+  created_at: string /* RFC3339 */;
+  email: string;
   id: number /* int64 */;
-  meta?: string;
+  meta: string;
   name: string;
-  phone?: string;
+  phone: string;
 }
 export interface ContactCreateParams {
-  email?: string;
-  meta?: string;
+  email: string;
+  meta: string;
   name: string;
-  phone?: string;
+  phone: string;
 }
 export interface ContactCreateStmt {
 }
@@ -36,12 +36,12 @@ export interface ContactDeleteStmt {
 // source: contact_list.go
 
 export interface ContactListRes {
-  created_at?: string /* RFC3339 */;
-  email?: string;
+  created_at: string /* RFC3339 */;
+  email: string;
   id: number /* int64 */;
-  meta?: string;
+  meta: string;
   name: string;
-  phone?: string;
+  phone: string;
 }
 export interface ContactListStmt {
 }
@@ -50,12 +50,12 @@ export interface ContactListStmt {
 // source: contact_read.go
 
 export interface ContactReadRes {
-  created_at?: string /* RFC3339 */;
-  email?: string;
+  created_at: string /* RFC3339 */;
+  email: string;
   id: number /* int64 */;
-  meta?: string;
+  meta: string;
   name: string;
-  phone?: string;
+  phone: string;
 }
 export interface ContactReadStmt {
 }
@@ -64,10 +64,10 @@ export interface ContactReadStmt {
 // source: contact_update.go
 
 export interface ContactUpdateParams {
-  email?: string;
-  meta?: string;
+  email: string;
+  meta: string;
   name: string;
-  phone?: string;
+  phone: string;
   id: number /* int64 */;
 }
 export interface ContactUpdateStmt {

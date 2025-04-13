@@ -23,7 +23,7 @@ func TestCRUD(t *testing.T) {
 	a.NoError(err)
 
 	// create
-	err = db.Exec(ctx, "INSERT INTO contacts (email, name) VALUES (?, ?)", []any{"a@example.com", "Ann"}, nil)
+	err = db.Exec(ctx, "INSERT INTO contacts (email, meta, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", []byte("{}"), "Ann", ""}, nil)
 	a.NoError(err)
 
 	// list
@@ -90,7 +90,7 @@ func TestJSON(t *testing.T) {
 	bs, err := json.Marshal(meta)
 	a.NoError(err)
 
-	err = db.Exec(ctx, "INSERT INTO contacts (name, meta) VALUES (?, ?)", []any{"Ann", bs}, nil)
+	err = db.Exec(ctx, "INSERT INTO contacts (email, meta, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", bs, "Ann", ""}, nil)
 	a.NoError(err)
 
 	bs = []byte{}

@@ -10,12 +10,12 @@ import (
 )
 
 type ContactReadRes struct {
-	CreatedAt *time.Time `json:"created_at"`
-	Email     *string    `json:"email"`
-	Id        int64      `json:"id"`
-	Meta      *[]byte    `json:"meta"`
-	Name      string     `json:"name"`
-	Phone     *string    `json:"phone"`
+	CreatedAt time.Time `json:"created_at"`
+	Email     string    `json:"email"`
+	Id        int64     `json:"id"`
+	Meta      []byte    `json:"meta"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
 }
 
 type ContactReadStmt struct {
@@ -54,28 +54,12 @@ func (ps *ContactReadStmt) Run(
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
 		row := ContactReadRes{}
-		isNullCreatedAt := ps.stmt.ColumnIsNull(0)
-		if !isNullCreatedAt {
-			tmp := JulianDayToTime(ps.stmt.ColumnFloat(0))
-			row.CreatedAt = &tmp
-		}
-		isNullEmail := ps.stmt.ColumnIsNull(1)
-		if !isNullEmail {
-			tmp := ps.stmt.ColumnText(1)
-			row.Email = &tmp
-		}
+		row.CreatedAt = JulianDayToTime(ps.stmt.ColumnFloat(0))
+		row.Email = ps.stmt.ColumnText(1)
 		row.Id = ps.stmt.ColumnInt64(2)
-		isNullMeta := ps.stmt.ColumnIsNull(3)
-		if !isNullMeta {
-			tmp := StmtBytesByCol(ps.stmt, 3)
-			row.Meta = &tmp
-		}
+		row.Meta = StmtBytesByCol(ps.stmt, 3)
 		row.Name = ps.stmt.ColumnText(4)
-		isNullPhone := ps.stmt.ColumnIsNull(5)
-		if !isNullPhone {
-			tmp := ps.stmt.ColumnText(5)
-			row.Phone = &tmp
-		}
+		row.Phone = ps.stmt.ColumnText(5)
 		res = &row
 	}
 

@@ -22,7 +22,7 @@ func TestCRUD(t *testing.T) {
 	defer put()
 
 	out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
-		Email: db.P("a@example.com"),
+		Email: "a@example.com",
 		Name:  "Ann",
 	})
 	a.NoError(err)
@@ -31,7 +31,7 @@ func TestCRUD(t *testing.T) {
 
 	a.Equal(&q.ContactCreateRes{
 		CreatedAt: out.CreatedAt,
-		Email:     db.P("a@example.com"),
+		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
 	}, out)
@@ -41,13 +41,13 @@ func TestCRUD(t *testing.T) {
 
 	a.Equal(&q.ContactReadRes{
 		CreatedAt: out.CreatedAt,
-		Email:     db.P("a@example.com"),
+		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
 	}, rout)
 
 	err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
-		Email: db.P("a@new.com"),
+		Email: "a@new.com",
 		Name:  "Ann",
 		Id:    1,
 	})
@@ -58,7 +58,7 @@ func TestCRUD(t *testing.T) {
 
 	a.Equal(&q.ContactReadRes{
 		CreatedAt: out.CreatedAt,
-		Email:     db.P("a@new.com"),
+		Email:     "a@new.com",
 		Id:        1,
 		Name:      "Ann",
 	}, rout)
@@ -90,17 +90,17 @@ func TestJSON(t *testing.T) {
 	a.NoError(err)
 
 	out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
-		Email: db.P("a@example.com"),
-		Meta:  db.P(bs),
+		Email: "a@example.com",
+		Meta:  bs,
 		Name:  "Ann",
 	})
 	a.NoError(err)
 
 	a.Equal(&q.ContactCreateRes{
 		CreatedAt: out.CreatedAt,
-		Email:     db.P("a@example.com"),
+		Email:     "a@example.com",
 		Id:        1,
-		Meta:      db.P([]byte(`{"age":21}`)),
+		Meta:      []byte(`{"age":21}`),
 		Name:      "Ann",
 	}, out)
 

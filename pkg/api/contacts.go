@@ -92,9 +92,9 @@ func contacts(g *echo.Group, d db.DB) {
 		defer put()
 
 		out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
-			Email: &in.Email,
+			Email: in.Email,
 			Name:  in.Name,
-			Phone: &in.Phone,
+			Phone: in.Phone,
 		})
 		if err != nil {
 			return errors.WithStack(err)
@@ -131,10 +131,10 @@ func contacts(g *echo.Group, d db.DB) {
 		defer put()
 
 		err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
-			Email: &in.Email,
+			Email: in.Email,
 			Id:    id,
 			Name:  in.Name,
-			Phone: &in.Phone,
+			Phone: in.Phone,
 		})
 		if err != nil {
 			return errors.WithStack(err)

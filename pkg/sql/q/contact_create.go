@@ -10,19 +10,19 @@ import (
 )
 
 type ContactCreateRes struct {
-	CreatedAt *time.Time `json:"created_at"`
-	Email     *string    `json:"email"`
-	Id        int64      `json:"id"`
-	Meta      *[]byte    `json:"meta"`
-	Name      string     `json:"name"`
-	Phone     *string    `json:"phone"`
+	CreatedAt time.Time `json:"created_at"`
+	Email     string    `json:"email"`
+	Id        int64     `json:"id"`
+	Meta      []byte    `json:"meta"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
 }
 
 type ContactCreateParams struct {
-	Email *string `json:"email"`
-	Meta  *[]byte `json:"meta"`
-	Name  string  `json:"name"`
-	Phone *string `json:"phone"`
+	Email string `json:"email"`
+	Meta  []byte `json:"meta"`
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
 }
 
 type ContactCreateStmt struct {
@@ -52,50 +52,22 @@ func (ps *ContactCreateStmt) Run(
 	defer ps.stmt.Reset()
 
 	// Bind parameters
-	if params.Email == nil {
-		ps.stmt.BindNull(1)
-	} else {
-		ps.stmt.BindText(1, *params.Email)
-	}
-	if params.Meta == nil {
-		ps.stmt.BindNull(2)
-	} else {
-		ps.stmt.BindBytes(2, *params.Meta)
-	}
+	ps.stmt.BindText(1, params.Email)
+	ps.stmt.BindBytes(2, params.Meta)
 	ps.stmt.BindText(3, params.Name)
-	if params.Phone == nil {
-		ps.stmt.BindNull(4)
-	} else {
-		ps.stmt.BindText(4, *params.Phone)
-	}
+	ps.stmt.BindText(4, params.Phone)
 
 	// Execute the query
 	if hasRow, err := ps.stmt.Step(); err != nil {
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
 		row := ContactCreateRes{}
-		isNullCreatedAt := ps.stmt.ColumnIsNull(0)
-		if !isNullCreatedAt {
-			tmp := JulianDayToTime(ps.stmt.ColumnFloat(0))
-			row.CreatedAt = &tmp
-		}
-		isNullEmail := ps.stmt.ColumnIsNull(1)
-		if !isNullEmail {
-			tmp := ps.stmt.ColumnText(1)
-			row.Email = &tmp
-		}
+		row.CreatedAt = JulianDayToTime(ps.stmt.ColumnFloat(0))
+		row.Email = ps.stmt.ColumnText(1)
 		row.Id = ps.stmt.ColumnInt64(2)
-		isNullMeta := ps.stmt.ColumnIsNull(3)
-		if !isNullMeta {
-			tmp := StmtBytesByCol(ps.stmt, 3)
-			row.Meta = &tmp
-		}
+		row.Meta = StmtBytesByCol(ps.stmt, 3)
 		row.Name = ps.stmt.ColumnText(4)
-		isNullPhone := ps.stmt.ColumnIsNull(5)
-		if !isNullPhone {
-			tmp := ps.stmt.ColumnText(5)
-			row.Phone = &tmp
-		}
+		row.Phone = ps.stmt.ColumnText(5)
 		res = &row
 	}
 

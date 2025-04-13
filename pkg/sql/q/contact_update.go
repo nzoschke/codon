@@ -8,11 +8,11 @@ import (
 )
 
 type ContactUpdateParams struct {
-	Email *string `json:"email"`
-	Meta  *[]byte `json:"meta"`
-	Name  string  `json:"name"`
-	Phone *string `json:"phone"`
-	Id    int64   `json:"id"`
+	Email string `json:"email"`
+	Meta  []byte `json:"meta"`
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
+	Id    int64  `json:"id"`
 }
 
 type ContactUpdateStmt struct {
@@ -44,22 +44,10 @@ func (ps *ContactUpdateStmt) Run(
 	defer ps.stmt.Reset()
 
 	// Bind parameters
-	if params.Email == nil {
-		ps.stmt.BindNull(1)
-	} else {
-		ps.stmt.BindText(1, *params.Email)
-	}
-	if params.Meta == nil {
-		ps.stmt.BindNull(2)
-	} else {
-		ps.stmt.BindBytes(2, *params.Meta)
-	}
+	ps.stmt.BindText(1, params.Email)
+	ps.stmt.BindBytes(2, params.Meta)
 	ps.stmt.BindText(3, params.Name)
-	if params.Phone == nil {
-		ps.stmt.BindNull(4)
-	} else {
-		ps.stmt.BindText(4, *params.Phone)
-	}
+	ps.stmt.BindText(4, params.Phone)
 	ps.stmt.BindInt64(5, params.Id)
 
 	// Execute the query

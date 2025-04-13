@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nzoschke/codon/pkg/db"
 	"github.com/nzoschke/codon/pkg/run"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
@@ -39,12 +38,12 @@ func TestUser(t *testing.T) {
 	}{
 		{
 			in: q.ContactCreateParams{
-				Email: db.P("a@example.com"),
+				Email: "a@example.com",
 				Name:  "Ann",
 			},
 			want: q.ContactCreateRes{
 				CreatedAt: timeAny(),
-				Email:     db.P("a@example.com"),
+				Email:     "a@example.com",
 				Id:        1,
 				Name:      "Ann",
 			},
@@ -55,7 +54,7 @@ func TestUser(t *testing.T) {
 			in: nil,
 			want: q.ContactCreateRes{
 				CreatedAt: timeAny(),
-				Email:     db.P("a@example.com"),
+				Email:     "a@example.com",
 				Id:        1,
 				Name:      "Ann",
 			},
@@ -64,12 +63,12 @@ func TestUser(t *testing.T) {
 		},
 		{
 			in: q.ContactUpdateParams{
-				Email: db.P("a@new.com"),
+				Email: "a@new.com",
 				Name:  "Ann",
 			},
 			want: q.ContactReadRes{
 				CreatedAt: timeAny(),
-				Email:     db.P("a@new.com"),
+				Email:     "a@new.com",
 				Id:        1,
 				Name:      "Ann",
 			},
@@ -104,8 +103,8 @@ func TestUser(t *testing.T) {
 	}
 }
 
-func timeAny() *time.Time {
-	return db.P(time.Unix(0, 0).UTC())
+func timeAny() time.Time {
+	return time.Unix(0, 0).UTC()
 }
 
 func JSONEq(a *assert.Assertions, expected any, actual any) {
@@ -116,7 +115,7 @@ func JSONEq(a *assert.Assertions, expected any, actual any) {
 	a.NoError(err)
 
 	// replace all ISO 8601 UTC strings (eg "2025-04-12T16:25:32Z") with "1970-01-01T00:00:00Z"
-	t := *timeAny()
+	t := timeAny()
 	be = reISO8601.ReplaceAll(be, []byte(t.Format("2006-01-02T15:04:05.999Z")))
 	ba = reISO8601.ReplaceAll(ba, []byte(t.Format("2006-01-02T15:04:05.999Z")))
 
