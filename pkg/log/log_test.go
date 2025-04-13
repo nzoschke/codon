@@ -1,10 +1,11 @@
-package log
+package log_test
 
 import (
 	"bytes"
 	"log/slog"
 	"testing"
 
+	"github.com/nzoschke/codon/pkg/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestLevel(t *testing.T) {
 
 	// default level is INFO
 	bs := bytes.Buffer{}
-	SetDefault(func(string) string {
+	log.SetDefault(func(string) string {
 		return ""
 	}, &bs)
 	slog.Debug("debug")
@@ -22,7 +23,7 @@ func TestLevel(t *testing.T) {
 	a.Equal("level=INFO msg=info\n", bs.String())
 
 	bs = bytes.Buffer{}
-	SetDefault(func(string) string {
+	log.SetDefault(func(string) string {
 		return "DEBUG"
 	}, &bs)
 	slog.Debug("debug")

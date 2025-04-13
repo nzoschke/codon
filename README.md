@@ -17,6 +17,7 @@ layers of cruft.
 brew install deno go oven-sh/bun/bun sqlc
 go install github.com/nzoschke/toolbelt/sqlc-gen-zombiezen@0290744
 go install github.com/mitranim/gow@latest
+go install github.com/gzuidhof/tygo@latest
 
 go generate ./...
 go test -v ./...
@@ -26,12 +27,18 @@ go build -o app cmd/app/main.go
 open http://localhost:1234
 ```
 
+```bash
+curl -d '{"email":"a@example.com","name":"Ann"}' -H "Content-Type: application/json" http://localhost:1234/api/contacts
+
+{"created_at":"2025-04-13T18:39:04Z","email":"a@example.com","id":1,"meta":{},"name":"Ann","phone":"","updated_at":"2025-04-13T18:39:04Z"}
+```
+
 ## Development
 
 ### Go
 
 ```bash
-gow run cmd/app/main.go -dev
+gow -v run cmd/app/main.go -dev
 ```
 
 To test:

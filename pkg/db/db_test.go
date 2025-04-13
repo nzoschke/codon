@@ -1,14 +1,16 @@
-package db
+package db_test
 
 import (
+	"encoding/json"
 	"testing"
 
-	"github.com/nzoschke/codon/pkg/sql/q"
+	"github.com/nzoschke/codon/pkg/db"
 	"github.com/stretchr/testify/assert"
 	"zombiezen.com/go/sqlite"
 )
 
-type User struct {
+type Contact struct {
+	ID    int
 	Email string
 	Name  string
 }
@@ -17,124 +19,107 @@ func TestCRUD(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
-	db, err := New(ctx, "file::memory:?mode=memory&cache=shared")
+	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
 	a.NoError(err)
 
 	// create
-	err = db.Exec(ctx, "INSERT INTO users (email, name) VALUES (?, ?)", []any{"user@example.com", "user"}, nil)
+	err = db.Exec(ctx, "INSERT INTO contacts (email, meta, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", []byte("{}"), "Ann", ""}, nil)
 	a.NoError(err)
 
 	// list
-	users := []User{}
-	err = db.Exec(ctx, "SELECT email, name FROM users", nil, func(stmt *sqlite.Stmt) error {
-		users = append(users, User{
+	rows := []Contact{}
+	err = db.Exec(ctx, "SELECT email, id, name FROM contacts", nil, func(stmt *sqlite.Stmt) error {
+		rows = append(rows, Contact{
 			Email: stmt.ColumnText(0),
-			Name:  stmt.ColumnText(1),
+			ID:    stmt.ColumnInt(1),
+			Name:  stmt.ColumnText(2),
 		})
 		return nil
 	})
 	a.NoError(err)
 
-	a.Equal([]User{{
-		Email: "user@example.com",
-		Name:  "user",
-	}}, users)
+	a.Equal([]Contact{{
+		Email: "a@example.com",
+		ID:    1,
+		Name:  "Ann",
+	}}, rows)
 
 	// read
-	user := User{}
-	err = db.Exec(ctx, "SELECT email, name FROM users WHERE name = ?", []any{"user"}, func(stmt *sqlite.Stmt) error {
-		user = User{
+	row := Contact{}
+	err = db.Exec(ctx, "SELECT email, id, name FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+		row = Contact{
 			Email: stmt.ColumnText(0),
-			Name:  stmt.ColumnText(1),
+			ID:    stmt.ColumnInt(1),
+			Name:  stmt.ColumnText(2),
 		}
 		return nil
 	})
 	a.NoError(err)
 
-	a.Equal(User{
-		Email: "user@example.com",
-		Name:  "user",
-	}, user)
+	a.Equal(Contact{
+		Email: "a@example.com",
+		ID:    1,
+		Name:  "Ann",
+	}, row)
 
 	// delete
-	err = db.Exec(ctx, "DELETE FROM users WHERE name = ?", []any{"user"}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "DELETE FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		return nil
 	})
 	a.NoError(err)
 
 	exists := false
-	err = db.Exec(ctx, "SELECT email, name FROM users WHERE name = ?", []any{"user"}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "SELECT id FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		exists = true
 		return nil
 	})
 	a.NoError(err)
 	a.False(exists)
 }
-
-func TestCRUDQ(t *testing.T) {
+func TestJSON(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
-	db, err := New(ctx, "file::memory:?mode=memory&cache=shared")
+	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
 	a.NoError(err)
 
-	conn, put, err := db.Take(ctx)
-	a.NoError(err)
-	defer put()
+	meta := map[string]any{
+		"age": 21,
+	}
 
-	out, err := q.UserCreate(conn).Run(q.UserCreateParams{
-		Email: "user@example.com",
-		Name:  "user",
+	bs, err := json.Marshal(meta)
+	a.NoError(err)
+
+	err = db.Exec(ctx, "INSERT INTO contacts (email, meta, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", bs, "Ann", ""}, nil)
+	a.NoError(err)
+
+	bs = []byte{}
+	err = db.Exec(ctx, "SELECT meta FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+		bs = []byte(stmt.ColumnText(0))
+		return nil
 	})
 	a.NoError(err)
+	a.Equal(`{"age":21}`, string(bs))
 
-	a.Equal(&q.UserCreateRes{
-		CreatedAt: out.CreatedAt,
-		Email:     "user@example.com",
-		Id:        1,
-		Name:      "user",
-	}, out)
-
-	rout, err := q.UserRead(conn).Run(1)
-	a.NoError(err)
-
-	a.Equal(&q.UserReadRes{
-		CreatedAt: out.CreatedAt,
-		Email:     "user@example.com",
-		Id:        1,
-		Name:      "user",
-	}, rout)
-
-	err = q.UserUpdate(conn).Run(q.UserUpdateParams{
-		Email: "user@new.com",
-		Name:  "user",
-		Id:    1,
+	age := 0
+	err = db.Exec(ctx, "SELECT meta->>'$.age' AS age FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+		age = stmt.ColumnInt(0)
+		return nil
 	})
 	a.NoError(err)
+	a.Equal(21, age)
 
-	rout, err = q.UserRead(conn).Run(1)
+	err = db.Exec(ctx, "DELETE FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+		return nil
+	})
 	a.NoError(err)
-
-	a.Equal(&q.UserReadRes{
-		CreatedAt: out.CreatedAt,
-		Email:     "user@new.com",
-		Id:        1,
-		Name:      "user",
-	}, rout)
-
-	err = q.UserDelete(conn).Run(1)
-	a.NoError(err)
-
-	rout, err = q.UserRead(conn).Run(1)
-	a.NoError(err)
-	a.Nil(rout)
 }
 
 func TestMigrate(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
-	db, err := New(ctx, "file::memory:?mode=memory&cache=shared")
+	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
 	a.NoError(err)
 
 	v, err := db.Version(ctx)
@@ -143,5 +128,5 @@ func TestMigrate(t *testing.T) {
 
 	ts, err := db.Schema(ctx)
 	a.NoError(err)
-	a.Equal([]string{"table/users"}, ts)
+	a.Equal([]string{"table/contacts"}, ts)
 }

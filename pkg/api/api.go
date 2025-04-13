@@ -6,22 +6,31 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/nzoschke/codon/pkg/db"
 	"github.com/olekukonko/errors"
 )
 
-func New(ctx context.Context, addr string, dev bool) error {
-	mux := http.NewServeMux()
+func New(ctx context.Context, addr string, db db.DB, dev bool) error {
+	e := echo.New()
+	e.HideBanner = true
+	e.HidePort = true
+	e.Use(middleware.CORS())
+	e.Use(middleware.Logger())
 
-	dist(dev, mux)
+	dist(e, dev)
 
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: mux,
-	}
+	e.GET("/health", func(c echo.Context) error {
+		return c.String(http.StatusOK, "ok")
+	})
+
+	api := e.Group("/api")
+	contacts(api, db)
 
 	go func() {
 		slog.Info("api", "serve", addr)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
 			slog.Error("api", "err", err)
 		}
 	}()
@@ -31,7 +40,7 @@ func New(ctx context.Context, addr string, dev bool) error {
 	sctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(sctx); err != nil {
+	if err := e.Shutdown(sctx); err != nil {
 		return errors.WithStack(err)
 	}
 
