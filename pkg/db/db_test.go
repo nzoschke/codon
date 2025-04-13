@@ -1,6 +1,7 @@
 package db_test
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -137,6 +138,40 @@ func TestCRUDQ(t *testing.T) {
 	rout, err = q.ContactRead(conn).Run(1)
 	a.NoError(err)
 	a.Nil(rout)
+}
+
+func TestJSONB(t *testing.T) {
+	ctx := t.Context()
+	a := assert.New(t)
+
+	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
+	a.NoError(err)
+
+	meta := map[string]any{
+		"age": 21,
+	}
+
+	bs, err := json.Marshal(meta)
+	a.NoError(err)
+
+	err = db.Exec(ctx, "INSERT INTO contacts (name, meta) VALUES (?, JSONB(?))", []any{"Ann", bs}, nil)
+	a.NoError(err)
+
+	bs = []byte{}
+	err = db.Exec(ctx, "SELECT JSON(meta) FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+		bs = []byte(stmt.ColumnText(0))
+		return nil
+	})
+	a.NoError(err)
+	a.Equal(`{"age":21}`, string(bs))
+
+	age := 0
+	err = db.Exec(ctx, "SELECT meta->>'$.age' AS age FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+		age = stmt.ColumnInt(0)
+		return nil
+	})
+	a.NoError(err)
+	a.Equal(21, age)
 }
 
 func TestMigrate(t *testing.T) {

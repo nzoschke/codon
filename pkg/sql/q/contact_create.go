@@ -20,9 +20,9 @@ type ContactCreateRes struct {
 
 type ContactCreateParams struct {
 	Email *string `json:"email"`
+	Meta  *[]byte `json:"meta"`
 	Name  string  `json:"name"`
 	Phone *string `json:"phone"`
-	Meta  *[]byte `json:"meta"`
 }
 
 type ContactCreateStmt struct {
@@ -33,7 +33,7 @@ func ContactCreate(tx *sqlite.Conn) *ContactCreateStmt {
 	// Prepare the statement into connection cache
 	stmt := tx.Prep(`
 INSERT INTO
-  contacts (email, name, phone, meta)
+  contacts (email, meta, name, phone)
 VALUES
   (?, ?, ?, ?)
 RETURNING
@@ -57,16 +57,16 @@ func (ps *ContactCreateStmt) Run(
 	} else {
 		ps.stmt.BindText(1, *params.Email)
 	}
-	ps.stmt.BindText(2, params.Name)
-	if params.Phone == nil {
-		ps.stmt.BindNull(3)
-	} else {
-		ps.stmt.BindText(3, *params.Phone)
-	}
 	if params.Meta == nil {
+		ps.stmt.BindNull(2)
+	} else {
+		ps.stmt.BindBytes(2, *params.Meta)
+	}
+	ps.stmt.BindText(3, params.Name)
+	if params.Phone == nil {
 		ps.stmt.BindNull(4)
 	} else {
-		ps.stmt.BindBytes(4, *params.Meta)
+		ps.stmt.BindText(4, *params.Phone)
 	}
 
 	// Execute the query

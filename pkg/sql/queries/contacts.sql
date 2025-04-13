@@ -1,6 +1,6 @@
 -- name: ContactCreate :one
 INSERT INTO
-  contacts (email, name, phone, meta)
+  contacts (email, meta, name, phone)
 VALUES
   (?, ?, ?, ?)
 RETURNING
@@ -21,9 +21,9 @@ UPDATE
   contacts
 SET
   email = ?,
+  meta = ?,
   name = ?,
-  phone = ?,
-  meta = ?
+  phone = ?
 WHERE
   id = ?;
 

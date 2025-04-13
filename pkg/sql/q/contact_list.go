@@ -29,7 +29,8 @@ SELECT
   created_at, email, id, meta, name, phone
 FROM
   contacts
-ORDER BY created_at DESC
+ORDER BY
+  created_at DESC
 LIMIT
   ?
     `)

@@ -9,9 +9,9 @@ import (
 
 type ContactUpdateParams struct {
 	Email *string `json:"email"`
+	Meta  *[]byte `json:"meta"`
 	Name  string  `json:"name"`
 	Phone *string `json:"phone"`
-	Meta  *[]byte `json:"meta"`
 	Id    int64   `json:"id"`
 }
 
@@ -26,9 +26,9 @@ UPDATE
   contacts
 SET
   email = ?,
+  meta = ?,
   name = ?,
-  phone = ?,
-  meta = ?
+  phone = ?
 WHERE
   id = ?
     `)
@@ -49,16 +49,16 @@ func (ps *ContactUpdateStmt) Run(
 	} else {
 		ps.stmt.BindText(1, *params.Email)
 	}
-	ps.stmt.BindText(2, params.Name)
-	if params.Phone == nil {
-		ps.stmt.BindNull(3)
-	} else {
-		ps.stmt.BindText(3, *params.Phone)
-	}
 	if params.Meta == nil {
+		ps.stmt.BindNull(2)
+	} else {
+		ps.stmt.BindBytes(2, *params.Meta)
+	}
+	ps.stmt.BindText(3, params.Name)
+	if params.Phone == nil {
 		ps.stmt.BindNull(4)
 	} else {
-		ps.stmt.BindBytes(4, *params.Meta)
+		ps.stmt.BindText(4, *params.Phone)
 	}
 	ps.stmt.BindInt64(5, params.Id)
 
