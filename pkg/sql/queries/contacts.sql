@@ -23,7 +23,8 @@ SET
   email = ?,
   meta = ?,
   name = ?,
-  phone = ?
+  phone = ?,
+  updated_at = JULIANDAY(CURRENT_TIMESTAMP)
 WHERE
   id = ?;
 

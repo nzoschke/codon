@@ -34,6 +34,7 @@ func TestCRUD(t *testing.T) {
 		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
+		UpdatedAt: out.UpdatedAt,
 	}, out)
 
 	rout, err := q.ContactRead(conn).Run(1)
@@ -44,7 +45,11 @@ func TestCRUD(t *testing.T) {
 		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
+		UpdatedAt: out.UpdatedAt,
 	}, rout)
+
+	// wait for CURRENT_TIMESTAMP to advance
+	time.Sleep(1 * time.Second)
 
 	err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
 		Email: "a@new.com",
@@ -57,11 +62,14 @@ func TestCRUD(t *testing.T) {
 	a.NoError(err)
 
 	a.Equal(&q.ContactReadRes{
-		CreatedAt: out.CreatedAt,
+		CreatedAt: rout.CreatedAt,
 		Email:     "a@new.com",
 		Id:        1,
 		Name:      "Ann",
+		UpdatedAt: rout.UpdatedAt,
 	}, rout)
+
+	a.True(rout.UpdatedAt.After(out.UpdatedAt))
 
 	err = q.ContactDelete(conn).Run(1)
 	a.NoError(err)
@@ -102,6 +110,7 @@ func TestJSON(t *testing.T) {
 		Id:        1,
 		Meta:      []byte(`{"age":21}`),
 		Name:      "Ann",
+		UpdatedAt: out.UpdatedAt,
 	}, out)
 
 	age, err := q.ContactAge(conn).Run(1)

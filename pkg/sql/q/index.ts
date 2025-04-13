@@ -16,6 +16,7 @@ export interface ContactCreateRes {
   meta: string;
   name: string;
   phone: string;
+  updated_at: string /* RFC3339 */;
 }
 export interface ContactCreateParams {
   email: string;
@@ -42,6 +43,7 @@ export interface ContactListRes {
   meta: string;
   name: string;
   phone: string;
+  updated_at: string /* RFC3339 */;
 }
 export interface ContactListStmt {
 }
@@ -56,6 +58,7 @@ export interface ContactReadRes {
   meta: string;
   name: string;
   phone: string;
+  updated_at: string /* RFC3339 */;
 }
 export interface ContactReadStmt {
 }

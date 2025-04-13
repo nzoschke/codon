@@ -16,6 +16,7 @@ type ContactListRes struct {
 	Meta      []byte    `json:"meta"`
 	Name      string    `json:"name"`
 	Phone     string    `json:"phone"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type ContactListStmt struct {
@@ -26,7 +27,7 @@ func ContactList(tx *sqlite.Conn) *ContactListStmt {
 	// Prepare the statement into connection cache
 	stmt := tx.Prep(`
 SELECT
-  created_at, email, id, meta, name, phone
+  created_at, email, id, meta, name, phone, updated_at
 FROM
   contacts
 ORDER BY
@@ -64,6 +65,7 @@ func (ps *ContactListStmt) Run(
 		row.Meta = StmtBytesByCol(ps.stmt, 3)
 		row.Name = ps.stmt.ColumnText(4)
 		row.Phone = ps.stmt.ColumnText(5)
+		row.UpdatedAt = JulianDayToTime(ps.stmt.ColumnFloat(6))
 		res = append(res, row)
 	}
 

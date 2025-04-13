@@ -16,6 +16,7 @@ type ContactCreateRes struct {
 	Meta      []byte    `json:"meta"`
 	Name      string    `json:"name"`
 	Phone     string    `json:"phone"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type ContactCreateParams struct {
@@ -37,7 +38,7 @@ INSERT INTO
 VALUES
   (?, ?, ?, ?)
 RETURNING
-  created_at, email, id, meta, name, phone
+  created_at, email, id, meta, name, phone, updated_at
     `)
 	ps := &ContactCreateStmt{stmt: stmt}
 	return ps
@@ -68,6 +69,7 @@ func (ps *ContactCreateStmt) Run(
 		row.Meta = StmtBytesByCol(ps.stmt, 3)
 		row.Name = ps.stmt.ColumnText(4)
 		row.Phone = ps.stmt.ColumnText(5)
+		row.UpdatedAt = JulianDayToTime(ps.stmt.ColumnFloat(6))
 		res = &row
 	}
 
