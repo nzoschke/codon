@@ -140,7 +140,7 @@ func TestCRUDQ(t *testing.T) {
 	a.Nil(rout)
 }
 
-func TestJSONB(t *testing.T) {
+func TestJSON(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
 
@@ -154,11 +154,11 @@ func TestJSONB(t *testing.T) {
 	bs, err := json.Marshal(meta)
 	a.NoError(err)
 
-	err = db.Exec(ctx, "INSERT INTO contacts (name, meta) VALUES (?, JSONB(?))", []any{"Ann", bs}, nil)
+	err = db.Exec(ctx, "INSERT INTO contacts (name, meta) VALUES (?, ?)", []any{"Ann", bs}, nil)
 	a.NoError(err)
 
 	bs = []byte{}
-	err = db.Exec(ctx, "SELECT JSON(meta) FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "SELECT meta FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		bs = []byte(stmt.ColumnText(0))
 		return nil
 	})
@@ -172,6 +172,50 @@ func TestJSONB(t *testing.T) {
 	})
 	a.NoError(err)
 	a.Equal(21, age)
+
+	err = db.Exec(ctx, "DELETE FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+		return nil
+	})
+	a.NoError(err)
+}
+
+func TestJSONQ(t *testing.T) {
+	ctx := t.Context()
+	a := assert.New(t)
+
+	d, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
+	a.NoError(err)
+
+	conn, put, err := d.Take(ctx)
+	a.NoError(err)
+	defer put()
+
+	meta := map[string]any{
+		"age": 21,
+	}
+
+	bs, err := json.Marshal(meta)
+	a.NoError(err)
+
+	out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+		Email: db.P("a@example.com"),
+		Meta:  db.P(bs),
+		Name:  "Ann",
+	})
+	a.NoError(err)
+
+	a.Equal(&q.ContactCreateRes{
+		CreatedAt: out.CreatedAt,
+		Email:     db.P("a@example.com"),
+		Id:        1,
+		Meta:      db.P([]byte(`{"age":21}`)),
+		Name:      "Ann",
+	}, out)
+
+	age, err := q.ContactAge(conn).Run(1)
+	a.NoError(err)
+
+	a.Equal(int64(21), age)
 }
 
 func TestMigrate(t *testing.T) {

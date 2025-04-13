@@ -42,3 +42,13 @@ ORDER BY
   created_at DESC
 LIMIT
   ?;
+
+-- name: ContactAge :one
+SELECT
+  CAST(meta ->> '$.age' AS INTEGER) AS age
+FROM
+  contacts
+WHERE
+  id = ?
+LIMIT
+  1;
