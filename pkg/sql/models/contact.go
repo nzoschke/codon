@@ -1,4 +1,4 @@
-package sql
+package models
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type Contact struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
-func ToContact(r *q.ContactCreateRes) (Contact, error) {
+func ToContact(r q.ContactCreateRes) (Contact, error) {
 	c := Contact{
 		CreatedAt: r.CreatedAt,
 		Email:     r.Email,

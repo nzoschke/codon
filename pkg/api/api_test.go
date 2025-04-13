@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/run"
-	"github.com/nzoschke/codon/pkg/sql"
+	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,7 +44,7 @@ func TestUser(t *testing.T) {
 			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
-			want: sql.Contact{
+			want: models.Contact{
 				CreatedAt: timeAny(),
 				Email:     "a@example.com",
 				Id:        1,
@@ -56,7 +56,7 @@ func TestUser(t *testing.T) {
 			in:     nil,
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
-			want: sql.Contact{
+			want: models.Contact{
 				CreatedAt: timeAny(),
 				Email:     "a@example.com",
 				Id:        1,
@@ -71,7 +71,7 @@ func TestUser(t *testing.T) {
 			},
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
-			want: sql.Contact{
+			want: models.Contact{
 				CreatedAt: timeAny(),
 				Email:     "a@new.com",
 				Id:        1,

@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/nzoschke/codon/pkg/db"
-	"github.com/nzoschke/codon/pkg/sql"
+	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/olekukonko/errors"
 )
@@ -27,9 +27,9 @@ func contacts(g *echo.Group, d db.DB) {
 			return errors.WithStack(err)
 		}
 
-		out := []sql.Contact{}
+		out := []models.Contact{}
 		for _, r := range res {
-			c, err := sql.ToContact(db.P(q.ContactCreateRes(r)))
+			c, err := models.ToContact(q.ContactCreateRes(r))
 			if err != nil {
 				return errors.WithStack(err)
 			}
@@ -81,7 +81,7 @@ func contacts(g *echo.Group, d db.DB) {
 			return errors.WithStack(err)
 		}
 
-		out, err := sql.ToContact(db.P(q.ContactCreateRes(*res)))
+		out, err := models.ToContact(q.ContactCreateRes(*res))
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -121,7 +121,7 @@ func contacts(g *echo.Group, d db.DB) {
 			return c.Redirect(http.StatusSeeOther, "/#/contacts")
 		}
 
-		out, err := sql.ToContact(res)
+		out, err := models.ToContact(*res)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -199,7 +199,7 @@ func contacts(g *echo.Group, d db.DB) {
 			return errors.WithStack(err)
 		}
 
-		out, err := sql.ToContact(db.P(q.ContactCreateRes(*res)))
+		out, err := models.ToContact(q.ContactCreateRes(*res))
 		if err != nil {
 			return errors.WithStack(err)
 		}

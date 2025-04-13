@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Contact } from "~/pkg/sql";
+  import type { Contact } from "~/pkg/sql/models";
   import Layout from "../Layout.svelte";
 
   let contact = $state<Contact>({

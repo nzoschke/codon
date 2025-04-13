@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/db"
-	"github.com/nzoschke/codon/pkg/sql"
+	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
@@ -50,7 +50,7 @@ func TestCRUD(t *testing.T) {
 	}, rout)
 
 	// wait for CURRENT_TIMESTAMP to advance
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
 		Email: "a@new.com",
@@ -114,10 +114,10 @@ func TestJSON(t *testing.T) {
 		UpdatedAt: res.UpdatedAt,
 	}, res)
 
-	out, err := sql.ToContact(res)
+	out, err := models.ToContact(*res)
 	a.NoError(err)
 
-	a.Equal(sql.Contact{
+	a.Equal(models.Contact{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,

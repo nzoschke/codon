@@ -28,9 +28,9 @@ open http://localhost:1234
 ```
 
 ```bash
-curl -d '{"email":"user@example.com","name":"user"}' -H "Content-Type: application/json" http://localhost:1234/api/users
+curl -d '{"email":"a@example.com","name":"Ann"}' -H "Content-Type: application/json" http://localhost:1234/api/contacts
 
-{"created_at":"2025-04-12T14:55:20Z","email":"user@example.com","id":1,"name":"user"}
+{"created_at":"2025-04-13T18:39:04Z","email":"a@example.com","id":1,"meta":{},"name":"Ann","phone":"","updated_at":"2025-04-13T18:39:04Z"}
 ```
 
 ## Development
