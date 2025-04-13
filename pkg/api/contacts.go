@@ -155,6 +155,7 @@ func contacts(g *echo.Group, d db.DB) {
 		err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
 			Email: in.Email,
 			Id:    id,
+			Meta:  []byte("{}"),
 			Name:  in.Name,
 			Phone: in.Phone,
 		})

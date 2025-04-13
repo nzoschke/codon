@@ -6,3 +6,4 @@ rm q/crud*.go
 go fmt ./q
 
 tygo generate
+deno fmt models
