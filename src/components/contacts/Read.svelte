@@ -1,14 +1,18 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { ContactCreateRes as Contact } from "~/pkg/sql/q";
+  import type { Contact } from "~/pkg/sql";
   import Layout from "../Layout.svelte";
-  import Header from "./Header.svelte";
   import { Icon } from "@steeze-ui/svelte-icon";
   import { ChatBubbleLeftRight, Envelope } from "@steeze-ui/heroicons";
 
   let contact = $state<Contact>({
     id: 0,
     name: "",
+    created_at: "",
+    email: "",
+    meta: {},
+    phone: "",
+    updated_at: "",
   });
 
   let topic = "apps";
@@ -33,10 +37,6 @@
 </script>
 
 <Layout>
-  {#snippet header()}
-    <Header />
-  {/snippet}
-
   <div class="card w-96 bg-base-100 card-xl shadow-sm">
     <div class="card-body space-y-6">
       <h2 class="card-title">{contact.name}</h2>

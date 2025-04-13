@@ -1,18 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { ContactCreateRes as Contact } from "~/pkg/sql/q";
   import Layout from "../Layout.svelte";
-  import Header from "./Header.svelte";
 
   onMount(async () => {
   });
 </script>
 
 <Layout>
-  {#snippet header()}
-    <Header />
-  {/snippet}
-
   <div class="card w-96 bg-base-100 card-xl shadow-sm">
     <form method="POST" action="/api/contacts">
       <div class="card-body">

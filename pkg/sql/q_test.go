@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/db"
+	"github.com/nzoschke/codon/pkg/sql"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
@@ -97,7 +98,7 @@ func TestJSON(t *testing.T) {
 	bs, err := json.Marshal(meta)
 	a.NoError(err)
 
-	out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+	res, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
 		Email: "a@example.com",
 		Meta:  bs,
 		Name:  "Ann",
@@ -105,12 +106,26 @@ func TestJSON(t *testing.T) {
 	a.NoError(err)
 
 	a.Equal(&q.ContactCreateRes{
-		CreatedAt: out.CreatedAt,
+		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
 		Meta:      []byte(`{"age":21}`),
 		Name:      "Ann",
-		UpdatedAt: out.UpdatedAt,
+		UpdatedAt: res.UpdatedAt,
+	}, res)
+
+	out, err := sql.ToContact(res)
+	a.NoError(err)
+
+	a.Equal(sql.Contact{
+		CreatedAt: res.CreatedAt,
+		Email:     "a@example.com",
+		Id:        1,
+		Meta: map[string]any{
+			"age": float64(21),
+		},
+		Name:      "Ann",
+		UpdatedAt: res.UpdatedAt,
 	}, out)
 
 	age, err := q.ContactAge(conn).Run(1)

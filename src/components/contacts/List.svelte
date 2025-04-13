@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { ContactCreateRes as Contact } from "~/pkg/sql/q";
+  import type { Contact } from "~/pkg/sql";
   import Layout from "../Layout.svelte";
-  import Header from "./Header.svelte";
   import Time from "svelte-time";
 
   let contacts = $state<Contact[]>();
@@ -14,10 +13,6 @@
 </script>
 
 <Layout>
-  {#snippet header()}
-    <Header />
-  {/snippet}
-
   <div class="toast">
     <a class="btn btn-info" href="#/contacts/create">Create Contact</a>
   </div>

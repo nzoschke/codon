@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/nzoschke/codon/pkg/db"
+	"github.com/nzoschke/codon/pkg/sql"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/olekukonko/errors"
 )
@@ -21,9 +22,19 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		out, err := q.ContactList(conn).Run(10)
+		res, err := q.ContactList(conn).Run(10)
 		if err != nil {
 			return errors.WithStack(err)
+		}
+
+		out := []sql.Contact{}
+		for _, r := range res {
+			c, err := sql.ToContact(db.P(q.ContactCreateRes(r)))
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			out = append(out, c)
 		}
 
 		return c.JSON(http.StatusOK, out)
@@ -65,7 +76,12 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		out, err := q.ContactRead(conn).Run(id)
+		res, err := q.ContactRead(conn).Run(id)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		out, err := sql.ToContact(db.P(q.ContactCreateRes(*res)))
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -91,8 +107,9 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+		res, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
 			Email: in.Email,
+			Meta:  []byte("{}"),
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
@@ -102,6 +119,11 @@ func contacts(g *echo.Group, d db.DB) {
 
 		if c.Request().Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
 			return c.Redirect(http.StatusSeeOther, "/#/contacts")
+		}
+
+		out, err := sql.ToContact(res)
+		if err != nil {
+			return errors.WithStack(err)
 		}
 
 		return c.JSON(http.StatusOK, out)
@@ -164,6 +186,7 @@ func contacts(g *echo.Group, d db.DB) {
 
 		err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
 			Email: in.Email,
+			Meta:  []byte("{}"),
 			Name:  in.Name,
 			Id:    id,
 		})
@@ -171,7 +194,12 @@ func contacts(g *echo.Group, d db.DB) {
 			return errors.WithStack(err)
 		}
 
-		out, err := q.ContactRead(conn).Run(id)
+		res, err := q.ContactRead(conn).Run(id)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		out, err := sql.ToContact(db.P(q.ContactCreateRes(*res)))
 		if err != nil {
 			return errors.WithStack(err)
 		}

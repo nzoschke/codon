@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/run"
+	"github.com/nzoschke/codon/pkg/sql"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,58 +33,63 @@ func TestUser(t *testing.T) {
 
 	tests := []struct {
 		in     any
-		want   any
 		method string
 		path   string
+		want   any
 	}{
 		{
 			in: q.ContactCreateParams{
 				Email: "a@example.com",
 				Name:  "Ann",
 			},
-			want: q.ContactCreateRes{
-				CreatedAt: timeAny(),
-				Email:     "a@example.com",
-				Id:        1,
-				Name:      "Ann",
-			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
-		},
-		{
-			in: nil,
-			want: q.ContactCreateRes{
+			want: sql.Contact{
 				CreatedAt: timeAny(),
 				Email:     "a@example.com",
 				Id:        1,
+				Meta:      map[string]any{},
 				Name:      "Ann",
 			},
+		},
+		{
+			in:     nil,
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
+			want: sql.Contact{
+				CreatedAt: timeAny(),
+				Email:     "a@example.com",
+				Id:        1,
+				Meta:      map[string]any{},
+				Name:      "Ann",
+			},
 		},
 		{
 			in: q.ContactUpdateParams{
 				Email: "a@new.com",
 				Name:  "Ann",
 			},
-			want: q.ContactReadRes{
+			method: http.MethodPut,
+			path:   "/api/contacts/1",
+			want: sql.Contact{
 				CreatedAt: timeAny(),
 				Email:     "a@new.com",
 				Id:        1,
+				Meta:      map[string]any{},
 				Name:      "Ann",
 			},
-			method: http.MethodPut,
-			path:   "/api/contacts/1",
 		},
 		{
 			in:     nil,
-			want:   nil,
 			method: http.MethodDelete,
 			path:   "/api/contacts/1",
+			want:   nil,
 		},
 	}
 
 	for _, test := range tests {
+		name := fmt.Sprintf("%s %s", test.method, test.path)
+
 		bs, err := json.Marshal(test.in)
 		a.NoError(err)
 
@@ -99,7 +105,7 @@ func TestUser(t *testing.T) {
 		a.NoError(err)
 		defer res.Body.Close()
 
-		JSONEq(a, test.want, got)
+		JSONEq(a, test.want, got, name)
 	}
 }
 
@@ -107,7 +113,7 @@ func timeAny() time.Time {
 	return time.Unix(0, 0).UTC()
 }
 
-func JSONEq(a *assert.Assertions, expected any, actual any) {
+func JSONEq(a *assert.Assertions, expected any, actual any, msgAndArgs ...any) {
 	be, err := json.Marshal(expected)
 	a.NoError(err)
 
@@ -119,5 +125,5 @@ func JSONEq(a *assert.Assertions, expected any, actual any) {
 	be = reISO8601.ReplaceAll(be, []byte(t.Format("2006-01-02T15:04:05.999Z")))
 	ba = reISO8601.ReplaceAll(ba, []byte(t.Format("2006-01-02T15:04:05.999Z")))
 
-	a.JSONEq(string(be), string(ba))
+	a.JSONEq(string(be), string(ba), msgAndArgs...)
 }

@@ -1,12 +1,16 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { ContactCreateRes as Contact } from "~/pkg/sql/q";
+  import type { Contact } from "~/pkg/sql";
   import Layout from "../Layout.svelte";
-  import Header from "./Header.svelte";
 
   let contact = $state<Contact>({
     id: 0,
     name: "",
+    created_at: "",
+    email: "",
+    meta: {},
+    phone: "",
+    updated_at: "",
   });
 
   onMount(async () => {
@@ -17,10 +21,6 @@
 </script>
 
 <Layout>
-  {#snippet header()}
-    <Header />
-  {/snippet}
-
   <div class="card w-96 bg-base-100 card-xl shadow-sm">
     <form method="POST" action="/api/contacts/{contact.id}">
       <div class="card-body">
