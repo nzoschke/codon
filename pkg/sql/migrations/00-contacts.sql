@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS contacts (
   meta BLOB,
   name TEXT NOT NULL,
   phone TEXT
-)
+) STRICT

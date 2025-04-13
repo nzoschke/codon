@@ -45,7 +45,7 @@ LIMIT
 
 -- name: ContactAge :one
 SELECT
-  CAST(meta ->> '$.age' AS INTEGER) AS age
+  CAST(meta ->> '$.age' AS INT) AS age
 FROM
   contacts
 WHERE

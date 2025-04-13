@@ -15,7 +15,7 @@ func ContactAge(tx *sqlite.Conn) *ContactAgeStmt {
 	// Prepare the statement into connection cache
 	stmt := tx.Prep(`
 SELECT
-  CAST(meta->>'$.age' AS INTEGER) AS age
+  CAST(meta ->> '$.age' AS INT) AS age
 FROM
   contacts
 WHERE
