@@ -13,7 +13,7 @@
 
   let topic = "apps";
 
-  let subject = $derived(`Noah <> ${contact.name} ${topic}`);
+  let subject = $derived(`Chat about ${topic}`);
   let body = $derived(`Hey ${contact.name}, lets chat more about ${topic}`);
 
   const del = async () => {
