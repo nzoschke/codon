@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nzoschke/codon/pkg/db"
 	"github.com/nzoschke/codon/pkg/run"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
@@ -37,49 +38,49 @@ func TestUser(t *testing.T) {
 		path   string
 	}{
 		{
-			in: q.UserCreateParams{
-				Email: "user@example.com",
+			in: q.ContactCreateParams{
+				Email: db.P("user@example.com"),
 				Name:  "user",
 			},
-			want: q.UserCreateRes{
+			want: q.ContactCreateRes{
 				CreatedAt: timeAny(),
-				Email:     "user@example.com",
+				Email:     db.P("user@example.com"),
 				Id:        1,
 				Name:      "user",
 			},
 			method: http.MethodPost,
-			path:   "/api/users",
+			path:   "/api/contacts",
 		},
 		{
 			in: nil,
-			want: q.UserCreateRes{
+			want: q.ContactCreateRes{
 				CreatedAt: timeAny(),
-				Email:     "user@example.com",
+				Email:     db.P("user@example.com"),
 				Id:        1,
 				Name:      "user",
 			},
 			method: http.MethodGet,
-			path:   "/api/users/1",
+			path:   "/api/contacts/1",
 		},
 		{
-			in: q.UserUpdateParams{
-				Email: "user@new.com",
+			in: q.ContactUpdateParams{
+				Email: db.P("user@new.com"),
 				Name:  "user",
 			},
-			want: q.UserReadRes{
+			want: q.ContactReadRes{
 				CreatedAt: timeAny(),
-				Email:     "user@new.com",
+				Email:     db.P("user@new.com"),
 				Id:        1,
 				Name:      "user",
 			},
 			method: http.MethodPut,
-			path:   "/api/users/1",
+			path:   "/api/contacts/1",
 		},
 		{
 			in:     nil,
 			want:   nil,
 			method: http.MethodDelete,
-			path:   "/api/users/1",
+			path:   "/api/contacts/1",
 		},
 	}
 
@@ -104,8 +105,7 @@ func TestUser(t *testing.T) {
 }
 
 func timeAny() *time.Time {
-	t := time.Unix(0, 0).UTC()
-	return &t
+	return db.P(time.Unix(0, 0).UTC())
 }
 
 func JSONEq(a *assert.Assertions, expected any, actual any) {

@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS contacts (
+  created_at REAL DEFAULT(JULIANDAY(CURRENT_TIMESTAMP)),
+  email TEXT,
+  id INTEGER PRIMARY KEY,
+  meta BLOB,
+  name TEXT NOT NULL,
+  phone TEXT
+)

@@ -56,6 +56,10 @@ func (d *DB) Exec(ctx context.Context, query string, args []any, fn func(stmt *s
 	return nil
 }
 
+func P[T any](v T) *T {
+	return &v
+}
+
 func (d *DB) Schema(ctx context.Context) ([]string, error) {
 	conn, put, err := d.Take(ctx)
 	if err != nil {

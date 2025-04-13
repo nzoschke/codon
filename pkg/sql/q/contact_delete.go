@@ -7,23 +7,23 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type UserDeleteStmt struct {
+type ContactDeleteStmt struct {
 	stmt *sqlite.Stmt
 }
 
-func UserDelete(tx *sqlite.Conn) *UserDeleteStmt {
+func ContactDelete(tx *sqlite.Conn) *ContactDeleteStmt {
 	// Prepare the statement into connection cache
 	stmt := tx.Prep(`
 DELETE FROM
-  users
+  contacts
 WHERE
   id = ?
     `)
-	ps := &UserDeleteStmt{stmt: stmt}
+	ps := &ContactDeleteStmt{stmt: stmt}
 	return ps
 }
 
-func (ps *UserDeleteStmt) Run(
+func (ps *ContactDeleteStmt) Run(
 	id int64,
 ) (
 	err error,
@@ -35,19 +35,19 @@ func (ps *UserDeleteStmt) Run(
 
 	// Execute the query
 	if _, err := ps.stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute userdelete SQL: %w", err)
+		return fmt.Errorf("failed to execute contactdelete SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceUserDelete(
+func OnceContactDelete(
 	tx *sqlite.Conn,
 	id int64,
 ) (
 	err error,
 ) {
-	ps := UserDelete(tx)
+	ps := ContactDelete(tx)
 
 	return ps.Run(
 		id,

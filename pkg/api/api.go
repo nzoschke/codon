@@ -26,7 +26,7 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 	})
 
 	api := e.Group("/api")
-	users(api, db)
+	contacts(api, db)
 
 	go func() {
 		slog.Info("api", "serve", addr)

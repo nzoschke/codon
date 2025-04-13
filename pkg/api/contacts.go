@@ -10,8 +10,25 @@ import (
 	"github.com/olekukonko/errors"
 )
 
-func users(g *echo.Group, db db.DB) {
-	g.DELETE("/users/:id", func(c echo.Context) error {
+func contacts(g *echo.Group, d db.DB) {
+	g.GET("/contacts", func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		conn, put, err := d.Take(ctx)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		defer put()
+
+		out, err := q.ContactList(conn).Run(10)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		return c.JSON(http.StatusOK, out)
+	})
+
+	g.DELETE("/contacts/:id", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -19,13 +36,13 @@ func users(g *echo.Group, db db.DB) {
 			return errors.WithStack(err)
 		}
 
-		conn, put, err := db.Take(ctx)
+		conn, put, err := d.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 		defer put()
 
-		err = q.UserDelete(conn).Run(id)
+		err = q.ContactDelete(conn).Run(id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -33,7 +50,7 @@ func users(g *echo.Group, db db.DB) {
 		return c.JSON(http.StatusOK, nil)
 	})
 
-	g.GET("/users/:id", func(c echo.Context) error {
+	g.GET("/contacts/:id", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -41,13 +58,13 @@ func users(g *echo.Group, db db.DB) {
 			return errors.WithStack(err)
 		}
 
-		conn, put, err := db.Take(ctx)
+		conn, put, err := d.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 		defer put()
 
-		out, err := q.UserRead(conn).Run(id)
+		out, err := q.ContactRead(conn).Run(id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -55,29 +72,39 @@ func users(g *echo.Group, db db.DB) {
 		return c.JSON(http.StatusOK, out)
 	})
 
-	g.POST("/users", func(c echo.Context) error {
+	g.POST("/contacts", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
-		in := q.UserCreateParams{}
+		in := struct {
+			Email string `form:"email" json:"email"`
+			Name  string `form:"name" json:"name"`
+		}{}
 		if err := c.Bind(&in); err != nil {
 			return errors.WithStack(err)
 		}
 
-		conn, put, err := db.Take(ctx)
+		conn, put, err := d.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 		defer put()
 
-		out, err := q.UserCreate(conn).Run(in)
+		out, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+			Email: db.P(in.Email),
+			Name:  in.Name,
+		})
 		if err != nil {
 			return errors.WithStack(err)
+		}
+
+		if c.Request().Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
+			return c.Redirect(http.StatusSeeOther, "/#/users")
 		}
 
 		return c.JSON(http.StatusOK, out)
 	})
 
-	g.PUT("/users/:id", func(c echo.Context) error {
+	g.PUT("/contacts/:id", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -85,18 +112,18 @@ func users(g *echo.Group, db db.DB) {
 			return errors.WithStack(err)
 		}
 
-		in := q.UserCreateParams{}
+		in := q.ContactCreateParams{}
 		if err := c.Bind(&in); err != nil {
 			return errors.WithStack(err)
 		}
 
-		conn, put, err := db.Take(ctx)
+		conn, put, err := d.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 		defer put()
 
-		err = q.UserUpdate(conn).Run(q.UserUpdateParams{
+		err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
 			Email: in.Email,
 			Name:  in.Name,
 			Id:    id,
@@ -105,7 +132,7 @@ func users(g *echo.Group, db db.DB) {
 			return errors.WithStack(err)
 		}
 
-		out, err := q.UserRead(conn).Run(id)
+		out, err := q.ContactRead(conn).Run(id)
 		if err != nil {
 			return errors.WithStack(err)
 		}

@@ -9,37 +9,39 @@ import (
 	"time"
 )
 
-type UserReadRes struct {
+type ContactReadRes struct {
 	CreatedAt *time.Time `json:"created_at"`
-	Email     string     `json:"email"`
+	Email     *string    `json:"email"`
 	Id        int64      `json:"id"`
+	Meta      *[]byte    `json:"meta"`
 	Name      string     `json:"name"`
+	Phone     *string    `json:"phone"`
 }
 
-type UserReadStmt struct {
+type ContactReadStmt struct {
 	stmt *sqlite.Stmt
 }
 
-func UserRead(tx *sqlite.Conn) *UserReadStmt {
+func ContactRead(tx *sqlite.Conn) *ContactReadStmt {
 	// Prepare the statement into connection cache
 	stmt := tx.Prep(`
 SELECT
-  created_at, email, id, name
+  created_at, email, id, meta, name, phone
 FROM
-  users
+  contacts
 WHERE
   id = ?
 LIMIT
   1
     `)
-	ps := &UserReadStmt{stmt: stmt}
+	ps := &ContactReadStmt{stmt: stmt}
 	return ps
 }
 
-func (ps *UserReadStmt) Run(
+func (ps *ContactReadStmt) Run(
 	id int64,
 ) (
-	res *UserReadRes,
+	res *ContactReadRes,
 	err error,
 ) {
 	defer ps.stmt.Reset()
@@ -51,29 +53,43 @@ func (ps *UserReadStmt) Run(
 	if hasRow, err := ps.stmt.Step(); err != nil {
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
-		row := UserReadRes{}
+		row := ContactReadRes{}
 		isNullCreatedAt := ps.stmt.ColumnIsNull(0)
 		if !isNullCreatedAt {
 			tmp := JulianDayToTime(ps.stmt.ColumnFloat(0))
 			row.CreatedAt = &tmp
 		}
-		row.Email = ps.stmt.ColumnText(1)
+		isNullEmail := ps.stmt.ColumnIsNull(1)
+		if !isNullEmail {
+			tmp := ps.stmt.ColumnText(1)
+			row.Email = &tmp
+		}
 		row.Id = ps.stmt.ColumnInt64(2)
-		row.Name = ps.stmt.ColumnText(3)
+		isNullMeta := ps.stmt.ColumnIsNull(3)
+		if !isNullMeta {
+			tmp := StmtBytesByCol(ps.stmt, 3)
+			row.Meta = &tmp
+		}
+		row.Name = ps.stmt.ColumnText(4)
+		isNullPhone := ps.stmt.ColumnIsNull(5)
+		if !isNullPhone {
+			tmp := ps.stmt.ColumnText(5)
+			row.Phone = &tmp
+		}
 		res = &row
 	}
 
 	return res, nil
 }
 
-func OnceUserRead(
+func OnceContactRead(
 	tx *sqlite.Conn,
 	id int64,
 ) (
-	res *UserReadRes,
+	res *ContactReadRes,
 	err error,
 ) {
-	ps := UserRead(tx)
+	ps := ContactRead(tx)
 
 	return ps.Run(
 		id,
