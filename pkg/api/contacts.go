@@ -22,14 +22,14 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		res, err := q.ContactList(conn).Run(10)
+		res, err := q.ContactList(conn, 10)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 
 		out := []models.Contact{}
 		for _, r := range res {
-			c, err := models.ToContact(q.ContactCreateRes(r))
+			c, err := models.ToContact(q.Contact(r))
 			if err != nil {
 				return errors.WithStack(err)
 			}
@@ -54,7 +54,7 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		err = q.ContactDelete(conn).Run(id)
+		err = q.ContactDelete(conn, id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -76,12 +76,12 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		res, err := q.ContactRead(conn).Run(id)
+		res, err := q.ContactRead(conn, id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 
-		out, err := models.ToContact(q.ContactCreateRes(*res))
+		out, err := models.ToContact(q.Contact(*res))
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -107,7 +107,7 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		res, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+		res, err := q.ContactCreate(conn, q.ContactCreateIn{
 			Email: in.Email,
 			Meta:  []byte("{}"),
 			Name:  in.Name,
@@ -121,7 +121,7 @@ func contacts(g *echo.Group, d db.DB) {
 			return c.Redirect(http.StatusSeeOther, "/#/contacts")
 		}
 
-		out, err := models.ToContact(*res)
+		out, err := models.ToContact(q.Contact(*res))
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -152,7 +152,7 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
+		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
 			Id:    id,
 			Meta:  []byte("{}"),
@@ -174,7 +174,7 @@ func contacts(g *echo.Group, d db.DB) {
 			return errors.WithStack(err)
 		}
 
-		in := q.ContactCreateParams{}
+		in := q.ContactCreateIn{}
 		if err := c.Bind(&in); err != nil {
 			return errors.WithStack(err)
 		}
@@ -185,7 +185,7 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
+		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
 			Meta:  []byte("{}"),
 			Name:  in.Name,
@@ -195,12 +195,12 @@ func contacts(g *echo.Group, d db.DB) {
 			return errors.WithStack(err)
 		}
 
-		res, err := q.ContactRead(conn).Run(id)
+		res, err := q.ContactRead(conn, id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 
-		out, err := models.ToContact(q.ContactCreateRes(*res))
+		out, err := models.ToContact(q.Contact(*res))
 		if err != nil {
 			return errors.WithStack(err)
 		}

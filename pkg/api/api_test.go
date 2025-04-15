@@ -38,7 +38,7 @@ func TestUser(t *testing.T) {
 		want   any
 	}{
 		{
-			in: q.ContactCreateParams{
+			in: q.ContactCreateIn{
 				Email: "a@example.com",
 				Name:  "Ann",
 			},
@@ -63,7 +63,7 @@ func TestUser(t *testing.T) {
 			},
 		},
 		{
-			in: q.ContactUpdateParams{
+			in: q.ContactUpdateIn{
 				Email: "a@new.com",
 				Name:  "Ann",
 			},

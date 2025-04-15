@@ -2,7 +2,7 @@ version: "2"
 plugins:
   - name: zz
     process:
-      cmd: sqlc-gen-zombiezen
+      cmd: sqlc-gen-zz
 sql:
   - codegen:
       - out: q
