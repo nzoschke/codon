@@ -1,8 +1,10 @@
 version: "2"
+
 plugins:
   - name: zz
     process:
       cmd: sqlc-gen-zz
+
 sql:
   - codegen:
       - out: q
