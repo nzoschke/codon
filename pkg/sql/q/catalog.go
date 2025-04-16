@@ -2,12 +2,16 @@
 
 package q
 
+import (
+	"time"
+)
+
 type Contact struct {
-	CreatedAt float64 `json:"created_at"`
-	Email     string  `json:"email"`
-	Id        int64   `json:"id"`
-	Meta      []byte  `json:"meta"`
-	Name      string  `json:"name"`
-	Phone     string  `json:"phone"`
-	UpdatedAt float64 `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	Email     string    `json:"email"`
+	Id        int64     `json:"id"`
+	Meta      []byte    `json:"meta"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

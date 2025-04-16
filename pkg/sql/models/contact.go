@@ -8,11 +8,6 @@ import (
 	"github.com/olekukonko/errors"
 )
 
-const (
-	secondsInADay      = 86400
-	unixEpochJulianDay = 2440587.5
-)
-
 type Contact struct {
 	CreatedAt time.Time      `json:"created_at"`
 	Email     string         `json:"email"`
@@ -25,13 +20,13 @@ type Contact struct {
 
 func ToContact(r q.Contact) (Contact, error) {
 	c := Contact{
-		CreatedAt: JulianDayToTime(r.CreatedAt),
+		CreatedAt: r.CreatedAt,
 		Email:     r.Email,
 		Id:        r.Id,
 		Meta:      map[string]any{},
 		Name:      r.Name,
 		Phone:     r.Phone,
-		UpdatedAt: JulianDayToTime(r.UpdatedAt),
+		UpdatedAt: r.UpdatedAt,
 	}
 
 	if err := json.Unmarshal(r.Meta, &c.Meta); err != nil {
@@ -39,8 +34,4 @@ func ToContact(r q.Contact) (Contact, error) {
 	}
 
 	return c, nil
-}
-
-func JulianDayToTime(d float64) time.Time {
-	return time.Unix(int64((d-unixEpochJulianDay)*secondsInADay), 0).UTC()
 }

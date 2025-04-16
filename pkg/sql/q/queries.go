@@ -4,6 +4,7 @@ package q
 
 import (
 	"database/sql"
+	"time"
 
 	"zombiezen.com/go/sqlite"
 )
@@ -16,13 +17,13 @@ type ContactCreateIn struct {
 }
 
 type ContactCreateOut struct {
-	CreatedAt float64 `json:"created_at"`
-	Email     string  `json:"email"`
-	Id        int64   `json:"id"`
-	Meta      []byte  `json:"meta"`
-	Name      string  `json:"name"`
-	Phone     string  `json:"phone"`
-	UpdatedAt float64 `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	Email     string    `json:"email"`
+	Id        int64     `json:"id"`
+	Meta      []byte    `json:"meta"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func ContactCreate(tx *sqlite.Conn, in ContactCreateIn) (*ContactCreateOut, error) {
@@ -48,33 +49,26 @@ RETURNING
 	}
 
 	out := ContactCreateOut{}
-
-	out.CreatedAt = stmt.ColumnFloat(0)
-
+	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
-
 	out.Id = stmt.ColumnInt64(2)
-
 	out.Meta = []byte(stmt.ColumnText(3))
-
 	out.Name = stmt.ColumnText(4)
-
 	out.Phone = stmt.ColumnText(5)
-
-	out.UpdatedAt = stmt.ColumnFloat(6)
+	out.UpdatedAt = timeParse(stmt.ColumnText(6))
 
 	return &out, nil
 
 }
 
 type ContactReadOut struct {
-	CreatedAt float64 `json:"created_at"`
-	Email     string  `json:"email"`
-	Id        int64   `json:"id"`
-	Meta      []byte  `json:"meta"`
-	Name      string  `json:"name"`
-	Phone     string  `json:"phone"`
-	UpdatedAt float64 `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	Email     string    `json:"email"`
+	Id        int64     `json:"id"`
+	Meta      []byte    `json:"meta"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func ContactRead(tx *sqlite.Conn, id int64) (*ContactReadOut, error) {
@@ -99,20 +93,13 @@ LIMIT
 	}
 
 	out := ContactReadOut{}
-
-	out.CreatedAt = stmt.ColumnFloat(0)
-
+	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
-
 	out.Id = stmt.ColumnInt64(2)
-
 	out.Meta = []byte(stmt.ColumnText(3))
-
 	out.Name = stmt.ColumnText(4)
-
 	out.Phone = stmt.ColumnText(5)
-
-	out.UpdatedAt = stmt.ColumnFloat(6)
+	out.UpdatedAt = timeParse(stmt.ColumnText(6))
 
 	return &out, nil
 
@@ -134,7 +121,7 @@ SET
   meta = ?,
   name = ?,
   phone = ?,
-  updated_at = JULIANDAY(CURRENT_TIMESTAMP)
+  updated_at = CURRENT_TIMESTAMP
 WHERE
   id = ?`)
 	defer stmt.Reset()
@@ -173,13 +160,13 @@ WHERE
 type ContactListOut []ContactListRow
 
 type ContactListRow struct {
-	CreatedAt float64 `json:"created_at"`
-	Email     string  `json:"email"`
-	Id        int64   `json:"id"`
-	Meta      []byte  `json:"meta"`
-	Name      string  `json:"name"`
-	Phone     string  `json:"phone"`
-	UpdatedAt float64 `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	Email     string    `json:"email"`
+	Id        int64     `json:"id"`
+	Meta      []byte    `json:"meta"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func ContactList(tx *sqlite.Conn, limit int64) (ContactListOut, error) {
@@ -206,20 +193,13 @@ LIMIT
 		}
 
 		row := ContactListRow{}
-
-		row.CreatedAt = stmt.ColumnFloat(0)
-
+		row.CreatedAt = timeParse(stmt.ColumnText(0))
 		row.Email = stmt.ColumnText(1)
-
 		row.Id = stmt.ColumnInt64(2)
-
 		row.Meta = []byte(stmt.ColumnText(3))
-
 		row.Name = stmt.ColumnText(4)
-
 		row.Phone = stmt.ColumnText(5)
-
-		row.UpdatedAt = stmt.ColumnFloat(6)
+		row.UpdatedAt = timeParse(stmt.ColumnText(6))
 
 		out = append(out, row)
 	}
@@ -254,4 +234,9 @@ LIMIT
 
 	return stmt.ColumnInt64(0), nil
 
+}
+
+func timeParse(s string) time.Time {
+	t, _ := time.Parse("2006-01-02 15:04:05", s)
+	return t
 }

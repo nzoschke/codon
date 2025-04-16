@@ -24,7 +24,7 @@ SET
   meta = ?,
   name = ?,
   phone = ?,
-  updated_at = JULIANDAY(CURRENT_TIMESTAMP)
+  updated_at = CURRENT_TIMESTAMP
 WHERE
   id = ?;
 

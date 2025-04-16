@@ -38,9 +38,7 @@ func TestCRUD(t *testing.T) {
 	})
 	a.NoError(err)
 
-	created := JulianDayToTime(res.CreatedAt)
-
-	a.Equal(time.Now().Format("2006-01-02"), created.Format("2006-01-02"))
+	a.Equal(time.Now().UTC().Format("2006-01-02"), res.CreatedAt.Format("2006-01-02"))
 
 	a.Equal(&q.ContactCreateOut{
 		CreatedAt: res.CreatedAt,
