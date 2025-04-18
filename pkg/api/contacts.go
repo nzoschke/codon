@@ -167,7 +167,7 @@ func contacts(g *echo.Group, d db.DB) {
 
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
-			Meta:  models.Meta{},
+			Meta:  in.Meta,
 			Name:  in.Name,
 			Id:    id,
 		})

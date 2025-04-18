@@ -10,7 +10,9 @@
     name: "",
     created_at: "",
     email: "",
-    meta: {},
+    meta: {
+      age: 0,
+    },
     phone: "",
     updated_at: "",
   });

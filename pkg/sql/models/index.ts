@@ -7,7 +7,7 @@ export interface Contact {
   created_at: string /* RFC3339 */;
   email: string;
   id: number /* int64 */;
-  meta: { [key: string]: any };
+  meta: Meta;
   name: string;
   phone: string;
   updated_at: string /* RFC3339 */;
