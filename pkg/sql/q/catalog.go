@@ -4,14 +4,20 @@ package q
 
 import (
 	"time"
+
+	"github.com/nzoschke/codon/pkg/sql/models"
 )
 
 type Contact struct {
-	CreatedAt time.Time `json:"created_at"`
-	Email     string    `json:"email"`
-	Id        int64     `json:"id"`
-	Meta      []byte    `json:"meta"`
-	Name      string    `json:"name"`
-	Phone     string    `json:"phone"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time   `json:"created_at"`
+	Email     string      `json:"email"`
+	Id        int64       `json:"id"`
+	Meta      models.Meta `json:"meta"`
+	Name      string      `json:"name"`
+	Phone     string      `json:"phone"`
+	UpdatedAt time.Time   `json:"updated_at"`
+}
+
+func catalogImports() {
+	_ = time.Time{}
 }

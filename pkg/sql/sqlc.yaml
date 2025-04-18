@@ -7,7 +7,14 @@ plugins:
 
 sql:
   - codegen:
-      - out: q
+      - options:
+          overrides:
+            - column: contacts.meta
+              go_type:
+                import: github.com/nzoschke/codon/pkg/sql
+                package: models
+                type: Meta
+        out: q
         plugin: zz
     engine: "sqlite"
     queries: "./queries"

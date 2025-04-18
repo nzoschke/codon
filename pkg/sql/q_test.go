@@ -2,7 +2,6 @@ package sql_test
 
 import (
 	"database/sql"
-	"encoding/json"
 	"testing"
 	"time"
 
@@ -45,7 +44,7 @@ func TestCRUD(t *testing.T) {
 		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
-		Meta:      []byte{},
+		Meta:      models.Meta{},
 		UpdatedAt: res.UpdatedAt,
 	}, res)
 
@@ -57,7 +56,7 @@ func TestCRUD(t *testing.T) {
 		Email:     "a@example.com",
 		Id:        1,
 		Name:      "Ann",
-		Meta:      []byte{},
+		Meta:      models.Meta{},
 		UpdatedAt: res.UpdatedAt,
 	}, rres)
 
@@ -79,7 +78,7 @@ func TestCRUD(t *testing.T) {
 		Email:     "a@new.com",
 		Id:        1,
 		Name:      "Ann",
-		Meta:      []byte{},
+		Meta:      models.Meta{},
 		UpdatedAt: rres.UpdatedAt,
 	}, rres)
 
@@ -104,17 +103,12 @@ func TestJSON(t *testing.T) {
 	a.NoError(err)
 	defer put()
 
-	meta := map[string]any{
-		"age": 21,
-	}
-
-	bs, err := json.Marshal(meta)
-	a.NoError(err)
-
 	res, err := q.ContactCreate(conn, q.ContactCreateIn{
 		Email: "a@example.com",
-		Meta:  bs,
-		Name:  "Ann",
+		Meta: models.Meta{
+			Age: 21,
+		},
+		Name: "Ann",
 	})
 	a.NoError(err)
 
@@ -122,24 +116,12 @@ func TestJSON(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
-		Meta:      []byte(`{"age":21}`),
+		Meta: models.Meta{
+			Age: 21,
+		},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
 	}, res)
-
-	out, err := models.ToContact(q.Contact(*res))
-	a.NoError(err)
-
-	a.Equal(models.Contact{
-		CreatedAt: out.CreatedAt,
-		Email:     "a@example.com",
-		Id:        1,
-		Meta: map[string]any{
-			"age": float64(21),
-		},
-		Name:      "Ann",
-		UpdatedAt: out.UpdatedAt,
-	}, out)
 
 	age, err := q.ContactAge(conn, 1)
 	a.NoError(err)

@@ -4,26 +4,29 @@ package q
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"zombiezen.com/go/sqlite"
+
+	"github.com/nzoschke/codon/pkg/sql/models"
 )
 
 type ContactCreateIn struct {
-	Email string `json:"email"`
-	Meta  []byte `json:"meta"`
-	Name  string `json:"name"`
-	Phone string `json:"phone"`
+	Email string      `json:"email"`
+	Meta  models.Meta `json:"meta"`
+	Name  string      `json:"name"`
+	Phone string      `json:"phone"`
 }
 
 type ContactCreateOut struct {
-	CreatedAt time.Time `json:"created_at"`
-	Email     string    `json:"email"`
-	Id        int64     `json:"id"`
-	Meta      []byte    `json:"meta"`
-	Name      string    `json:"name"`
-	Phone     string    `json:"phone"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time   `json:"created_at"`
+	Email     string      `json:"email"`
+	Id        int64       `json:"id"`
+	Meta      models.Meta `json:"meta"`
+	Name      string      `json:"name"`
+	Phone     string      `json:"phone"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 func ContactCreate(tx *sqlite.Conn, in ContactCreateIn) (*ContactCreateOut, error) {
@@ -36,7 +39,7 @@ RETURNING
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.Email)
-	stmt.BindBytes(2, in.Meta)
+	stmt.BindBytes(2, jsonMarshal(in.Meta))
 	stmt.BindText(3, in.Name)
 	stmt.BindText(4, in.Phone)
 
@@ -52,7 +55,7 @@ RETURNING
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
 	out.Id = stmt.ColumnInt64(2)
-	out.Meta = []byte(stmt.ColumnText(3))
+	out.Meta = jsonUnmarshalModelsMeta([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
 	out.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -62,13 +65,13 @@ RETURNING
 }
 
 type ContactReadOut struct {
-	CreatedAt time.Time `json:"created_at"`
-	Email     string    `json:"email"`
-	Id        int64     `json:"id"`
-	Meta      []byte    `json:"meta"`
-	Name      string    `json:"name"`
-	Phone     string    `json:"phone"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time   `json:"created_at"`
+	Email     string      `json:"email"`
+	Id        int64       `json:"id"`
+	Meta      models.Meta `json:"meta"`
+	Name      string      `json:"name"`
+	Phone     string      `json:"phone"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 func ContactRead(tx *sqlite.Conn, id int64) (*ContactReadOut, error) {
@@ -96,7 +99,7 @@ LIMIT
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
 	out.Id = stmt.ColumnInt64(2)
-	out.Meta = []byte(stmt.ColumnText(3))
+	out.Meta = jsonUnmarshalModelsMeta([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
 	out.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -106,11 +109,11 @@ LIMIT
 }
 
 type ContactUpdateIn struct {
-	Email string `json:"email"`
-	Meta  []byte `json:"meta"`
-	Name  string `json:"name"`
-	Phone string `json:"phone"`
-	Id    int64  `json:"id"`
+	Email string      `json:"email"`
+	Meta  models.Meta `json:"meta"`
+	Name  string      `json:"name"`
+	Phone string      `json:"phone"`
+	Id    int64       `json:"id"`
 }
 
 func ContactUpdate(tx *sqlite.Conn, in ContactUpdateIn) error {
@@ -127,7 +130,7 @@ WHERE
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.Email)
-	stmt.BindBytes(2, in.Meta)
+	stmt.BindBytes(2, jsonMarshal(in.Meta))
 	stmt.BindText(3, in.Name)
 	stmt.BindText(4, in.Phone)
 	stmt.BindInt64(5, in.Id)
@@ -160,13 +163,13 @@ WHERE
 type ContactListOut []ContactListRow
 
 type ContactListRow struct {
-	CreatedAt time.Time `json:"created_at"`
-	Email     string    `json:"email"`
-	Id        int64     `json:"id"`
-	Meta      []byte    `json:"meta"`
-	Name      string    `json:"name"`
-	Phone     string    `json:"phone"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time   `json:"created_at"`
+	Email     string      `json:"email"`
+	Id        int64       `json:"id"`
+	Meta      models.Meta `json:"meta"`
+	Name      string      `json:"name"`
+	Phone     string      `json:"phone"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 func ContactList(tx *sqlite.Conn, limit int64) (ContactListOut, error) {
@@ -196,7 +199,7 @@ LIMIT
 		row.CreatedAt = timeParse(stmt.ColumnText(0))
 		row.Email = stmt.ColumnText(1)
 		row.Id = stmt.ColumnInt64(2)
-		row.Meta = []byte(stmt.ColumnText(3))
+		row.Meta = jsonUnmarshalModelsMeta([]byte(stmt.ColumnText(3)))
 		row.Name = stmt.ColumnText(4)
 		row.Phone = stmt.ColumnText(5)
 		row.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -234,6 +237,17 @@ LIMIT
 
 	return stmt.ColumnInt64(0), nil
 
+}
+
+func jsonMarshal(v any) []byte {
+	bs, _ := json.Marshal(v)
+	return bs
+}
+
+func jsonUnmarshalModelsMeta(bs []byte) models.Meta {
+	var v models.Meta
+	json.Unmarshal(bs, &v)
+	return v
 }
 
 func timeParse(s string) time.Time {

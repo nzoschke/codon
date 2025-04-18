@@ -12,3 +12,6 @@ export interface Contact {
   phone: string;
   updated_at: string /* RFC3339 */;
 }
+export interface Meta {
+  age: number /* int */;
+}

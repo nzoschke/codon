@@ -22,19 +22,9 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		res, err := q.ContactList(conn, 10)
+		out, err := q.ContactList(conn, 10)
 		if err != nil {
 			return errors.WithStack(err)
-		}
-
-		out := []models.Contact{}
-		for _, r := range res {
-			c, err := models.ToContact(q.Contact(r))
-			if err != nil {
-				return errors.WithStack(err)
-			}
-
-			out = append(out, c)
 		}
 
 		return c.JSON(http.StatusOK, out)
@@ -76,12 +66,7 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		res, err := q.ContactRead(conn, id)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		out, err := models.ToContact(q.Contact(*res))
+		out, err := q.ContactRead(conn, id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -107,9 +92,9 @@ func contacts(g *echo.Group, d db.DB) {
 		}
 		defer put()
 
-		res, err := q.ContactCreate(conn, q.ContactCreateIn{
+		out, err := q.ContactCreate(conn, q.ContactCreateIn{
 			Email: in.Email,
-			Meta:  []byte("{}"),
+			Meta:  models.Meta{},
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
@@ -119,11 +104,6 @@ func contacts(g *echo.Group, d db.DB) {
 
 		if c.Request().Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
 			return c.Redirect(http.StatusSeeOther, "/#/contacts")
-		}
-
-		out, err := models.ToContact(q.Contact(*res))
-		if err != nil {
-			return errors.WithStack(err)
 		}
 
 		return c.JSON(http.StatusOK, out)
@@ -155,7 +135,7 @@ func contacts(g *echo.Group, d db.DB) {
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
 			Id:    id,
-			Meta:  []byte("{}"),
+			Meta:  models.Meta{},
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
@@ -187,7 +167,7 @@ func contacts(g *echo.Group, d db.DB) {
 
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
-			Meta:  []byte("{}"),
+			Meta:  models.Meta{},
 			Name:  in.Name,
 			Id:    id,
 		})
@@ -195,12 +175,7 @@ func contacts(g *echo.Group, d db.DB) {
 			return errors.WithStack(err)
 		}
 
-		res, err := q.ContactRead(conn, id)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		out, err := models.ToContact(q.Contact(*res))
+		out, err := q.ContactRead(conn, id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
