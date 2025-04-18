@@ -9,11 +9,11 @@ sql:
   - codegen:
       - options:
           overrides:
-            - column: contacts.meta
+            - column: contacts.info
               go_type:
                 import: github.com/nzoschke/codon/pkg/sql
                 package: models
-                type: Meta
+                type: Info
         out: q
         plugin: zz
     engine: "sqlite"

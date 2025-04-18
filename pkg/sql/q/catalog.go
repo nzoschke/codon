@@ -12,7 +12,7 @@ type Contact struct {
 	CreatedAt time.Time   `json:"created_at"`
 	Email     string      `json:"email"`
 	Id        int64       `json:"id"`
-	Meta      models.Meta `json:"meta"`
+	Info      models.Info `json:"info"`
 	Name      string      `json:"name"`
 	Phone     string      `json:"phone"`
 	UpdatedAt time.Time   `json:"updated_at"`

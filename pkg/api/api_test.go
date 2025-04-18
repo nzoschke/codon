@@ -47,7 +47,7 @@ func TestUser(t *testing.T) {
 			want: q.ContactCreateOut{
 				Email: "a@example.com",
 				Id:    1,
-				Meta:  models.Meta{},
+				Info:  models.Info{},
 				Name:  "Ann",
 			},
 		},
@@ -58,7 +58,7 @@ func TestUser(t *testing.T) {
 			want: q.ContactCreateOut{
 				Email: "a@example.com",
 				Id:    1,
-				Meta:  models.Meta{},
+				Info:  models.Info{},
 				Name:  "Ann",
 			},
 		},
@@ -72,7 +72,7 @@ func TestUser(t *testing.T) {
 			want: q.ContactCreateOut{
 				Email: "a@new.com",
 				Id:    1,
-				Meta:  models.Meta{},
+				Info:  models.Info{},
 				Name:  "Ann",
 			},
 		},

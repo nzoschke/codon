@@ -34,8 +34,8 @@ func TestCRUD(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
+		Info:      models.Info{},
 		Name:      "Ann",
-		Meta:      models.Meta{},
 		UpdatedAt: res.UpdatedAt,
 	}, res)
 
@@ -46,8 +46,8 @@ func TestCRUD(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
+		Info:      models.Info{},
 		Name:      "Ann",
-		Meta:      models.Meta{},
 		UpdatedAt: res.UpdatedAt,
 	}, rres)
 
@@ -68,8 +68,8 @@ func TestCRUD(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@new.com",
 		Id:        1,
+		Info:      models.Info{},
 		Name:      "Ann",
-		Meta:      models.Meta{},
 		UpdatedAt: rres.UpdatedAt,
 	}, rres)
 
@@ -96,7 +96,7 @@ func TestJSON(t *testing.T) {
 
 	res, err := q.ContactCreate(conn, q.ContactCreateIn{
 		Email: "a@example.com",
-		Meta: models.Meta{
+		Info: models.Info{
 			Age: 21,
 		},
 		Name: "Ann",
@@ -107,7 +107,7 @@ func TestJSON(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
-		Meta: models.Meta{
+		Info: models.Info{
 			Age: 21,
 		},
 		Name:      "Ann",

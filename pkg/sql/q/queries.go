@@ -14,7 +14,7 @@ import (
 
 type ContactCreateIn struct {
 	Email string      `json:"email"`
-	Meta  models.Meta `json:"meta"`
+	Info  models.Info `json:"info"`
 	Name  string      `json:"name"`
 	Phone string      `json:"phone"`
 }
@@ -23,7 +23,7 @@ type ContactCreateOut struct {
 	CreatedAt time.Time   `json:"created_at"`
 	Email     string      `json:"email"`
 	Id        int64       `json:"id"`
-	Meta      models.Meta `json:"meta"`
+	Info      models.Info `json:"info"`
 	Name      string      `json:"name"`
 	Phone     string      `json:"phone"`
 	UpdatedAt time.Time   `json:"updated_at"`
@@ -31,15 +31,15 @@ type ContactCreateOut struct {
 
 func ContactCreate(tx *sqlite.Conn, in ContactCreateIn) (*ContactCreateOut, error) {
 	stmt := tx.Prep(`INSERT INTO
-  contacts (email, meta, name, phone)
+  contacts (email, info, name, phone)
 VALUES
   (?, ?, ?, ?)
 RETURNING
-  created_at, email, id, meta, name, phone, updated_at`)
+  created_at, email, id, info, name, phone, updated_at`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.Email)
-	stmt.BindBytes(2, jsonMarshal(in.Meta))
+	stmt.BindBytes(2, jsonMarshal(in.Info))
 	stmt.BindText(3, in.Name)
 	stmt.BindText(4, in.Phone)
 
@@ -55,7 +55,7 @@ RETURNING
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
 	out.Id = stmt.ColumnInt64(2)
-	out.Meta = jsonUnmarshalModelsMeta([]byte(stmt.ColumnText(3)))
+	out.Info = jsonUnmarshalModelsInfo([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
 	out.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -68,7 +68,7 @@ type ContactReadOut struct {
 	CreatedAt time.Time   `json:"created_at"`
 	Email     string      `json:"email"`
 	Id        int64       `json:"id"`
-	Meta      models.Meta `json:"meta"`
+	Info      models.Info `json:"info"`
 	Name      string      `json:"name"`
 	Phone     string      `json:"phone"`
 	UpdatedAt time.Time   `json:"updated_at"`
@@ -76,7 +76,7 @@ type ContactReadOut struct {
 
 func ContactRead(tx *sqlite.Conn, id int64) (*ContactReadOut, error) {
 	stmt := tx.Prep(`SELECT
-  created_at, email, id, meta, name, phone, updated_at
+  created_at, email, id, info, name, phone, updated_at
 FROM
   contacts
 WHERE
@@ -99,7 +99,7 @@ LIMIT
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
 	out.Id = stmt.ColumnInt64(2)
-	out.Meta = jsonUnmarshalModelsMeta([]byte(stmt.ColumnText(3)))
+	out.Info = jsonUnmarshalModelsInfo([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
 	out.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -110,7 +110,7 @@ LIMIT
 
 type ContactUpdateIn struct {
 	Email string      `json:"email"`
-	Meta  models.Meta `json:"meta"`
+	Info  models.Info `json:"info"`
 	Name  string      `json:"name"`
 	Phone string      `json:"phone"`
 	Id    int64       `json:"id"`
@@ -121,7 +121,7 @@ func ContactUpdate(tx *sqlite.Conn, in ContactUpdateIn) error {
   contacts
 SET
   email = ?,
-  meta = ?,
+  info = ?,
   name = ?,
   phone = ?,
   updated_at = CURRENT_TIMESTAMP
@@ -130,7 +130,7 @@ WHERE
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.Email)
-	stmt.BindBytes(2, jsonMarshal(in.Meta))
+	stmt.BindBytes(2, jsonMarshal(in.Info))
 	stmt.BindText(3, in.Name)
 	stmt.BindText(4, in.Phone)
 	stmt.BindInt64(5, in.Id)
@@ -166,7 +166,7 @@ type ContactListRow struct {
 	CreatedAt time.Time   `json:"created_at"`
 	Email     string      `json:"email"`
 	Id        int64       `json:"id"`
-	Meta      models.Meta `json:"meta"`
+	Info      models.Info `json:"info"`
 	Name      string      `json:"name"`
 	Phone     string      `json:"phone"`
 	UpdatedAt time.Time   `json:"updated_at"`
@@ -174,7 +174,7 @@ type ContactListRow struct {
 
 func ContactList(tx *sqlite.Conn, limit int64) (ContactListOut, error) {
 	stmt := tx.Prep(`SELECT
-  created_at, email, id, meta, name, phone, updated_at
+  created_at, email, id, info, name, phone, updated_at
 FROM
   contacts
 ORDER BY
@@ -199,7 +199,7 @@ LIMIT
 		row.CreatedAt = timeParse(stmt.ColumnText(0))
 		row.Email = stmt.ColumnText(1)
 		row.Id = stmt.ColumnInt64(2)
-		row.Meta = jsonUnmarshalModelsMeta([]byte(stmt.ColumnText(3)))
+		row.Info = jsonUnmarshalModelsInfo([]byte(stmt.ColumnText(3)))
 		row.Name = stmt.ColumnText(4)
 		row.Phone = stmt.ColumnText(5)
 		row.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -216,7 +216,7 @@ type ContactAgeOut struct {
 
 func ContactAge(tx *sqlite.Conn, id int64) (int64, error) {
 	stmt := tx.Prep(`SELECT
-  CAST(meta ->> '$.age' AS INTEGER) AS age
+  CAST(info ->> '$.age' AS INTEGER) AS age
 FROM
   contacts
 WHERE
@@ -244,8 +244,8 @@ func jsonMarshal(v any) []byte {
 	return bs
 }
 
-func jsonUnmarshalModelsMeta(bs []byte) models.Meta {
-	var v models.Meta
+func jsonUnmarshalModelsInfo(bs []byte) models.Info {
+	var v models.Info
 	json.Unmarshal(bs, &v)
 	return v
 }

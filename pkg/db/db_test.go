@@ -23,7 +23,7 @@ func TestCRUD(t *testing.T) {
 	a.NoError(err)
 
 	// create
-	err = db.Exec(ctx, "INSERT INTO contacts (email, meta, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", []byte("{}"), "Ann", ""}, nil)
+	err = db.Exec(ctx, "INSERT INTO contacts (email, info, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", []byte("{}"), "Ann", ""}, nil)
 	a.NoError(err)
 
 	// list
@@ -83,18 +83,18 @@ func TestJSON(t *testing.T) {
 	db, err := db.New(ctx, "file::memory:?mode=memory&cache=shared")
 	a.NoError(err)
 
-	meta := map[string]any{
+	info := map[string]any{
 		"age": 21,
 	}
 
-	bs, err := json.Marshal(meta)
+	bs, err := json.Marshal(info)
 	a.NoError(err)
 
-	err = db.Exec(ctx, "INSERT INTO contacts (email, meta, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", bs, "Ann", ""}, nil)
+	err = db.Exec(ctx, "INSERT INTO contacts (email, info, name, phone) VALUES (?, ?, ?, ?)", []any{"a@example.com", bs, "Ann", ""}, nil)
 	a.NoError(err)
 
 	bs = []byte{}
-	err = db.Exec(ctx, "SELECT meta FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "SELECT info FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		bs = []byte(stmt.ColumnText(0))
 		return nil
 	})
@@ -102,7 +102,7 @@ func TestJSON(t *testing.T) {
 	a.Equal(`{"age":21}`, string(bs))
 
 	age := 0
-	err = db.Exec(ctx, "SELECT meta->>'$.age' AS age FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
+	err = db.Exec(ctx, "SELECT info->>'$.age' AS age FROM contacts WHERE id = ?", []any{1}, func(stmt *sqlite.Stmt) error {
 		age = stmt.ColumnInt(0)
 		return nil
 	})

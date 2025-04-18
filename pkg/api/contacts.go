@@ -94,7 +94,7 @@ func contacts(g *echo.Group, d db.DB) {
 
 		out, err := q.ContactCreate(conn, q.ContactCreateIn{
 			Email: in.Email,
-			Meta:  models.Meta{},
+			Info:  models.Info{},
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
@@ -135,7 +135,7 @@ func contacts(g *echo.Group, d db.DB) {
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
 			Id:    id,
-			Meta:  models.Meta{},
+			Info:  models.Info{},
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
@@ -167,9 +167,9 @@ func contacts(g *echo.Group, d db.DB) {
 
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
-			Meta:  in.Meta,
-			Name:  in.Name,
 			Id:    id,
+			Info:  in.Info,
+			Name:  in.Name,
 		})
 		if err != nil {
 			return errors.WithStack(err)
