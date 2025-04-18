@@ -1,6 +1,6 @@
 -- name: ContactCreate :one
 INSERT INTO
-  contacts (email, meta, name, phone)
+  contacts (email, info, name, phone)
 VALUES
   (?, ?, ?, ?)
 RETURNING
@@ -21,10 +21,10 @@ UPDATE
   contacts
 SET
   email = ?,
-  meta = ?,
+  info = ?,
   name = ?,
   phone = ?,
-  updated_at = JULIANDAY(CURRENT_TIMESTAMP)
+  updated_at = CURRENT_TIMESTAMP
 WHERE
   id = ?;
 
@@ -46,7 +46,7 @@ LIMIT
 
 -- name: ContactAge :one
 SELECT
-  CAST(meta ->> '$.age' AS INTEGER) AS age
+  CAST(info ->> '$.age' AS INTEGER) AS age
 FROM
   contacts
 WHERE

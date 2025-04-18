@@ -1,11 +1,20 @@
 version: "2"
+
 plugins:
   - name: zz
     process:
-      cmd: sqlc-gen-zombiezen
+      cmd: sqlc-gen-zz
+
 sql:
   - codegen:
-      - out: q
+      - options:
+          overrides:
+            - column: contacts.info
+              go_type:
+                import: github.com/nzoschke/codon/pkg/sql
+                package: models
+                type: Info
+        out: q
         plugin: zz
     engine: "sqlite"
     queries: "./queries"

@@ -38,16 +38,16 @@ func TestUser(t *testing.T) {
 		want   any
 	}{
 		{
-			in: q.ContactCreateParams{
+			in: q.ContactCreateIn{
 				Email: "a@example.com",
 				Name:  "Ann",
 			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
-			want: models.Contact{
+			want: q.ContactCreateOut{
 				Email: "a@example.com",
 				Id:    1,
-				Meta:  map[string]any{},
+				Info:  models.Info{},
 				Name:  "Ann",
 			},
 		},
@@ -55,24 +55,24 @@ func TestUser(t *testing.T) {
 			in:     nil,
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
-			want: models.Contact{
+			want: q.ContactCreateOut{
 				Email: "a@example.com",
 				Id:    1,
-				Meta:  map[string]any{},
+				Info:  models.Info{},
 				Name:  "Ann",
 			},
 		},
 		{
-			in: q.ContactUpdateParams{
+			in: q.ContactUpdateIn{
 				Email: "a@new.com",
 				Name:  "Ann",
 			},
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
-			want: models.Contact{
+			want: q.ContactCreateOut{
 				Email: "a@new.com",
 				Id:    1,
-				Meta:  map[string]any{},
+				Info:  models.Info{},
 				Name:  "Ann",
 			},
 		},

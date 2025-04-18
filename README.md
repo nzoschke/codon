@@ -15,7 +15,7 @@ layers of cruft.
 
 ```bash
 brew install deno go oven-sh/bun/bun sqlc
-go install github.com/nzoschke/toolbelt/sqlc-gen-zombiezen@0290744
+go install github.com/nzoschke/sqlc-gen-zz@latest
 go install github.com/mitranim/gow@latest
 go install github.com/gzuidhof/tygo@latest
 

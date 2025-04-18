@@ -1,7 +1,7 @@
 package sql_test
 
 import (
-	"encoding/json"
+	"database/sql"
 	"testing"
 	"time"
 
@@ -22,61 +22,64 @@ func TestCRUD(t *testing.T) {
 	a.NoError(err)
 	defer put()
 
-	res, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+	res, err := q.ContactCreate(conn, q.ContactCreateIn{
 		Email: "a@example.com",
 		Name:  "Ann",
 	})
 	a.NoError(err)
 
-	a.Equal(time.Now().Format("2006-01-02"), res.CreatedAt.Format("2006-01-02"))
+	a.Equal(time.Now().UTC().Format("2006-01-02"), res.CreatedAt.Format("2006-01-02"))
 
-	a.Equal(&q.ContactCreateRes{
+	a.Equal(&q.ContactCreateOut{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
+		Info:      models.Info{},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
 	}, res)
 
-	rres, err := q.ContactRead(conn).Run(1)
+	rres, err := q.ContactRead(conn, 1)
 	a.NoError(err)
 
-	a.Equal(&q.ContactReadRes{
+	a.Equal(&q.ContactReadOut{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
+		Info:      models.Info{},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
 	}, rres)
 
 	// wait for CURRENT_TIMESTAMP to advance
-	time.Sleep(2 * time.Second)
+	time.Sleep(1001 * time.Millisecond)
 
-	err = q.ContactUpdate(conn).Run(q.ContactUpdateParams{
+	err = q.ContactUpdate(conn, q.ContactUpdateIn{
 		Email: "a@new.com",
 		Name:  "Ann",
 		Id:    1,
 	})
 	a.NoError(err)
 
-	rres, err = q.ContactRead(conn).Run(1)
+	rres, err = q.ContactRead(conn, 1)
 	a.NoError(err)
 
-	a.Equal(&q.ContactReadRes{
-		CreatedAt: rres.CreatedAt,
+	a.Equal(&q.ContactReadOut{
+		CreatedAt: res.CreatedAt,
 		Email:     "a@new.com",
 		Id:        1,
+		Info:      models.Info{},
 		Name:      "Ann",
 		UpdatedAt: rres.UpdatedAt,
 	}, rres)
 
-	a.True(rres.UpdatedAt.After(res.UpdatedAt))
+	a.Greater(rres.UpdatedAt, res.UpdatedAt)
 
-	err = q.ContactDelete(conn).Run(1)
+	err = q.ContactDelete(conn, 1)
 	a.NoError(err)
 
-	rres, err = q.ContactRead(conn).Run(1)
-	a.NoError(err)
+	rres, err = q.ContactRead(conn, 1)
+	a.EqualError(err, sql.ErrNoRows.Error())
 	a.Nil(rres)
 }
 
@@ -91,44 +94,27 @@ func TestJSON(t *testing.T) {
 	a.NoError(err)
 	defer put()
 
-	meta := map[string]any{
-		"age": 21,
-	}
-
-	bs, err := json.Marshal(meta)
-	a.NoError(err)
-
-	res, err := q.ContactCreate(conn).Run(q.ContactCreateParams{
+	res, err := q.ContactCreate(conn, q.ContactCreateIn{
 		Email: "a@example.com",
-		Meta:  bs,
-		Name:  "Ann",
+		Info: models.Info{
+			Age: 21,
+		},
+		Name: "Ann",
 	})
 	a.NoError(err)
 
-	a.Equal(&q.ContactCreateRes{
+	a.Equal(&q.ContactCreateOut{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
-		Meta:      []byte(`{"age":21}`),
+		Info: models.Info{
+			Age: 21,
+		},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
 	}, res)
 
-	out, err := models.ToContact(*res)
-	a.NoError(err)
-
-	a.Equal(models.Contact{
-		CreatedAt: res.CreatedAt,
-		Email:     "a@example.com",
-		Id:        1,
-		Meta: map[string]any{
-			"age": float64(21),
-		},
-		Name:      "Ann",
-		UpdatedAt: res.UpdatedAt,
-	}, out)
-
-	age, err := q.ContactAge(conn).Run(1)
+	age, err := q.ContactAge(conn, 1)
 	a.NoError(err)
 
 	a.Equal(int64(21), age)
