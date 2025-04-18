@@ -11,15 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	secondsInADay      = 86400
-	UnixEpochJulianDay = 2440587.5
-)
-
-func JulianDayToTime(d float64) time.Time {
-	return time.Unix(int64((d-UnixEpochJulianDay)*secondsInADay), 0).UTC()
-}
-
 func TestCRUD(t *testing.T) {
 	ctx := t.Context()
 	a := assert.New(t)
