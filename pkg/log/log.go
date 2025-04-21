@@ -3,18 +3,19 @@ package log
 import (
 	"io"
 	"log/slog"
+	"strings"
 )
 
 func SetDefault(getenv func(string) string, stdout io.Writer) {
 	level := slog.LevelInfo
 	levels := map[string]slog.Level{
-		"DEBUG": slog.LevelDebug,
-		"INFO":  slog.LevelInfo,
-		"WARN":  slog.LevelWarn,
-		"ERROR": slog.LevelError,
+		"debug": slog.LevelDebug,
+		"info":  slog.LevelInfo,
+		"warn":  slog.LevelWarn,
+		"error": slog.LevelError,
 	}
 
-	if l, ok := levels[getenv("LEVEL")]; ok {
+	if l, ok := levels[strings.ToLower(getenv("LEVEL"))]; ok {
 		level = l
 	}
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Icon } from "@steeze-ui/svelte-icon";
-  import { Bars3, BookOpen, Home, Photo } from "@steeze-ui/heroicons";
+  import { Bars3, BookOpen, Home, Photo, User } from "@steeze-ui/heroicons";
   import { Github } from "@steeze-ui/simple-icons";
 </script>
 
@@ -10,13 +10,17 @@
       <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
         <Icon src={Bars3} class="h-5" />
       </div>
-      <ul
-        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
-      >
+      <ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
         <li>
           <a href="#/">
             <Icon src={Home} theme="solid" class="h-5" />
             Home
+          </a>
+        </li>
+        <li>
+          <a href="#/contacts">
+            <Icon src={User} theme="solid" class="h-5" />
+            Contacts
           </a>
         </li>
         <li>
@@ -41,6 +45,12 @@
         <a href="#/">
           <Icon src={Home} theme="solid" class="h-5" />
           Home
+        </a>
+      </li>
+      <li>
+        <a href="#/contacts">
+          <Icon src={User} theme="solid" class="h-5" />
+          Contacts
         </a>
       </li>
       <li>

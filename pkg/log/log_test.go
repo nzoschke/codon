@@ -24,7 +24,7 @@ func TestLevel(t *testing.T) {
 
 	bs = bytes.Buffer{}
 	log.SetDefault(func(string) string {
-		return "DEBUG"
+		return "debug"
 	}, &bs)
 	slog.Debug("debug")
 	slog.Info("info")
