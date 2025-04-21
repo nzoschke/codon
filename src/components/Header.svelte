@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Icon } from "@steeze-ui/svelte-icon";
-  import { Bars3, BookOpen, Home, Photo } from "@steeze-ui/heroicons";
+  import { Bars3, BookOpen, Home, Photo, User } from "@steeze-ui/heroicons";
   import { Github } from "@steeze-ui/simple-icons";
 </script>
 
@@ -19,7 +19,7 @@
         </li>
         <li>
           <a href="#/contacts">
-            <Icon src={Photo} theme="solid" class="h-5" />
+            <Icon src={User} theme="solid" class="h-5" />
             Contacts
           </a>
         </li>
@@ -49,7 +49,7 @@
       </li>
       <li>
         <a href="#/contacts">
-          <Icon src={Photo} theme="solid" class="h-5" />
+          <Icon src={User} theme="solid" class="h-5" />
           Contacts
         </a>
       </li>
