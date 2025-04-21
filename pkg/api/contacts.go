@@ -13,7 +13,9 @@ import (
 )
 
 func contacts(g *echo.Group, d db.DB) {
-	g.GET("/contacts", func(c echo.Context) error {
+	g = g.Group("/contacts")
+
+	g.GET("", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		conn, put, err := d.Take(ctx)
@@ -30,7 +32,7 @@ func contacts(g *echo.Group, d db.DB) {
 		return c.JSON(http.StatusOK, out)
 	})
 
-	g.DELETE("/contacts/:id", func(c echo.Context) error {
+	g.DELETE("/:id", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -52,7 +54,7 @@ func contacts(g *echo.Group, d db.DB) {
 		return c.JSON(http.StatusOK, nil)
 	})
 
-	g.GET("/contacts/:id", func(c echo.Context) error {
+	g.GET("/:id", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -74,7 +76,7 @@ func contacts(g *echo.Group, d db.DB) {
 		return c.JSON(http.StatusOK, out)
 	})
 
-	g.POST("/contacts", func(c echo.Context) error {
+	g.POST("", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		in := struct {
@@ -109,7 +111,7 @@ func contacts(g *echo.Group, d db.DB) {
 		return c.JSON(http.StatusOK, out)
 	})
 
-	g.POST("/contacts/:id", func(c echo.Context) error {
+	g.POST("/:id", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -146,7 +148,7 @@ func contacts(g *echo.Group, d db.DB) {
 		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/?id=%d#/contacts/read", id))
 	})
 
-	g.PUT("/contacts/:id", func(c echo.Context) error {
+	g.PUT("/:id", func(c echo.Context) error {
 		ctx := c.Request().Context()
 
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
