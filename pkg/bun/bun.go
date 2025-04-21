@@ -13,7 +13,7 @@ func Dev(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	cmd := exec.Command("bun", "run", "dev")
+	cmd := exec.Command("bun", "run", "dev", "--silent")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
