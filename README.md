@@ -68,9 +68,8 @@ bunx serve build/dist
 
 ```
 go install github.com/go-fuego/fuego/cmd/fuego@main
-go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 fuego controller --with-service books
-
+mv domains/ pkg/
 ```
 
 ## Philosophy
