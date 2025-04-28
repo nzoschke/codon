@@ -38,7 +38,7 @@ curl -d '{"email":"a@example.com","name":"Ann"}' -H "Content-Type: application/j
 ### Go
 
 ```bash
-LEVEL=debug gow -v run cmd/app/main.go -dev
+LEVEL=debug air --build.cmd "go build -o app cmd/app/main.go" --build.bin "./app" --build.args_bin "-dev"
 ```
 
 To test:
@@ -62,7 +62,16 @@ cp src/scripts/pre-commit .git/hooks
 bun install
 bun run build
 bunx serve build/dist
-````
+```
+
+### Fuego
+
+```
+go install github.com/go-fuego/fuego/cmd/fuego@main
+go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+fuego controller --with-service books
+
+```
 
 ## Philosophy
 
@@ -82,3 +91,4 @@ References:
 
 - https://dev.to/danielgtaylor/reducing-go-dependencies-dec
 - https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/
+````

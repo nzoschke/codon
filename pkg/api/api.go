@@ -6,13 +6,34 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-fuego/fuego"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/nzoschke/codon/pkg/db"
+	"github.com/nzoschke/codon/pkg/domains/books"
 	"github.com/olekukonko/errors"
 )
 
+//go:generate ./oapi.sh
+
+func NewServer(options ...func(*fuego.Server)) *fuego.Server {
+	s := fuego.NewServer(options...)
+	fuego.Get(s, "/api/health", func(c fuego.ContextNoBody) (string, error) {
+		return "ok", nil
+	})
+
+	booksr := books.BooksResources{
+		BooksService: books.NewBooksService(),
+	}
+
+	booksr.Routes(s)
+
+	return s
+}
+
 func New(ctx context.Context, addr string, db db.DB, dev bool) error {
+	s := NewServer()
+
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -30,7 +51,7 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 
 	go func() {
 		slog.Info("api", "serve", addr)
-		if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
+		if err := s.Run(); err != nil {
 			slog.Error("api", "err", err)
 		}
 	}()
