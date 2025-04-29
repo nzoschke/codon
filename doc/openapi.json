@@ -329,12 +329,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/unknown-interface"
+                  "$ref": "#/components/schemas/string"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/unknown-interface"
+                  "$ref": "#/components/schemas/string"
                 }
               }
             },

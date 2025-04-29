@@ -364,8 +364,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["unknown-interface"];
-          "application/xml": components["schemas"]["unknown-interface"];
+          "application/json": components["schemas"]["string"];
+          "application/xml": components["schemas"]["string"];
         };
       };
       /** @description Bad Request _(validation or deserialization error)_ */

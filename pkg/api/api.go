@@ -16,7 +16,7 @@ import (
 func NewServer(addr string, db db.DB, options ...func(*fuego.Server)) *fuego.Server {
 	s := fuego.NewServer(append(
 		options,
-		fuego.WithAddr(addr),
+		fuego.WithAddr("localhost"+addr),
 	)...)
 
 	g := fuego.Group(s, "/api")

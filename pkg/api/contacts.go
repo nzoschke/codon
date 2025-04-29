@@ -115,25 +115,23 @@ func Contacts(s *fuego.Server, db db.DB) {
 		fuego.OptionSummary("create"),
 	)
 
-	fuego.Delete(g, "/{id}", func(c fuego.ContextNoBody) (any, error) {
+	fuego.Delete(g, "/{id}", func(c fuego.ContextNoBody) (string, error) {
 		ctx := c.Request().Context()
 
 		id := int64(c.PathParamInt("id"))
 
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return Contact{}, errors.WithStack(err)
+			return "", errors.WithStack(err)
 		}
 		defer put()
 
 		err = q.ContactDelete(conn, id)
 		if err != nil {
-			return Contact{}, errors.WithStack(err)
+			return "", errors.WithStack(err)
 		}
 
-		return map[string]any{
-			"msg": "ok",
-		}, nil
+		return "ok", nil
 	},
 		fuego.OptionOverrideDescription(""),
 		fuego.OptionSummary("delete"),

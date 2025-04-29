@@ -30,7 +30,7 @@ open http://localhost:1234
 ```bash
 curl -d '{"email":"a@example.com","name":"Ann"}' -H "Content-Type: application/json" http://localhost:1234/api/contacts
 
-{"created_at":"2025-04-13T18:39:04Z","email":"a@example.com","id":1,"meta":{},"name":"Ann","phone":"","updated_at":"2025-04-13T18:39:04Z"}
+{"created_at":"2025-04-13T18:39:04Z","email":"a@example.com","id":1,"info":{"age":0},"name":"Ann","phone":"","updated_at":"2025-04-13T18:39:04Z"}
 ```
 
 ## Development
@@ -38,7 +38,7 @@ curl -d '{"email":"a@example.com","name":"Ann"}' -H "Content-Type: application/j
 ### Go
 
 ```bash
-LEVEL=debug air --build.cmd "go build -o app cmd/app/main.go" --build.bin "./app" --build.args_bin "-dev"
+LEVEL=debug gow -v run cmd/app/main.go -dev
 ```
 
 To test:
@@ -64,14 +64,6 @@ bun run build
 bunx serve build/dist
 ```
 
-### Fuego
-
-```
-go install github.com/go-fuego/fuego/cmd/fuego@main
-fuego controller --with-service books
-mv domains/ pkg/
-```
-
 ## Philosophy
 
 - All things equal the shorter solution is better
@@ -82,6 +74,7 @@ This leads us to:
 - Bun and its build tools
 - Deno and its fmt tool (until https://github.com/oven-sh/bun/issues/2246🤞)
 - Go and its tools and stdlib
+- Fuego and its Open API spec and client gen
 - Svelte and its compiler (and without SvelteKit)
 - SQLite and its file and memory backed databases
 - Tailwind
