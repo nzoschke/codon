@@ -10,6 +10,20 @@ import (
 	"github.com/olekukonko/errors"
 )
 
+type ContactCreateIn struct {
+	Email string             `form:"email" json:"email"`
+	Info  models.ContactInfo `form:"info" json:"info"`
+	Name  string             `form:"name" json:"name"`
+	Phone string             `form:"phone" json:"phone"`
+}
+
+type ContactUpdateIn struct {
+	Email string             `json:"email"`
+	Info  models.ContactInfo `json:"info"`
+	Name  string             `json:"name"`
+	Phone string             `json:"phone"`
+}
+
 func Contacts(s *fuego.Server, db db.DB) {
 	g := fuego.Group(s, "/contacts")
 
@@ -33,7 +47,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 				CreatedAt: r.CreatedAt,
 				Email:     r.Email,
 				ID:        int(r.Id),
-				Info:      models.Info(r.Info),
+				Info:      models.ContactInfo(r.Info),
 				Name:      r.Name,
 				Phone:     r.Phone,
 				UpdatedAt: r.UpdatedAt,
@@ -46,7 +60,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 		fuego.OptionSummary("list"),
 	)
 
-	fuego.Post(g, "", func(c fuego.ContextWithBody[models.ContactCreateIn]) (models.Contact, error) {
+	fuego.Post(g, "", func(c fuego.ContextWithBody[ContactCreateIn]) (models.Contact, error) {
 		ctx := c.Context()
 
 		in, err := c.Body()
@@ -62,7 +76,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 
 		r, err := q.ContactCreate(conn, q.ContactCreateIn{
 			Email: in.Email,
-			Info:  models.Info(in.Info),
+			Info:  models.ContactInfo(in.Info),
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
@@ -141,7 +155,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 		fuego.OptionSummary("get"),
 	)
 
-	fuego.Put(g, "/{id}", func(c fuego.ContextWithBody[models.ContactUpdateIn]) (models.Contact, error) {
+	fuego.Put(g, "/{id}", func(c fuego.ContextWithBody[ContactUpdateIn]) (models.Contact, error) {
 		ctx := c.Request().Context()
 
 		id := int64(c.PathParamInt("id"))
@@ -160,7 +174,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
 			Id:    id,
-			Info:  models.Info(in.Info),
+			Info:  models.ContactInfo(in.Info),
 			Name:  in.Name,
 			Phone: in.Phone,
 		})

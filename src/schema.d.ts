@@ -193,7 +193,7 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    /** @description Request body for models.ContactCreateIn */
+    /** @description Request body for api.ContactCreateIn */
     requestBody: {
       content: {
         "*/*": components["schemas"]["ContactCreateIn"];
@@ -300,7 +300,7 @@ export interface operations {
       };
       cookie?: never;
     };
-    /** @description Request body for models.ContactUpdateIn */
+    /** @description Request body for api.ContactUpdateIn */
     requestBody: {
       content: {
         "*/*": components["schemas"]["ContactUpdateIn"];

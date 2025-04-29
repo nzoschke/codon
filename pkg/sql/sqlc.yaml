@@ -13,7 +13,7 @@ sql:
               go_type:
                 import: github.com/nzoschke/codon/pkg
                 package: models
-                type: Info
+                type: ContactInfo
         out: q
         plugin: zz
     engine: "sqlite"

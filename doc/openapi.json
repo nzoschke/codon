@@ -244,7 +244,7 @@
               }
             }
           },
-          "description": "Request body for models.ContactCreateIn",
+          "description": "Request body for api.ContactCreateIn",
           "required": true
         },
         "responses": {
@@ -482,7 +482,7 @@
               }
             }
           },
-          "description": "Request body for models.ContactUpdateIn",
+          "description": "Request body for api.ContactUpdateIn",
           "required": true
         },
         "responses": {
