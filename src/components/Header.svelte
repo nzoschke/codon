@@ -1,6 +1,13 @@
 <script lang="ts">
   import { Icon } from "@steeze-ui/svelte-icon";
-  import { Bars3, BookOpen, Home, Photo, User } from "@steeze-ui/heroicons";
+  import {
+    Bars3,
+    BookOpen,
+    Document,
+    Home,
+    Photo,
+    User,
+  } from "@steeze-ui/heroicons";
   import { Github } from "@steeze-ui/simple-icons";
 </script>
 
@@ -35,6 +42,12 @@
             Docs
           </a>
         </li>
+        <li>
+          <a href="http://localhost:1234/swagger/index.html">
+            <Icon src={Document} theme="solid" class="h-5" />
+            Spec
+          </a>
+        </li>
       </ul>
     </div>
     <a class="btn btn-ghost text-xl" href="/#">Codon</a>
@@ -67,7 +80,7 @@
       </li>
       <li>
         <a href="http://localhost:1234/swagger/index.html">
-          <Icon src={BookOpen} theme="solid" class="h-5" />
+          <Icon src={Document} theme="solid" class="h-5" />
           Spec
         </a>
       </li>
