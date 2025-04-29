@@ -50,10 +50,11 @@ bun test
 
 To build:
 
-````bash
+```bash
 go generate ./...
 go build -o app cmd/app/main.go
 ./app
+```
 
 ### TS
 
@@ -83,5 +84,3 @@ References:
 
 - https://dev.to/danielgtaylor/reducing-go-dependencies-dec
 - https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/
-```
-````
