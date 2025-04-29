@@ -25,7 +25,7 @@ type ContactUpdateIn struct {
 }
 
 func Contacts(s *fuego.Server, db db.DB) {
-	g := fuego.Group(s, "/contacts")
+	g := fuego.Group(s, "/api/contacts")
 
 	fuego.Get(g, "", func(c fuego.ContextNoBody) ([]models.Contact, error) {
 		ctx := c.Context()

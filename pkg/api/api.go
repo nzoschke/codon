@@ -19,16 +19,13 @@ func NewServer(addr string, db db.DB, options ...func(*fuego.Server)) *fuego.Ser
 		fuego.WithAddr("localhost"+addr),
 	)...)
 
-	g := fuego.Group(s, "/api")
-
-	fuego.Get(g, "/health", func(c fuego.ContextNoBody) (string, error) {
+	fuego.Get(s, "/api/health", func(c fuego.ContextNoBody) (string, error) {
 		return "ok", nil
 	},
 		option.Summary("health"),
-		option.OverrideDescription("Check if API is healthy"),
 	)
 
-	Contacts(g, db)
+	Contacts(s, db)
 
 	return s
 }
