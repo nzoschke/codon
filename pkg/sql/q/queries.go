@@ -9,7 +9,7 @@ import (
 
 	"zombiezen.com/go/sqlite"
 
-	"github.com/nzoschke/codon/pkg/sql/models"
+	"github.com/nzoschke/codon/pkg/models"
 )
 
 type ContactCreateIn struct {

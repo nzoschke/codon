@@ -5,7 +5,7 @@ package q
 import (
 	"time"
 
-	"github.com/nzoschke/codon/pkg/sql/models"
+	"github.com/nzoschke/codon/pkg/models"
 )
 
 type Contact struct {

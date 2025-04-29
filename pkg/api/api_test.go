@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nzoschke/codon/pkg/api"
+	"github.com/nzoschke/codon/pkg/models"
 	"github.com/nzoschke/codon/pkg/run"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,19 +38,19 @@ func TestContact(t *testing.T) {
 		want   any
 	}{
 		{
-			in: api.ContactCreateIn{
+			in: models.ContactCreateIn{
 				Email: "a@example.com",
-				Info: api.Info{
+				Info: models.Info{
 					Age: 21,
 				},
 				Name: "Ann",
 			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
-			want: api.Contact{
+			want: models.Contact{
 				Email: "a@example.com",
 				ID:    1,
-				Info: api.Info{
+				Info: models.Info{
 					Age: 21,
 				},
 				Name: "Ann",
@@ -60,29 +60,29 @@ func TestContact(t *testing.T) {
 			in:     nil,
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
-			want: api.Contact{
+			want: models.Contact{
 				Email: "a@example.com",
 				ID:    1,
-				Info: api.Info{
+				Info: models.Info{
 					Age: 21,
 				},
 				Name: "Ann",
 			},
 		},
 		{
-			in: api.ContactUpdateIn{
+			in: models.ContactUpdateIn{
 				Email: "a@new.com",
-				Info: api.Info{
+				Info: models.Info{
 					Age: 22,
 				},
 				Name: "Ann",
 			},
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
-			want: api.Contact{
+			want: models.Contact{
 				Email: "a@new.com",
 				ID:    1,
-				Info: api.Info{
+				Info: models.Info{
 					Age: 22,
 				},
 				Name: "Ann",
