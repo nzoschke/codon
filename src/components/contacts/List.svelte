@@ -1,14 +1,18 @@
 <script lang="ts">
+  import createClient from "openapi-fetch";
   import { onMount } from "svelte";
-  import type { Contact } from "~/pkg/sql/models";
-  import Layout from "../Layout.svelte";
   import Time from "svelte-time";
+  import type { components, paths } from "~/src/schema";
+  import Layout from "../Layout.svelte";
 
+  type Contact = components["schemas"]["Contact"];
+
+  const client = createClient<paths>({});
   let contacts = $state<Contact[]>();
 
   onMount(async () => {
-    const res = await fetch("/api/contacts");
-    contacts = await res.json();
+    const res = await client.GET("/api/contacts");
+    contacts = res.data;
   });
 </script>
 

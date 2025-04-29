@@ -36,8 +36,7 @@ func NewServer(addr string, db db.DB, options ...func(*fuego.Server)) *fuego.Ser
 func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 	s := NewServer(addr, db)
 
-	// FIXME: proxy
-	// dist(e, dev)
+	dist(s.Mux, dev)
 
 	go func() {
 		slog.Info("api", "serve", addr)

@@ -1,17 +1,17 @@
 package api
 
 import (
+	"io/fs"
 	"log/slog"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/nzoschke/codon/build"
 	"github.com/olekukonko/errors"
 )
 
-func dist(e *echo.Echo, dev bool) error {
+func dist(mux *http.ServeMux, dev bool) error {
 	if dev {
 		slog.Info("api", "dist", "proxy")
 
@@ -20,25 +20,31 @@ func dist(e *echo.Echo, dev bool) error {
 			return errors.WithStack(err)
 		}
 
-		e.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
-			Balancer: middleware.NewRoundRobinBalancer([]*middleware.ProxyTarget{
-				{
-					URL: url,
-				},
-			}),
-			Skipper: func(c echo.Context) bool {
-				return len(c.Path()) >= 4 && c.Path()[:4] == "/api"
-			},
-		}))
+		proxy := httputil.NewSingleHostReverseProxy(url)
 
-		e.GET("", echo.WrapHandler(httputil.NewSingleHostReverseProxy(url)))
+		// Handle all non-API routes with the proxy
+		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			// Skip proxy for API routes
+			if len(r.URL.Path) >= 4 && r.URL.Path[:4] == "/api" {
+				return
+			}
+			proxy.ServeHTTP(w, r)
+		})
 
 		return nil
 	}
 
 	slog.Info("api", "dist", "embed")
 
-	e.StaticFS("", echo.MustSubFS(build.Dist, "dist"))
+	// Create a filesystem from the embedded dist directory
+	distFS, err := fs.Sub(build.Dist, "dist")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Serve static files from the embedded filesystem
+	fileServer := http.FileServer(http.FS(distFS))
+	mux.Handle("/", fileServer)
 
 	return nil
 }

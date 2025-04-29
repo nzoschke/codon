@@ -1,33 +1,19 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import type { Contact } from "~/pkg/sql/models";
+  import type { components } from "~/src/schema";
+  type Contact = components["schemas"]["Contact"];
 
-  let { id }: { id?: number } = $props();
-
-  let action = id ? `/api/contacts/${id}` : "/api/contacts";
-  let href = id ? `/?id=${id}#/contacts/read` : "/#/contacts";
-
-  let contact = $state<Contact>({
-    id: 0,
-    name: "",
-    created_at: "",
-    email: "",
-    info: {
-      age: 0,
-    },
-    phone: "",
-    updated_at: "",
-  });
-
-  onMount(async () => {
-    if (id) {
-      const res = await fetch(action);
-      contact = await res.json();
-    }
-  });
+  let {
+    cancel,
+    contact = $bindable({}),
+    onsubmit,
+  }: {
+    cancel: string;
+    contact: Contact;
+    onsubmit: (e: SubmitEvent) => void;
+  } = $props();
 </script>
 
-<form method="POST" {action}>
+<form {onsubmit}>
   <div class="card-body">
     <fieldset class="fieldset">
       <legend class="fieldset-legend">What is your name?</legend>
@@ -73,7 +59,7 @@
     </fieldset>
 
     <div class="justify-end card-actions">
-      <a class="btn btn-warning btn-soft" {href}>Cancel</a>
+      <a class="btn btn-warning btn-soft" href={cancel}>Cancel</a>
       <button class="btn btn-success" type="submit">Update</button>
     </div>
   </div>

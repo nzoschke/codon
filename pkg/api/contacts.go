@@ -93,6 +93,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 			Email: in.Email,
 			Info:  models.Info(in.Info),
 			Name:  in.Name,
+			Phone: in.Phone,
 		})
 		if err != nil {
 			return Contact{}, errors.WithStack(err)
@@ -130,7 +131,9 @@ func Contacts(s *fuego.Server, db db.DB) {
 			return Contact{}, errors.WithStack(err)
 		}
 
-		return "ok", nil
+		return map[string]any{
+			"msg": "ok",
+		}, nil
 	},
 		fuego.OptionOverrideDescription(""),
 		fuego.OptionSummary("delete"),
@@ -190,6 +193,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 			Id:    id,
 			Info:  models.Info(in.Info),
 			Name:  in.Name,
+			Phone: in.Phone,
 		})
 		if err != nil {
 			return Contact{}, errors.WithStack(err)
