@@ -1,187 +1,175 @@
 package api
 
-import (
-	"fmt"
-	"net/http"
-	"strconv"
+// func contacts(g *echo.Group, d db.DB) {
+// 	g = g.Group("/contacts")
 
-	"github.com/labstack/echo/v4"
-	"github.com/nzoschke/codon/pkg/db"
-	"github.com/nzoschke/codon/pkg/sql/models"
-	"github.com/nzoschke/codon/pkg/sql/q"
-	"github.com/olekukonko/errors"
-)
+// 	g.GET("", func(c echo.Context) error {
+// 		ctx := c.Request().Context()
 
-func contacts(g *echo.Group, d db.DB) {
-	g = g.Group("/contacts")
+// 		conn, put, err := d.Take(ctx)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
+// 		defer put()
 
-	g.GET("", func(c echo.Context) error {
-		ctx := c.Request().Context()
+// 		out, err := q.ContactList(conn, 10)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		conn, put, err := d.Take(ctx)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		defer put()
+// 		return c.JSON(http.StatusOK, out)
+// 	})
 
-		out, err := q.ContactList(conn, 10)
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 	g.DELETE("/:id", func(c echo.Context) error {
+// 		ctx := c.Request().Context()
 
-		return c.JSON(http.StatusOK, out)
-	})
+// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-	g.DELETE("/:id", func(c echo.Context) error {
-		ctx := c.Request().Context()
+// 		conn, put, err := d.Take(ctx)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
+// 		defer put()
 
-		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 		err = q.ContactDelete(conn, id)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		conn, put, err := d.Take(ctx)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		defer put()
+// 		return c.JSON(http.StatusOK, nil)
+// 	})
 
-		err = q.ContactDelete(conn, id)
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 	g.GET("/:id", func(c echo.Context) error {
+// 		ctx := c.Request().Context()
 
-		return c.JSON(http.StatusOK, nil)
-	})
+// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-	g.GET("/:id", func(c echo.Context) error {
-		ctx := c.Request().Context()
+// 		conn, put, err := d.Take(ctx)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
+// 		defer put()
 
-		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 		out, err := q.ContactRead(conn, id)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		conn, put, err := d.Take(ctx)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		defer put()
+// 		return c.JSON(http.StatusOK, out)
+// 	})
 
-		out, err := q.ContactRead(conn, id)
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 	g.POST("", func(c echo.Context) error {
+// 		ctx := c.Request().Context()
 
-		return c.JSON(http.StatusOK, out)
-	})
+// 		in := struct {
+// 			Email string `form:"email" json:"email"`
+// 			Name  string `form:"name" json:"name"`
+// 			Phone string `form:"phone" json:"phone"`
+// 		}{}
+// 		if err := c.Bind(&in); err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-	g.POST("", func(c echo.Context) error {
-		ctx := c.Request().Context()
+// 		conn, put, err := d.Take(ctx)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
+// 		defer put()
 
-		in := struct {
-			Email string `form:"email" json:"email"`
-			Name  string `form:"name" json:"name"`
-			Phone string `form:"phone" json:"phone"`
-		}{}
-		if err := c.Bind(&in); err != nil {
-			return errors.WithStack(err)
-		}
+// 		out, err := q.ContactCreate(conn, q.ContactCreateIn{
+// 			Email: in.Email,
+// 			Info:  models.Info{},
+// 			Name:  in.Name,
+// 			Phone: in.Phone,
+// 		})
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		conn, put, err := d.Take(ctx)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		defer put()
+// 		if c.Request().Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
+// 			return c.Redirect(http.StatusSeeOther, "/#/contacts")
+// 		}
 
-		out, err := q.ContactCreate(conn, q.ContactCreateIn{
-			Email: in.Email,
-			Info:  models.Info{},
-			Name:  in.Name,
-			Phone: in.Phone,
-		})
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 		return c.JSON(http.StatusOK, out)
+// 	})
 
-		if c.Request().Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
-			return c.Redirect(http.StatusSeeOther, "/#/contacts")
-		}
+// 	g.POST("/:id", func(c echo.Context) error {
+// 		ctx := c.Request().Context()
 
-		return c.JSON(http.StatusOK, out)
-	})
+// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-	g.POST("/:id", func(c echo.Context) error {
-		ctx := c.Request().Context()
+// 		in := struct {
+// 			Email string `form:"email"`
+// 			Name  string `form:"name"`
+// 			Phone string `form:"phone"`
+// 		}{}
+// 		if err := c.Bind(&in); err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 		conn, put, err := d.Take(ctx)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
+// 		defer put()
 
-		in := struct {
-			Email string `form:"email"`
-			Name  string `form:"name"`
-			Phone string `form:"phone"`
-		}{}
-		if err := c.Bind(&in); err != nil {
-			return errors.WithStack(err)
-		}
+// 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
+// 			Email: in.Email,
+// 			Id:    id,
+// 			Info:  models.Info{},
+// 			Name:  in.Name,
+// 			Phone: in.Phone,
+// 		})
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		conn, put, err := d.Take(ctx)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		defer put()
+// 		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/?id=%d#/contacts/read", id))
+// 	})
 
-		err = q.ContactUpdate(conn, q.ContactUpdateIn{
-			Email: in.Email,
-			Id:    id,
-			Info:  models.Info{},
-			Name:  in.Name,
-			Phone: in.Phone,
-		})
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 	g.PUT("/:id", func(c echo.Context) error {
+// 		ctx := c.Request().Context()
 
-		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/?id=%d#/contacts/read", id))
-	})
+// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-	g.PUT("/:id", func(c echo.Context) error {
-		ctx := c.Request().Context()
+// 		in := q.ContactCreateIn{}
+// 		if err := c.Bind(&in); err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-		if err != nil {
-			return errors.WithStack(err)
-		}
+// 		conn, put, err := d.Take(ctx)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
+// 		defer put()
 
-		in := q.ContactCreateIn{}
-		if err := c.Bind(&in); err != nil {
-			return errors.WithStack(err)
-		}
+// 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
+// 			Email: in.Email,
+// 			Id:    id,
+// 			Info:  in.Info,
+// 			Name:  in.Name,
+// 		})
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		conn, put, err := d.Take(ctx)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		defer put()
+// 		out, err := q.ContactRead(conn, id)
+// 		if err != nil {
+// 			return errors.WithStack(err)
+// 		}
 
-		err = q.ContactUpdate(conn, q.ContactUpdateIn{
-			Email: in.Email,
-			Id:    id,
-			Info:  in.Info,
-			Name:  in.Name,
-		})
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		out, err := q.ContactRead(conn, id)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		return c.JSON(http.StatusOK, out)
-	})
-}
+// 		return c.JSON(http.StatusOK, out)
+// 	})
+// }

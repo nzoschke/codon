@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/go-fuego/fuego"
+	"github.com/go-fuego/fuego/option"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/nzoschke/codon/pkg/api/contacts"
 	"github.com/nzoschke/codon/pkg/db"
-	"github.com/nzoschke/codon/pkg/domains/books"
 	"github.com/olekukonko/errors"
 )
 
@@ -20,13 +21,14 @@ func NewServer(options ...func(*fuego.Server)) *fuego.Server {
 	s := fuego.NewServer(options...)
 	fuego.Get(s, "/api/health", func(c fuego.ContextNoBody) (string, error) {
 		return "ok", nil
-	})
+	},
+		option.Summary("health"),
+		option.OverrideDescription("Check if API is healthy"),
+	)
 
-	booksr := books.BooksResources{
-		BooksService: books.NewBooksService(),
-	}
-
-	booksr.Routes(s)
+	contacts.Resources{
+		Contacts: contacts.New(),
+	}.Routes(s)
 
 	return s
 }
@@ -42,12 +44,10 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 
 	dist(e, dev)
 
-	e.GET("/health", func(c echo.Context) error {
+	api := e.Group("/api")
+	api.GET("/health", func(c echo.Context) error {
 		return c.String(http.StatusOK, "ok")
 	})
-
-	api := e.Group("/api")
-	contacts(api, db)
 
 	go func() {
 		slog.Info("api", "serve", addr)
