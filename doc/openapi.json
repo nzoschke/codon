@@ -4,42 +4,80 @@
       "Contact": {
         "description": "Contact schema",
         "properties": {
-          "created_at": { "format": "date-time", "type": "string" },
-          "email": { "type": "string" },
-          "id": { "type": "integer" },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
           "info": {
-            "properties": { "age": { "type": "integer" } },
+            "properties": {
+              "age": {
+                "type": "integer"
+              }
+            },
             "type": "object"
           },
-          "name": { "type": "string" },
-          "phone": { "type": "string" },
-          "updated_at": { "format": "date-time", "type": "string" }
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
         },
         "type": "object"
       },
       "ContactCreateIn": {
         "description": "ContactCreateIn schema",
         "properties": {
-          "email": { "type": "string" },
+          "email": {
+            "type": "string"
+          },
           "info": {
-            "properties": { "age": { "type": "integer" } },
+            "properties": {
+              "age": {
+                "type": "integer"
+              }
+            },
             "type": "object"
           },
-          "name": { "type": "string" },
-          "phone": { "type": "string" }
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
         },
         "type": "object"
       },
       "ContactUpdateIn": {
         "description": "ContactUpdateIn schema",
         "properties": {
-          "email": { "type": "string" },
+          "email": {
+            "type": "string"
+          },
           "info": {
-            "properties": { "age": { "type": "integer" } },
+            "properties": {
+              "age": {
+                "type": "integer"
+              }
+            },
             "type": "object"
           },
-          "name": { "type": "string" },
-          "phone": { "type": "string" }
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
         },
         "type": "object"
       },
@@ -74,7 +112,10 @@
             "nullable": true,
             "type": "array"
           },
-          "instance": { "nullable": true, "type": "string" },
+          "instance": {
+            "nullable": true,
+            "type": "string"
+          },
           "status": {
             "description": "HTTP status code",
             "example": 403,
@@ -94,8 +135,13 @@
         },
         "type": "object"
       },
-      "string": { "description": "string schema", "type": "string" },
-      "unknown-interface": { "description": "unknown-interface schema" }
+      "string": {
+        "description": "string schema",
+        "type": "string"
+      },
+      "unknown-interface": {
+        "description": "unknown-interface schema"
+      }
     }
   },
   "info": {
@@ -109,20 +155,30 @@
       "get": {
         "operationId": "GET_/api/contacts",
         "parameters": [
-          { "in": "header", "name": "Accept", "schema": { "type": "string" } }
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "items": { "$ref": "#/components/schemas/Contact" },
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  },
                   "type": "array"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "items": { "$ref": "#/components/schemas/Contact" },
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  },
                   "type": "array"
                 }
               }
@@ -132,10 +188,14 @@
           "400": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Bad Request _(validation or deserialization error)_"
@@ -143,28 +203,45 @@
           "500": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Internal Server Error _(panics)_"
           },
-          "default": { "description": "" }
+          "default": {
+            "description": ""
+          }
         },
         "summary": "list",
-        "tags": ["api", "contacts"]
+        "tags": [
+          "api",
+          "contacts"
+        ]
       },
       "post": {
         "operationId": "POST_/api/contacts",
         "parameters": [
-          { "in": "header", "name": "Accept", "schema": { "type": "string" } }
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "content": {
             "*/*": {
-              "schema": { "$ref": "#/components/schemas/ContactCreateIn" }
+              "schema": {
+                "$ref": "#/components/schemas/ContactCreateIn"
+              }
             }
           },
           "description": "Request body for api.ContactCreateIn",
@@ -174,10 +251,14 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Contact" }
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/Contact" }
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
               }
             },
             "description": "OK"
@@ -185,10 +266,14 @@
           "400": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Bad Request _(validation or deserialization error)_"
@@ -196,40 +281,61 @@
           "500": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Internal Server Error _(panics)_"
           },
-          "default": { "description": "" }
+          "default": {
+            "description": ""
+          }
         },
         "summary": "create",
-        "tags": ["api", "contacts"]
+        "tags": [
+          "api",
+          "contacts"
+        ]
       }
     },
     "/api/contacts/{id}": {
       "delete": {
         "operationId": "DELETE_/api/contacts/:id",
         "parameters": [
-          { "in": "header", "name": "Accept", "schema": { "type": "string" } },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/unknown-interface" }
+                "schema": {
+                  "$ref": "#/components/schemas/unknown-interface"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/unknown-interface" }
+                "schema": {
+                  "$ref": "#/components/schemas/unknown-interface"
+                }
               }
             },
             "description": "OK"
@@ -237,10 +343,14 @@
           "400": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Bad Request _(validation or deserialization error)_"
@@ -248,38 +358,59 @@
           "500": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Internal Server Error _(panics)_"
           },
-          "default": { "description": "" }
+          "default": {
+            "description": ""
+          }
         },
         "summary": "delete",
-        "tags": ["api", "contacts"]
+        "tags": [
+          "api",
+          "contacts"
+        ]
       },
       "get": {
         "operationId": "GET_/api/contacts/:id",
         "parameters": [
-          { "in": "header", "name": "Accept", "schema": { "type": "string" } },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Contact" }
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/Contact" }
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
               }
             },
             "description": "OK"
@@ -287,10 +418,14 @@
           "400": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Bad Request _(validation or deserialization error)_"
@@ -298,34 +433,53 @@
           "500": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Internal Server Error _(panics)_"
           },
-          "default": { "description": "" }
+          "default": {
+            "description": ""
+          }
         },
         "summary": "get",
-        "tags": ["api", "contacts"]
+        "tags": [
+          "api",
+          "contacts"
+        ]
       },
       "put": {
         "operationId": "PUT_/api/contacts/:id",
         "parameters": [
-          { "in": "header", "name": "Accept", "schema": { "type": "string" } },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "*/*": {
-              "schema": { "$ref": "#/components/schemas/ContactUpdateIn" }
+              "schema": {
+                "$ref": "#/components/schemas/ContactUpdateIn"
+              }
             }
           },
           "description": "Request body for api.ContactUpdateIn",
@@ -335,10 +489,14 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Contact" }
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/Contact" }
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
               }
             },
             "description": "OK"
@@ -346,10 +504,14 @@
           "400": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Bad Request _(validation or deserialization error)_"
@@ -357,18 +519,27 @@
           "500": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Internal Server Error _(panics)_"
           },
-          "default": { "description": "" }
+          "default": {
+            "description": ""
+          }
         },
         "summary": "update",
-        "tags": ["api", "contacts"]
+        "tags": [
+          "api",
+          "contacts"
+        ]
       }
     },
     "/api/health": {
@@ -376,16 +547,26 @@
         "description": "Check if API is healthy",
         "operationId": "GET_/api/health",
         "parameters": [
-          { "in": "header", "name": "Accept", "schema": { "type": "string" } }
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/string" }
+                "schema": {
+                  "$ref": "#/components/schemas/string"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/string" }
+                "schema": {
+                  "$ref": "#/components/schemas/string"
+                }
               }
             },
             "description": "OK"
@@ -393,10 +574,14 @@
           "400": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Bad Request _(validation or deserialization error)_"
@@ -404,21 +589,35 @@
           "500": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               },
               "application/xml": {
-                "schema": { "$ref": "#/components/schemas/HTTPError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
               }
             },
             "description": "Internal Server Error _(panics)_"
           },
-          "default": { "description": "" }
+          "default": {
+            "description": ""
+          }
         },
         "summary": "health",
-        "tags": ["api"]
+        "tags": [
+          "api"
+        ]
       }
     }
   },
-  "servers": [{ "description": "local server", "url": "http://:1234" }],
-  "tags": [{ "name": "api" }, { "name": "contacts" }]
+  "tags": [
+    {
+      "name": "api"
+    },
+    {
+      "name": "contacts"
+    }
+  ]
 }
