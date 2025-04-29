@@ -17,7 +17,6 @@ layers of cruft.
 brew install deno go oven-sh/bun/bun sqlc
 go install github.com/nzoschke/sqlc-gen-zz@latest
 go install github.com/mitranim/gow@latest
-go install github.com/gzuidhof/tygo@latest
 
 go generate ./...
 go test -v ./...
