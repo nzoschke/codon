@@ -1,31 +1,81 @@
 {
   "components": {
     "schemas": {
-      "Books": {
-        "description": "Books schema",
+      "Contact": {
+        "description": "Contact schema",
         "properties": {
-          "id": {
+          "created_at": {
+            "format": "date-time",
             "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "info": {
+            "properties": {
+              "age": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
           },
           "name": {
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "BooksCreate": {
-        "description": "BooksCreate schema",
-        "properties": {
-          "name": {
+          },
+          "phone": {
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
             "type": "string"
           }
         },
         "type": "object"
       },
-      "BooksUpdate": {
-        "description": "BooksUpdate schema",
+      "ContactCreateIn": {
+        "description": "ContactCreateIn schema",
         "properties": {
+          "email": {
+            "type": "string"
+          },
+          "info": {
+            "properties": {
+              "age": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
           "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ContactUpdateIn": {
+        "description": "ContactUpdateIn schema",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "info": {
+            "properties": {
+              "age": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
             "type": "string"
           }
         },
@@ -101,9 +151,400 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/contacts": {
+      "get": {
+        "operationId": "GET_/api/contacts",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  },
+                  "type": "array"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "list",
+        "tags": [
+          "api",
+          "contacts"
+        ]
+      },
+      "post": {
+        "operationId": "POST_/api/contacts",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactCreateIn"
+              }
+            }
+          },
+          "description": "Request body for api.ContactCreateIn",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "create",
+        "tags": [
+          "api",
+          "contacts"
+        ]
+      }
+    },
+    "/api/contacts/{id}": {
+      "delete": {
+        "operationId": "DELETE_/api/contacts/:id",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unknown-interface"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/unknown-interface"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "delete",
+        "tags": [
+          "api",
+          "contacts"
+        ]
+      },
+      "get": {
+        "operationId": "GET_/api/contacts/:id",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "get",
+        "tags": [
+          "api",
+          "contacts"
+        ]
+      },
+      "put": {
+        "operationId": "PUT_/api/contacts/:id",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactUpdateIn"
+              }
+            }
+          },
+          "description": "Request body for api.ContactUpdateIn",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "update",
+        "tags": [
+          "api",
+          "contacts"
+        ]
+      }
+    },
     "/api/health": {
       "get": {
-        "description": "#### Controller: \n\n`github.com/nzoschke/codon/pkg/api.NewServer.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "Check if API is healthy",
         "operationId": "GET_/api/health",
         "parameters": [
           {
@@ -164,404 +605,19 @@
             "description": ""
           }
         },
-        "summary": "func1"
-      }
-    },
-    "/books/": {
-      "get": {
-        "description": "#### Controller: \n\n`github.com/nzoschke/codon/pkg/domains/books.BooksResources.getAllBooks`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "GET_/books/",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Books"
-                  },
-                  "type": "array"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Books"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "get all books",
+        "summary": "health",
         "tags": [
-          "books"
-        ]
-      },
-      "post": {
-        "description": "#### Controller: \n\n`github.com/nzoschke/codon/pkg/domains/books.BooksResources.postBooks`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "POST_/books/",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "*/*": {
-              "schema": {
-                "$ref": "#/components/schemas/BooksCreate"
-              }
-            }
-          },
-          "description": "Request body for books.BooksCreate",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Books"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/Books"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "post books",
-        "tags": [
-          "books"
-        ]
-      }
-    },
-    "/books/{id}": {
-      "delete": {
-        "description": "#### Controller: \n\n`github.com/nzoschke/codon/pkg/domains/books.BooksResources.deleteBooks`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "DELETE_/books/:id",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/unknown-interface"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/unknown-interface"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "delete books",
-        "tags": [
-          "books"
-        ]
-      },
-      "get": {
-        "description": "#### Controller: \n\n`github.com/nzoschke/codon/pkg/domains/books.BooksResources.getBooks`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "GET_/books/:id",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Books"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/Books"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "get books",
-        "tags": [
-          "books"
-        ]
-      },
-      "put": {
-        "description": "#### Controller: \n\n`github.com/nzoschke/codon/pkg/domains/books.BooksResources.putBooks`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "PUT_/books/:id",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "*/*": {
-              "schema": {
-                "$ref": "#/components/schemas/BooksUpdate"
-              }
-            }
-          },
-          "description": "Request body for books.BooksUpdate",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Books"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/Books"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "put books",
-        "tags": [
-          "books"
+          "api"
         ]
       }
     }
   },
   "tags": [
     {
-      "name": "books"
+      "name": "api"
+    },
+    {
+      "name": "contacts"
     }
   ]
 }

@@ -1,4 +1,0 @@
-packages:
-  - path: "github.com/nzoschke/codon/pkg/sql/models"
-    type_mappings:
-      time.Time: "string /* RFC3339 */"

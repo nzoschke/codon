@@ -4,6 +4,43 @@
  */
 
 export interface paths {
+  "/api/contacts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** list */
+    get: operations["GET_/api/contacts"];
+    put?: never;
+    /** create */
+    post: operations["POST_/api/contacts"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/contacts/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** get */
+    get: operations["GET_/api/contacts/:id"];
+    /** update */
+    put: operations["PUT_/api/contacts/:id"];
+    post?: never;
+    /** delete */
+    delete: operations["DELETE_/api/contacts/:id"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/health": {
     parameters: {
       query?: never;
@@ -12,16 +49,8 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * func1
-     * @description #### Controller:
-     *
-     *     `github.com/nzoschke/codon/pkg/api.NewServer.func1`
-     *
-     *     #### Middlewares:
-     *
-     *     - `github.com/go-fuego/fuego.defaultLogger.middleware`
-     *
-     *     ---
+     * health
+     * @description Check if API is healthy
      */
     get: operations["GET_/api/health"];
     put?: never;
@@ -32,114 +61,41 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/books/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * get all books
-     * @description #### Controller:
-     *
-     *     `github.com/nzoschke/codon/pkg/domains/books.BooksResources.getAllBooks`
-     *
-     *     #### Middlewares:
-     *
-     *     - `github.com/go-fuego/fuego.defaultLogger.middleware`
-     *
-     *     ---
-     */
-    get: operations["GET_/books/"];
-    put?: never;
-    /**
-     * post books
-     * @description #### Controller:
-     *
-     *     `github.com/nzoschke/codon/pkg/domains/books.BooksResources.postBooks`
-     *
-     *     #### Middlewares:
-     *
-     *     - `github.com/go-fuego/fuego.defaultLogger.middleware`
-     *
-     *     ---
-     */
-    post: operations["POST_/books/"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/books/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * get books
-     * @description #### Controller:
-     *
-     *     `github.com/nzoschke/codon/pkg/domains/books.BooksResources.getBooks`
-     *
-     *     #### Middlewares:
-     *
-     *     - `github.com/go-fuego/fuego.defaultLogger.middleware`
-     *
-     *     ---
-     */
-    get: operations["GET_/books/:id"];
-    /**
-     * put books
-     * @description #### Controller:
-     *
-     *     `github.com/nzoschke/codon/pkg/domains/books.BooksResources.putBooks`
-     *
-     *     #### Middlewares:
-     *
-     *     - `github.com/go-fuego/fuego.defaultLogger.middleware`
-     *
-     *     ---
-     */
-    put: operations["PUT_/books/:id"];
-    post?: never;
-    /**
-     * delete books
-     * @description #### Controller:
-     *
-     *     `github.com/nzoschke/codon/pkg/domains/books.BooksResources.deleteBooks`
-     *
-     *     #### Middlewares:
-     *
-     *     - `github.com/go-fuego/fuego.defaultLogger.middleware`
-     *
-     *     ---
-     */
-    delete: operations["DELETE_/books/:id"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** @description Books schema */
-    Books: {
-      id?: string;
+    /** @description Contact schema */
+    Contact: {
+      /** Format: date-time */
+      created_at?: string;
+      email?: string;
+      id?: number;
+      info?: {
+        age?: number;
+      };
       name?: string;
+      phone?: string;
+      /** Format: date-time */
+      updated_at?: string;
     };
-    /** @description BooksCreate schema */
-    BooksCreate: {
+    /** @description ContactCreateIn schema */
+    ContactCreateIn: {
+      email?: string;
+      info?: {
+        age?: number;
+      };
       name?: string;
+      phone?: string;
     };
-    /** @description BooksUpdate schema */
-    BooksUpdate: {
+    /** @description ContactUpdateIn schema */
+    ContactUpdateIn: {
+      email?: string;
+      info?: {
+        age?: number;
+      };
       name?: string;
+      phone?: string;
     };
     /** @description HTTPError schema */
     HTTPError: {
@@ -179,7 +135,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  "GET_/api/health": {
+  "GET_/api/contacts": {
     parameters: {
       query?: never;
       header?: {
@@ -196,8 +152,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["string"];
-          "application/xml": components["schemas"]["string"];
+          "application/json": components["schemas"]["Contact"][];
+          "application/xml": components["schemas"]["Contact"][];
         };
       };
       /** @description Bad Request _(validation or deserialization error)_ */
@@ -228,7 +184,7 @@ export interface operations {
       };
     };
   };
-  "GET_/books/": {
+  "POST_/api/contacts": {
     parameters: {
       query?: never;
       header?: {
@@ -237,59 +193,10 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Books"][];
-          "application/xml": components["schemas"]["Books"][];
-        };
-      };
-      /** @description Bad Request _(validation or deserialization error)_ */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      /** @description Internal Server Error _(panics)_ */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  "POST_/books/": {
-    parameters: {
-      query?: never;
-      header?: {
-        Accept?: string;
-      };
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Request body for books.BooksCreate */
+    /** @description Request body for api.ContactCreateIn */
     requestBody: {
       content: {
-        "*/*": components["schemas"]["BooksCreate"];
+        "*/*": components["schemas"]["ContactCreateIn"];
       };
     };
     responses: {
@@ -299,8 +206,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Books"];
-          "application/xml": components["schemas"]["Books"];
+          "application/json": components["schemas"]["Contact"];
+          "application/xml": components["schemas"]["Contact"];
         };
       };
       /** @description Bad Request _(validation or deserialization error)_ */
@@ -331,7 +238,7 @@ export interface operations {
       };
     };
   };
-  "GET_/books/:id": {
+  "GET_/api/contacts/:id": {
     parameters: {
       query?: never;
       header?: {
@@ -350,8 +257,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Books"];
-          "application/xml": components["schemas"]["Books"];
+          "application/json": components["schemas"]["Contact"];
+          "application/xml": components["schemas"]["Contact"];
         };
       };
       /** @description Bad Request _(validation or deserialization error)_ */
@@ -382,7 +289,7 @@ export interface operations {
       };
     };
   };
-  "PUT_/books/:id": {
+  "PUT_/api/contacts/:id": {
     parameters: {
       query?: never;
       header?: {
@@ -393,10 +300,10 @@ export interface operations {
       };
       cookie?: never;
     };
-    /** @description Request body for books.BooksUpdate */
+    /** @description Request body for api.ContactUpdateIn */
     requestBody: {
       content: {
-        "*/*": components["schemas"]["BooksUpdate"];
+        "*/*": components["schemas"]["ContactUpdateIn"];
       };
     };
     responses: {
@@ -406,8 +313,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Books"];
-          "application/xml": components["schemas"]["Books"];
+          "application/json": components["schemas"]["Contact"];
+          "application/xml": components["schemas"]["Contact"];
         };
       };
       /** @description Bad Request _(validation or deserialization error)_ */
@@ -438,7 +345,7 @@ export interface operations {
       };
     };
   };
-  "DELETE_/books/:id": {
+  "DELETE_/api/contacts/:id": {
     parameters: {
       query?: never;
       header?: {
@@ -459,6 +366,55 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["unknown-interface"];
           "application/xml": components["schemas"]["unknown-interface"];
+        };
+      };
+      /** @description Bad Request _(validation or deserialization error)_ */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPError"];
+          "application/xml": components["schemas"]["HTTPError"];
+        };
+      };
+      /** @description Internal Server Error _(panics)_ */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPError"];
+          "application/xml": components["schemas"]["HTTPError"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  "GET_/api/health": {
+    parameters: {
+      query?: never;
+      header?: {
+        Accept?: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["string"];
+          "application/xml": components["schemas"]["string"];
         };
       };
       /** @description Bad Request _(validation or deserialization error)_ */

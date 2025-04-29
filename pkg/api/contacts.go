@@ -1,175 +1,221 @@
 package api
 
-// func contacts(g *echo.Group, d db.DB) {
-// 	g = g.Group("/contacts")
+import (
+	"database/sql"
+	"time"
 
-// 	g.GET("", func(c echo.Context) error {
-// 		ctx := c.Request().Context()
+	"github.com/go-fuego/fuego"
+	"github.com/nzoschke/codon/pkg/db"
+	"github.com/nzoschke/codon/pkg/sql/models"
+	"github.com/nzoschke/codon/pkg/sql/q"
+	"github.com/olekukonko/errors"
+)
 
-// 		conn, put, err := d.Take(ctx)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
-// 		defer put()
+type Contact struct {
+	CreatedAt time.Time `json:"created_at"`
+	Email     string    `json:"email"`
+	ID        int       `json:"id"`
+	Info      Info      `json:"info"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
 
-// 		out, err := q.ContactList(conn, 10)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+type ContactCreateIn struct {
+	Email string `form:"email" json:"email"`
+	Info  Info   `form:"info" json:"info"`
+	Name  string `form:"name" json:"name"`
+	Phone string `form:"phone" json:"phone"`
+}
 
-// 		return c.JSON(http.StatusOK, out)
-// 	})
+type ContactUpdateIn struct {
+	Email string `json:"email"`
+	Info  Info   `json:"info"`
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
+}
 
-// 	g.DELETE("/:id", func(c echo.Context) error {
-// 		ctx := c.Request().Context()
+type Info struct {
+	Age int `json:"age"`
+}
 
-// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+func Contacts(s *fuego.Server, db db.DB) {
+	g := fuego.Group(s, "/contacts")
 
-// 		conn, put, err := d.Take(ctx)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
-// 		defer put()
+	fuego.Get(g, "", func(c fuego.ContextNoBody) ([]Contact, error) {
+		ctx := c.Context()
 
-// 		err = q.ContactDelete(conn, id)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		defer put()
 
-// 		return c.JSON(http.StatusOK, nil)
-// 	})
+		rows, err := q.ContactList(conn, 10)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
 
-// 	g.GET("/:id", func(c echo.Context) error {
-// 		ctx := c.Request().Context()
+		out := []Contact{}
+		for _, r := range rows {
+			out = append(out, Contact{
+				CreatedAt: r.CreatedAt,
+				Email:     r.Email,
+				ID:        int(r.Id),
+				Info:      Info(r.Info),
+				Name:      r.Name,
+				Phone:     r.Phone,
+				UpdatedAt: r.UpdatedAt,
+			})
+		}
 
-// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		return out, nil
+	},
+		fuego.OptionOverrideDescription(""),
+		fuego.OptionSummary("list"),
+	)
 
-// 		conn, put, err := d.Take(ctx)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
-// 		defer put()
+	fuego.Post(g, "", func(c fuego.ContextWithBody[ContactCreateIn]) (Contact, error) {
+		ctx := c.Context()
 
-// 		out, err := q.ContactRead(conn, id)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		in, err := c.Body()
+		if err != nil {
+			return Contact{}, err
+		}
 
-// 		return c.JSON(http.StatusOK, out)
-// 	})
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return Contact{}, errors.WithStack(err)
+		}
+		defer put()
 
-// 	g.POST("", func(c echo.Context) error {
-// 		ctx := c.Request().Context()
+		r, err := q.ContactCreate(conn, q.ContactCreateIn{
+			Email: in.Email,
+			Info:  models.Info(in.Info),
+			Name:  in.Name,
+		})
+		if err != nil {
+			return Contact{}, errors.WithStack(err)
+		}
 
-// 		in := struct {
-// 			Email string `form:"email" json:"email"`
-// 			Name  string `form:"name" json:"name"`
-// 			Phone string `form:"phone" json:"phone"`
-// 		}{}
-// 		if err := c.Bind(&in); err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		out := Contact{
+			CreatedAt: r.CreatedAt,
+			Email:     r.Email,
+			ID:        int(r.Id),
+			Info:      Info(r.Info),
+			Name:      r.Name,
+			Phone:     r.Phone,
+			UpdatedAt: r.UpdatedAt,
+		}
 
-// 		conn, put, err := d.Take(ctx)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
-// 		defer put()
+		return out, nil
+	},
+		fuego.OptionOverrideDescription(""),
+		fuego.OptionSummary("create"),
+	)
 
-// 		out, err := q.ContactCreate(conn, q.ContactCreateIn{
-// 			Email: in.Email,
-// 			Info:  models.Info{},
-// 			Name:  in.Name,
-// 			Phone: in.Phone,
-// 		})
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+	fuego.Delete(g, "/{id}", func(c fuego.ContextNoBody) (any, error) {
+		ctx := c.Request().Context()
 
-// 		if c.Request().Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
-// 			return c.Redirect(http.StatusSeeOther, "/#/contacts")
-// 		}
+		id := int64(c.PathParamInt("id"))
 
-// 		return c.JSON(http.StatusOK, out)
-// 	})
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return Contact{}, errors.WithStack(err)
+		}
+		defer put()
 
-// 	g.POST("/:id", func(c echo.Context) error {
-// 		ctx := c.Request().Context()
+		err = q.ContactDelete(conn, id)
+		if err != nil {
+			return Contact{}, errors.WithStack(err)
+		}
 
-// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		return "ok", nil
+	},
+		fuego.OptionOverrideDescription(""),
+		fuego.OptionSummary("delete"),
+	)
 
-// 		in := struct {
-// 			Email string `form:"email"`
-// 			Name  string `form:"name"`
-// 			Phone string `form:"phone"`
-// 		}{}
-// 		if err := c.Bind(&in); err != nil {
-// 			return errors.WithStack(err)
-// 		}
+	fuego.Get(g, "/{id}", func(c fuego.ContextNoBody) (Contact, error) {
+		ctx := c.Context()
 
-// 		conn, put, err := d.Take(ctx)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
-// 		defer put()
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return Contact{}, errors.WithStack(err)
+		}
+		defer put()
 
-// 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
-// 			Email: in.Email,
-// 			Id:    id,
-// 			Info:  models.Info{},
-// 			Name:  in.Name,
-// 			Phone: in.Phone,
-// 		})
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		r, err := q.ContactRead(conn, int64(c.PathParamInt("id")))
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return Contact{}, fuego.NotFoundError{}
+			}
+			return Contact{}, errors.WithStack(err)
+		}
 
-// 		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/?id=%d#/contacts/read", id))
-// 	})
+		out := Contact{
+			CreatedAt: r.CreatedAt,
+			Email:     r.Email,
+			ID:        int(r.Id),
+			Info:      Info(r.Info),
+			Name:      r.Name,
+			Phone:     r.Phone,
+			UpdatedAt: r.UpdatedAt,
+		}
 
-// 	g.PUT("/:id", func(c echo.Context) error {
-// 		ctx := c.Request().Context()
+		return out, nil
+	},
+		fuego.OptionOverrideDescription(""),
+		fuego.OptionSummary("get"),
+	)
 
-// 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+	fuego.Put(g, "/{id}", func(c fuego.ContextWithBody[ContactUpdateIn]) (Contact, error) {
+		ctx := c.Request().Context()
 
-// 		in := q.ContactCreateIn{}
-// 		if err := c.Bind(&in); err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		id := int64(c.PathParamInt("id"))
 
-// 		conn, put, err := d.Take(ctx)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
-// 		defer put()
+		in, err := c.Body()
+		if err != nil {
+			return Contact{}, err
+		}
 
-// 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
-// 			Email: in.Email,
-// 			Id:    id,
-// 			Info:  in.Info,
-// 			Name:  in.Name,
-// 		})
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return Contact{}, errors.WithStack(err)
+		}
+		defer put()
 
-// 		out, err := q.ContactRead(conn, id)
-// 		if err != nil {
-// 			return errors.WithStack(err)
-// 		}
+		err = q.ContactUpdate(conn, q.ContactUpdateIn{
+			Email: in.Email,
+			Id:    id,
+			Info:  models.Info(in.Info),
+			Name:  in.Name,
+		})
+		if err != nil {
+			return Contact{}, errors.WithStack(err)
+		}
 
-// 		return c.JSON(http.StatusOK, out)
-// 	})
-// }
+		r, err := q.ContactRead(conn, id)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return Contact{}, fuego.NotFoundError{}
+			}
+			return Contact{}, errors.WithStack(err)
+		}
+
+		out := Contact{
+			CreatedAt: r.CreatedAt,
+			Email:     r.Email,
+			ID:        int(r.Id),
+			Info:      Info(r.Info),
+			Name:      r.Name,
+			Phone:     r.Phone,
+			UpdatedAt: r.UpdatedAt,
+		}
+
+		return out, nil
+	},
+		fuego.OptionOverrideDescription(""),
+		fuego.OptionSummary("update"),
+	)
+}

@@ -69,6 +69,8 @@ func Sub(arg string) error {
 	switch arg {
 	case "openapi":
 		s := api.NewServer(
+			"",
+			db.DB{},
 			fuego.WithEngineOptions(
 				fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
 					PrettyFormatJSON: true,
@@ -87,7 +89,7 @@ func Health(ctx context.Context, timeout time.Duration, port string) error {
 	client := http.Client{}
 	startTime := time.Now().UTC()
 	for {
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/api/health", port), nil)
 		if err != nil {
 			return errors.WithStack(err)
 		}
