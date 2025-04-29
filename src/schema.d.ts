@@ -48,10 +48,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * health
-     * @description Check if API is healthy
-     */
+    /** health */
     get: operations["GET_/api/health"];
     put?: never;
     post?: never;
@@ -97,6 +94,8 @@ export interface components {
       name?: string;
       phone?: string;
     };
+    /** @description EmptyOut schema */
+    EmptyOut: unknown;
     /** @description HTTPError schema */
     HTTPError: {
       /** @description Human readable error message */
@@ -364,8 +363,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["string"];
-          "application/xml": components["schemas"]["string"];
+          "application/json": components["schemas"]["EmptyOut"];
+          "application/xml": components["schemas"]["EmptyOut"];
         };
       };
       /** @description Bad Request _(validation or deserialization error)_ */

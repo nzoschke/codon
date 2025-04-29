@@ -81,6 +81,9 @@
         },
         "type": "object"
       },
+      "EmptyOut": {
+        "description": "EmptyOut schema"
+      },
       "HTTPError": {
         "description": "HTTPError schema",
         "properties": {
@@ -221,8 +224,7 @@
         },
         "summary": "list",
         "tags": [
-          "api",
-          "contacts"
+          "api/contacts"
         ]
       },
       "post": {
@@ -299,8 +301,7 @@
         },
         "summary": "create",
         "tags": [
-          "api",
-          "contacts"
+          "api/contacts"
         ]
       }
     },
@@ -329,12 +330,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/string"
+                  "$ref": "#/components/schemas/EmptyOut"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/string"
+                  "$ref": "#/components/schemas/EmptyOut"
                 }
               }
             },
@@ -376,8 +377,7 @@
         },
         "summary": "delete",
         "tags": [
-          "api",
-          "contacts"
+          "api/contacts"
         ]
       },
       "get": {
@@ -451,8 +451,7 @@
         },
         "summary": "get",
         "tags": [
-          "api",
-          "contacts"
+          "api/contacts"
         ]
       },
       "put": {
@@ -537,14 +536,12 @@
         },
         "summary": "update",
         "tags": [
-          "api",
-          "contacts"
+          "api/contacts"
         ]
       }
     },
     "/api/health": {
       "get": {
-        "description": "Check if API is healthy",
         "operationId": "GET_/api/health",
         "parameters": [
           {
@@ -605,19 +602,13 @@
             "description": ""
           }
         },
-        "summary": "health",
-        "tags": [
-          "api"
-        ]
+        "summary": "health"
       }
     }
   },
   "tags": [
     {
-      "name": "api"
-    },
-    {
-      "name": "contacts"
+      "name": "api/contacts"
     }
   ]
 }

@@ -21,6 +21,6 @@
 
 <Layout>
   <div class="card w-96 bg-base-100 card-xl shadow-sm">
-    <Form cancel="" bind:contact {onsubmit} />
+    <Form cancel="/#/contacts" bind:contact {onsubmit} />
   </div>
 </Layout>

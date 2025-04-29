@@ -22,6 +22,7 @@ func NewServer(addr string, db db.DB, options ...func(*fuego.Server)) *fuego.Ser
 	fuego.Get(s, "/api/health", func(c fuego.ContextNoBody) (string, error) {
 		return "ok", nil
 	},
+		option.OverrideDescription(""),
 		option.Summary("health"),
 	)
 

@@ -20,12 +20,13 @@ func dist(mux *http.ServeMux, dev bool) error {
 			return errors.WithStack(err)
 		}
 
+		// proxy all non-api routes to bun
 		proxy := httputil.NewSingleHostReverseProxy(url)
-
-		// Handle all non-API routes with the proxy
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			// Skip proxy for API routes
 			if len(r.URL.Path) >= 4 && r.URL.Path[:4] == "/api" {
+				return
+			}
+			if len(r.URL.Path) >= 8 && r.URL.Path[:8] == "/swagger" {
 				return
 			}
 			proxy.ServeHTTP(w, r)
@@ -36,15 +37,14 @@ func dist(mux *http.ServeMux, dev bool) error {
 
 	slog.Info("api", "dist", "embed")
 
-	// Create a filesystem from the embedded dist directory
-	distFS, err := fs.Sub(build.Dist, "dist")
+	// serve all non-api routes from build
+	f, err := fs.Sub(build.Dist, "dist")
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	// Serve static files from the embedded filesystem
-	fileServer := http.FileServer(http.FS(distFS))
-	mux.Handle("/", fileServer)
+	s := http.FileServer(http.FS(f))
+	mux.Handle("/", s)
 
 	return nil
 }

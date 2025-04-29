@@ -93,7 +93,7 @@ func TestContact(t *testing.T) {
 			in:     nil,
 			method: http.MethodDelete,
 			path:   "/api/contacts/1",
-			want:   "ok",
+			want:   api.EmptyOut{},
 		},
 	}
 

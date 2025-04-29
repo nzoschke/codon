@@ -65,6 +65,12 @@
           Docs
         </a>
       </li>
+      <li>
+        <a href="http://localhost:1234/swagger/index.html">
+          <Icon src={BookOpen} theme="solid" class="h-5" />
+          Spec
+        </a>
+      </li>
     </ul>
   </div>
   <div class="navbar-end">

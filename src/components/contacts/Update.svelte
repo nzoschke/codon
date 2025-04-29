@@ -39,7 +39,7 @@
       },
     });
     if (!res.error) {
-      window.location.hash = "/contacts";
+      window.location.hash = "#/contacts/read";
     }
   };
 </script>

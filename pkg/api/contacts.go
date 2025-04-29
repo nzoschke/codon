@@ -24,6 +24,8 @@ type ContactUpdateIn struct {
 	Phone string             `json:"phone"`
 }
 
+type EmptyOut struct{}
+
 func Contacts(s *fuego.Server, db db.DB) {
 	g := fuego.Group(s, "/api/contacts")
 
@@ -47,7 +49,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 				CreatedAt: r.CreatedAt,
 				Email:     r.Email,
 				ID:        int(r.Id),
-				Info:      models.ContactInfo(r.Info),
+				Info:      r.Info,
 				Name:      r.Name,
 				Phone:     r.Phone,
 				UpdatedAt: r.UpdatedAt,
@@ -76,7 +78,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 
 		r, err := q.ContactCreate(conn, q.ContactCreateIn{
 			Email: in.Email,
-			Info:  models.ContactInfo(in.Info),
+			Info:  in.Info,
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
@@ -100,23 +102,23 @@ func Contacts(s *fuego.Server, db db.DB) {
 		fuego.OptionSummary("create"),
 	)
 
-	fuego.Delete(g, "/{id}", func(c fuego.ContextNoBody) (string, error) {
+	fuego.Delete(g, "/{id}", func(c fuego.ContextNoBody) (EmptyOut, error) {
 		ctx := c.Request().Context()
 
 		id := int64(c.PathParamInt("id"))
 
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return "", errors.WithStack(err)
+			return EmptyOut{}, errors.WithStack(err)
 		}
 		defer put()
 
 		err = q.ContactDelete(conn, id)
 		if err != nil {
-			return "", errors.WithStack(err)
+			return EmptyOut{}, errors.WithStack(err)
 		}
 
-		return "ok", nil
+		return EmptyOut{}, nil
 	},
 		fuego.OptionOverrideDescription(""),
 		fuego.OptionSummary("delete"),
@@ -174,7 +176,7 @@ func Contacts(s *fuego.Server, db db.DB) {
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
 			Id:    id,
-			Info:  models.ContactInfo(in.Info),
+			Info:  in.Info,
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
