@@ -34,7 +34,12 @@ func NewServer(addr string, db db.DB, options ...func(*fuego.Server)) *fuego.Ser
 }
 
 func New(ctx context.Context, addr string, db db.DB, dev bool) error {
-	s := NewServer(addr, db)
+	s := NewServer(addr, db, fuego.WithEngineOptions(
+		fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
+			DisableLocalSave: true,
+		}),
+	),
+	)
 
 	dist(s.Mux, dev)
 
