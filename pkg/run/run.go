@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-fuego/fuego"
 	"github.com/nzoschke/codon/pkg/api"
 	"github.com/nzoschke/codon/pkg/bun"
 	"github.com/nzoschke/codon/pkg/db"
@@ -21,6 +22,8 @@ import (
 func Run(ctx context.Context, args []string, getenv func(string) string, stdout io.Writer) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
+
+	log.SetDefault(getenv, stdout)
 
 	flags := flag.NewFlagSet(args[0], flag.ContinueOnError)
 
@@ -34,10 +37,15 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout 
 		return errors.WithStack(err)
 	}
 
-	slog.Info("flag", "dev", *dev)
+	slog.Info("run", "args", flags.Args())
 
-	log.SetDefault(getenv, stdout)
-	slog.Debug("run", "args", args)
+	arg := flags.Arg(0)
+	if arg != "" {
+		if err := Sub(arg); err != nil {
+			return errors.WithStack(err)
+		}
+		os.Exit(0)
+	}
 
 	db, err := db.New(ctx, *dbf)
 	if err != nil {
@@ -57,12 +65,31 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	return nil
 }
 
+func Sub(arg string) error {
+	switch arg {
+	case "openapi":
+		s := api.NewServer(
+			"",
+			db.DB{},
+			fuego.WithEngineOptions(
+				fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
+					PrettyFormatJSON: true,
+					JSONFilePath:     "doc/openapi.json",
+				}),
+			),
+		)
+		s.OutputOpenAPISpec()
+	}
+
+	return nil
+}
+
 // Health waits for health check or returns an error
 func Health(ctx context.Context, timeout time.Duration, port string) error {
 	client := http.Client{}
 	startTime := time.Now().UTC()
 	for {
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/api/health", port), nil)
 		if err != nil {
 			return errors.WithStack(err)
 		}

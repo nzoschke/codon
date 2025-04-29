@@ -5,17 +5,17 @@ package q
 import (
 	"time"
 
-	"github.com/nzoschke/codon/pkg/sql/models"
+	"github.com/nzoschke/codon/pkg/models"
 )
 
 type Contact struct {
-	CreatedAt time.Time   `json:"created_at"`
-	Email     string      `json:"email"`
-	Id        int64       `json:"id"`
-	Info      models.Info `json:"info"`
-	Name      string      `json:"name"`
-	Phone     string      `json:"phone"`
-	UpdatedAt time.Time   `json:"updated_at"`
+	CreatedAt time.Time          `json:"created_at"`
+	Email     string             `json:"email"`
+	Id        int64              `json:"id"`
+	Info      models.ContactInfo `json:"info"`
+	Name      string             `json:"name"`
+	Phone     string             `json:"phone"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
 
 func catalogImports() {

@@ -1,17 +1,17 @@
 package api
 
 import (
+	"io/fs"
 	"log/slog"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/nzoschke/codon/build"
 	"github.com/olekukonko/errors"
 )
 
-func dist(e *echo.Echo, dev bool) error {
+func dist(mux *http.ServeMux, dev bool) error {
 	if dev {
 		slog.Info("api", "dist", "proxy")
 
@@ -20,25 +20,31 @@ func dist(e *echo.Echo, dev bool) error {
 			return errors.WithStack(err)
 		}
 
-		e.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
-			Balancer: middleware.NewRoundRobinBalancer([]*middleware.ProxyTarget{
-				{
-					URL: url,
-				},
-			}),
-			Skipper: func(c echo.Context) bool {
-				return len(c.Path()) >= 4 && c.Path()[:4] == "/api"
-			},
-		}))
-
-		e.GET("", echo.WrapHandler(httputil.NewSingleHostReverseProxy(url)))
+		// proxy all non-api routes to bun
+		proxy := httputil.NewSingleHostReverseProxy(url)
+		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			if len(r.URL.Path) >= 4 && r.URL.Path[:4] == "/api" {
+				return
+			}
+			if len(r.URL.Path) >= 8 && r.URL.Path[:8] == "/swagger" {
+				return
+			}
+			proxy.ServeHTTP(w, r)
+		})
 
 		return nil
 	}
 
 	slog.Info("api", "dist", "embed")
 
-	e.StaticFS("", echo.MustSubFS(build.Dist, "dist"))
+	// serve all non-api routes from build
+	f, err := fs.Sub(build.Dist, "dist")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	s := http.FileServer(http.FS(f))
+	mux.Handle("/", s)
 
 	return nil
 }

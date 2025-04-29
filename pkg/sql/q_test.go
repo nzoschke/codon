@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/db"
-	"github.com/nzoschke/codon/pkg/sql/models"
+	"github.com/nzoschke/codon/pkg/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
@@ -34,7 +34,7 @@ func TestCRUD(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
-		Info:      models.Info{},
+		Info:      models.ContactInfo{},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
 	}, res)
@@ -46,7 +46,7 @@ func TestCRUD(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
-		Info:      models.Info{},
+		Info:      models.ContactInfo{},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
 	}, rres)
@@ -68,7 +68,7 @@ func TestCRUD(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@new.com",
 		Id:        1,
-		Info:      models.Info{},
+		Info:      models.ContactInfo{},
 		Name:      "Ann",
 		UpdatedAt: rres.UpdatedAt,
 	}, rres)
@@ -96,7 +96,7 @@ func TestJSON(t *testing.T) {
 
 	res, err := q.ContactCreate(conn, q.ContactCreateIn{
 		Email: "a@example.com",
-		Info: models.Info{
+		Info: models.ContactInfo{
 			Age: 21,
 		},
 		Name: "Ann",
@@ -107,7 +107,7 @@ func TestJSON(t *testing.T) {
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
 		Id:        1,
-		Info: models.Info{
+		Info: models.ContactInfo{
 			Age: 21,
 		},
 		Name:      "Ann",

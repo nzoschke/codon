@@ -19,7 +19,7 @@ func SetDefault(getenv func(string) string, stdout io.Writer) {
 		level = l
 	}
 
-	l := slog.New(slog.NewTextHandler(stdout, &slog.HandlerOptions{
+	l := slog.New(slog.NewJSONHandler(stdout, &slog.HandlerOptions{
 		Level: level,
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == slog.TimeKey {

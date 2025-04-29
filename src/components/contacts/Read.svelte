@@ -1,21 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Contact } from "~/pkg/sql/models";
+  import type { components, paths } from "~/src/schema";
   import Layout from "../Layout.svelte";
   import { Icon } from "@steeze-ui/svelte-icon";
   import { ChatBubbleLeftRight, Envelope } from "@steeze-ui/heroicons";
+  import createClient from "openapi-fetch";
 
-  let contact = $state<Contact>({
-    id: 0,
-    name: "",
-    created_at: "",
-    email: "",
-    info: {
-      age: 0,
-    },
-    phone: "",
-    updated_at: "",
-  });
+  type Contact = components["schemas"]["Contact"];
+  const client = createClient<paths>({});
+
+  let contact = $state<Contact>({});
 
   let topic = "apps";
 
@@ -23,18 +17,25 @@
   let body = $derived(`Hey ${contact.name}, lets chat more about ${topic}`);
 
   const del = async () => {
-    const res = await fetch(`/api/contacts/${contact.id}`, {
-      method: "DELETE",
+    const res = await client.DELETE("/api/contacts/{id}", {
+      params: {
+        path: {
+          id: new URLSearchParams(location.search).get("id") ?? "0",
+        },
+      },
     });
-    if (res.status == 200) {
-      window.location.href = "#/contacts";
-    }
+    if (!res.error) window.location.href = "#/contacts";
   };
 
   onMount(async () => {
-    const p = new URLSearchParams(window.location.search);
-    const res = await fetch(`/api/contacts/${p.get("id")}`);
-    contact = await res.json();
+    const res = await client.GET("/api/contacts/{id}", {
+      params: {
+        path: {
+          id: new URLSearchParams(location.search).get("id") ?? "0",
+        },
+      },
+    });
+    if (res.data) contact = res.data;
   });
 </script>
 

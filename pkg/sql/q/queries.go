@@ -9,24 +9,24 @@ import (
 
 	"zombiezen.com/go/sqlite"
 
-	"github.com/nzoschke/codon/pkg/sql/models"
+	"github.com/nzoschke/codon/pkg/models"
 )
 
 type ContactCreateIn struct {
-	Email string      `json:"email"`
-	Info  models.Info `json:"info"`
-	Name  string      `json:"name"`
-	Phone string      `json:"phone"`
+	Email string             `json:"email"`
+	Info  models.ContactInfo `json:"info"`
+	Name  string             `json:"name"`
+	Phone string             `json:"phone"`
 }
 
 type ContactCreateOut struct {
-	CreatedAt time.Time   `json:"created_at"`
-	Email     string      `json:"email"`
-	Id        int64       `json:"id"`
-	Info      models.Info `json:"info"`
-	Name      string      `json:"name"`
-	Phone     string      `json:"phone"`
-	UpdatedAt time.Time   `json:"updated_at"`
+	CreatedAt time.Time          `json:"created_at"`
+	Email     string             `json:"email"`
+	Id        int64              `json:"id"`
+	Info      models.ContactInfo `json:"info"`
+	Name      string             `json:"name"`
+	Phone     string             `json:"phone"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
 
 func ContactCreate(tx *sqlite.Conn, in ContactCreateIn) (*ContactCreateOut, error) {
@@ -55,7 +55,7 @@ RETURNING
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
 	out.Id = stmt.ColumnInt64(2)
-	out.Info = jsonUnmarshalModelsInfo([]byte(stmt.ColumnText(3)))
+	out.Info = jsonUnmarshalModelsContactInfo([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
 	out.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -65,13 +65,13 @@ RETURNING
 }
 
 type ContactReadOut struct {
-	CreatedAt time.Time   `json:"created_at"`
-	Email     string      `json:"email"`
-	Id        int64       `json:"id"`
-	Info      models.Info `json:"info"`
-	Name      string      `json:"name"`
-	Phone     string      `json:"phone"`
-	UpdatedAt time.Time   `json:"updated_at"`
+	CreatedAt time.Time          `json:"created_at"`
+	Email     string             `json:"email"`
+	Id        int64              `json:"id"`
+	Info      models.ContactInfo `json:"info"`
+	Name      string             `json:"name"`
+	Phone     string             `json:"phone"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
 
 func ContactRead(tx *sqlite.Conn, id int64) (*ContactReadOut, error) {
@@ -99,7 +99,7 @@ LIMIT
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
 	out.Id = stmt.ColumnInt64(2)
-	out.Info = jsonUnmarshalModelsInfo([]byte(stmt.ColumnText(3)))
+	out.Info = jsonUnmarshalModelsContactInfo([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
 	out.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -109,11 +109,11 @@ LIMIT
 }
 
 type ContactUpdateIn struct {
-	Email string      `json:"email"`
-	Info  models.Info `json:"info"`
-	Name  string      `json:"name"`
-	Phone string      `json:"phone"`
-	Id    int64       `json:"id"`
+	Email string             `json:"email"`
+	Info  models.ContactInfo `json:"info"`
+	Name  string             `json:"name"`
+	Phone string             `json:"phone"`
+	Id    int64              `json:"id"`
 }
 
 func ContactUpdate(tx *sqlite.Conn, in ContactUpdateIn) error {
@@ -163,13 +163,13 @@ WHERE
 type ContactListOut []ContactListRow
 
 type ContactListRow struct {
-	CreatedAt time.Time   `json:"created_at"`
-	Email     string      `json:"email"`
-	Id        int64       `json:"id"`
-	Info      models.Info `json:"info"`
-	Name      string      `json:"name"`
-	Phone     string      `json:"phone"`
-	UpdatedAt time.Time   `json:"updated_at"`
+	CreatedAt time.Time          `json:"created_at"`
+	Email     string             `json:"email"`
+	Id        int64              `json:"id"`
+	Info      models.ContactInfo `json:"info"`
+	Name      string             `json:"name"`
+	Phone     string             `json:"phone"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
 
 func ContactList(tx *sqlite.Conn, limit int64) (ContactListOut, error) {
@@ -199,7 +199,7 @@ LIMIT
 		row.CreatedAt = timeParse(stmt.ColumnText(0))
 		row.Email = stmt.ColumnText(1)
 		row.Id = stmt.ColumnInt64(2)
-		row.Info = jsonUnmarshalModelsInfo([]byte(stmt.ColumnText(3)))
+		row.Info = jsonUnmarshalModelsContactInfo([]byte(stmt.ColumnText(3)))
 		row.Name = stmt.ColumnText(4)
 		row.Phone = stmt.ColumnText(5)
 		row.UpdatedAt = timeParse(stmt.ColumnText(6))
@@ -244,8 +244,8 @@ func jsonMarshal(v any) []byte {
 	return bs
 }
 
-func jsonUnmarshalModelsInfo(bs []byte) models.Info {
-	var v models.Info
+func jsonUnmarshalModelsContactInfo(bs []byte) models.ContactInfo {
+	var v models.ContactInfo
 	json.Unmarshal(bs, &v)
 	return v
 }

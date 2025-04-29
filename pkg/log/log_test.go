@@ -20,7 +20,7 @@ func TestLevel(t *testing.T) {
 	slog.Debug("debug")
 	slog.Info("info")
 
-	a.Equal("level=INFO msg=info\n", bs.String())
+	a.Equal("{\"level\":\"INFO\",\"msg\":\"info\"}\n", bs.String())
 
 	bs = bytes.Buffer{}
 	log.SetDefault(func(string) string {
@@ -29,5 +29,5 @@ func TestLevel(t *testing.T) {
 	slog.Debug("debug")
 	slog.Info("info")
 
-	a.Equal("level=DEBUG msg=debug\nlevel=INFO msg=info\n", bs.String())
+	a.Equal("{\"level\":\"DEBUG\",\"msg\":\"debug\"}\n{\"level\":\"INFO\",\"msg\":\"info\"}\n", bs.String())
 }

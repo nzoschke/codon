@@ -5,21 +5,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"testing"
 	"time"
 
+	"github.com/nzoschke/codon/pkg/api"
+	"github.com/nzoschke/codon/pkg/models"
 	"github.com/nzoschke/codon/pkg/run"
-	"github.com/nzoschke/codon/pkg/sql/models"
-	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
 
 var reISO8601 = regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z`)
 
-func TestUser(t *testing.T) {
+func TestContact(t *testing.T) {
 	ctx := t.Context()
 	ctx, cancel := context.WithCancel(ctx)
 	t.Cleanup(cancel)
@@ -38,49 +39,61 @@ func TestUser(t *testing.T) {
 		want   any
 	}{
 		{
-			in: q.ContactCreateIn{
+			in: api.ContactCreateIn{
 				Email: "a@example.com",
-				Name:  "Ann",
+				Info: models.ContactInfo{
+					Age: 21,
+				},
+				Name: "Ann",
 			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
-			want: q.ContactCreateOut{
+			want: models.Contact{
 				Email: "a@example.com",
-				Id:    1,
-				Info:  models.Info{},
-				Name:  "Ann",
+				ID:    1,
+				Info: models.ContactInfo{
+					Age: 21,
+				},
+				Name: "Ann",
 			},
 		},
 		{
 			in:     nil,
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
-			want: q.ContactCreateOut{
+			want: models.Contact{
 				Email: "a@example.com",
-				Id:    1,
-				Info:  models.Info{},
-				Name:  "Ann",
+				ID:    1,
+				Info: models.ContactInfo{
+					Age: 21,
+				},
+				Name: "Ann",
 			},
 		},
 		{
-			in: q.ContactUpdateIn{
+			in: api.ContactUpdateIn{
 				Email: "a@new.com",
-				Name:  "Ann",
+				Info: models.ContactInfo{
+					Age: 22,
+				},
+				Name: "Ann",
 			},
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
-			want: q.ContactCreateOut{
+			want: models.Contact{
 				Email: "a@new.com",
-				Id:    1,
-				Info:  models.Info{},
-				Name:  "Ann",
+				ID:    1,
+				Info: models.ContactInfo{
+					Age: 22,
+				},
+				Name: "Ann",
 			},
 		},
 		{
 			in:     nil,
 			method: http.MethodDelete,
 			path:   "/api/contacts/1",
-			want:   nil,
+			want:   api.EmptyOut{},
 		},
 	}
 
@@ -97,12 +110,17 @@ func TestUser(t *testing.T) {
 		res, err := http.DefaultClient.Do(req)
 		a.NoError(err)
 
-		got := test.want
-		err = json.NewDecoder(res.Body).Decode(&got)
-		a.NoError(err)
-		defer res.Body.Close()
+		if _, ok := test.want.(string); ok {
+			bs, _ = io.ReadAll(res.Body)
+			a.Equal(test.want, string(bs))
+		} else {
+			got := test.want
+			err = json.NewDecoder(res.Body).Decode(&got)
+			a.NoError(err)
+			defer res.Body.Close()
 
-		JSONEq(a, test.want, got, name)
+			JSONEq(a, test.want, got, name)
+		}
 	}
 }
 

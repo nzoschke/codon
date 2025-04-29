@@ -17,7 +17,6 @@ layers of cruft.
 brew install deno go oven-sh/bun/bun sqlc
 go install github.com/nzoschke/sqlc-gen-zz@latest
 go install github.com/mitranim/gow@latest
-go install github.com/gzuidhof/tygo@latest
 
 go generate ./...
 go test -v ./...
@@ -30,7 +29,7 @@ open http://localhost:1234
 ```bash
 curl -d '{"email":"a@example.com","name":"Ann"}' -H "Content-Type: application/json" http://localhost:1234/api/contacts
 
-{"created_at":"2025-04-13T18:39:04Z","email":"a@example.com","id":1,"meta":{},"name":"Ann","phone":"","updated_at":"2025-04-13T18:39:04Z"}
+{"created_at":"2025-04-13T18:39:04Z","email":"a@example.com","id":1,"info":{"age":0},"name":"Ann","phone":"","updated_at":"2025-04-13T18:39:04Z"}
 ```
 
 ## Development
@@ -50,10 +49,11 @@ bun test
 
 To build:
 
-````bash
+```bash
 go generate ./...
 go build -o app cmd/app/main.go
 ./app
+```
 
 ### TS
 
@@ -62,7 +62,7 @@ cp src/scripts/pre-commit .git/hooks
 bun install
 bun run build
 bunx serve build/dist
-````
+```
 
 ## Philosophy
 
@@ -74,6 +74,7 @@ This leads us to:
 - Bun and its build tools
 - Deno and its fmt tool (until https://github.com/oven-sh/bun/issues/2246🤞)
 - Go and its tools and stdlib
+- Fuego and its Open API spec and client gen
 - Svelte and its compiler (and without SvelteKit)
 - SQLite and its file and memory backed databases
 - Tailwind
