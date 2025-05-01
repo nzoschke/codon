@@ -7,9 +7,14 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+type GetHealthOut struct {
+	ContentType string `header:"Content-Type"`
+	Body        []byte `example:"ok"`
+}
+
 func health(g huma.API) {
 	huma.Register(g, huma.Operation{
-		Description: "Returns status 200 if healthy, indeterminate response if not.",
+		Description: "Returns 200 if healthy, indeterminate response if not.",
 		Method:      http.MethodGet,
 		Path:        "/health",
 		Responses: map[string]*huma.Response{
@@ -21,9 +26,9 @@ func health(g huma.API) {
 				},
 			},
 		},
-		Summary: "Get API health",
-	}, func(ctx context.Context, in *struct{}) (*HealthOut, error) {
-		return &HealthOut{
+		Summary: "Get health",
+	}, func(ctx context.Context, in *struct{}) (*GetHealthOut, error) {
+		return &GetHealthOut{
 			ContentType: "text/plain",
 			Body:        []byte("ok"),
 		}, nil

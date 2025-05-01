@@ -15,11 +15,6 @@ import (
 
 //go:generate ./oapi.sh
 
-type HealthOut struct {
-	ContentType string `header:"Content-Type"`
-	Body        []byte `example:"ok"`
-}
-
 func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 	mux := http.NewServeMux()
 
