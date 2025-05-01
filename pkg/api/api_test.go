@@ -93,7 +93,7 @@ func TestContact(t *testing.T) {
 			in:     nil,
 			method: http.MethodDelete,
 			path:   "/api/contacts/1",
-			want:   api.EmptyOut{},
+			want:   "",
 		},
 	}
 
@@ -131,6 +131,12 @@ func timeAny() time.Time {
 func JSONEq(a *assert.Assertions, expected any, actual any, msgAndArgs ...any) {
 	be, err := json.Marshal(expected)
 	a.NoError(err)
+
+	// remove $schema
+	if m, ok := actual.(map[string]any); ok {
+		delete(m, "$schema")
+		actual = m
+	}
 
 	ba, err := json.Marshal(actual)
 	a.NoError(err)

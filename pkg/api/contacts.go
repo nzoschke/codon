@@ -1,9 +1,11 @@
 package api
 
 import (
+	"context"
 	"database/sql"
+	"strings"
 
-	"github.com/go-fuego/fuego"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/nzoschke/codon/pkg/db"
 	"github.com/nzoschke/codon/pkg/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
@@ -11,10 +13,10 @@ import (
 )
 
 type ContactCreateIn struct {
-	Email string             `form:"email" json:"email"`
-	Info  models.ContactInfo `form:"info" json:"info"`
-	Name  string             `form:"name" json:"name"`
-	Phone string             `form:"phone" json:"phone"`
+	Email string             `json:"email"`
+	Info  models.ContactInfo `json:"info"`
+	Name  string             `json:"name"`
+	Phone string             `json:"phone"`
 }
 
 type ContactUpdateIn struct {
@@ -24,14 +26,25 @@ type ContactUpdateIn struct {
 	Phone string             `json:"phone"`
 }
 
-type EmptyOut struct{}
+type GetContactOut struct {
+	Body models.Contact `json:"contact"`
+}
 
-func Contacts(s *fuego.Server, db db.DB) {
-	g := fuego.Group(s, "/api/contacts")
+type ListContactsOut struct {
+	Body struct {
+		Contacts []models.Contact `json:"contacts"`
+	}
+}
 
-	fuego.Get(g, "", func(c fuego.ContextNoBody) ([]models.Contact, error) {
-		ctx := c.Context()
+func contacts(a huma.API, db db.DB) {
+	g := huma.NewGroup(a, "/contacts")
+	g.UseModifier(func(op *huma.Operation, next func(*huma.Operation)) {
+		op.Path = strings.TrimSuffix(op.Path, "/")
+		op.Tags = []string{"Contacts"}
+		next(op)
+	})
 
+	huma.Get(g, "/", func(ctx context.Context, in *struct{}) (*ListContactsOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return nil, errors.WithStack(err)
@@ -43,9 +56,9 @@ func Contacts(s *fuego.Server, db db.DB) {
 			return nil, errors.WithStack(err)
 		}
 
-		out := []models.Contact{}
+		contacts := []models.Contact{}
 		for _, r := range rows {
-			out = append(out, models.Contact{
+			contacts = append(contacts, models.Contact{
 				CreatedAt: r.CreatedAt,
 				Email:     r.Email,
 				ID:        int(r.Id),
@@ -56,37 +69,32 @@ func Contacts(s *fuego.Server, db db.DB) {
 			})
 		}
 
+		out := &ListContactsOut{}
+		out.Body.Contacts = contacts
 		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("list"),
-	)
+	})
 
-	fuego.Post(g, "", func(c fuego.ContextWithBody[ContactCreateIn]) (models.Contact, error) {
-		ctx := c.Context()
-
-		in, err := c.Body()
-		if err != nil {
-			return models.Contact{}, err
-		}
-
+	huma.Post(g, "/", func(ctx context.Context, in *struct {
+		Body ContactCreateIn
+	}) (*GetContactOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 		defer put()
 
 		r, err := q.ContactCreate(conn, q.ContactCreateIn{
-			Email: in.Email,
-			Info:  in.Info,
-			Name:  in.Name,
-			Phone: in.Phone,
+			Email: in.Body.Email,
+			Info:  in.Body.Info,
+			Name:  in.Body.Name,
+			Phone: in.Body.Phone,
 		})
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 
-		out := models.Contact{
+		out := GetContactOut{}
+		out.Body = models.Contact{
 			CreatedAt: r.CreatedAt,
 			Email:     r.Email,
 			ID:        int(r.Id),
@@ -96,52 +104,53 @@ func Contacts(s *fuego.Server, db db.DB) {
 			UpdatedAt: r.UpdatedAt,
 		}
 
-		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("create"),
-	)
+		return &out, nil
+	})
 
-	fuego.Delete(g, "/{id}", func(c fuego.ContextNoBody) (EmptyOut, error) {
-		ctx := c.Request().Context()
-
-		id := int64(c.PathParamInt("id"))
-
+	huma.Delete(g, "/{id}", func(ctx context.Context, in *struct {
+		ID int `path:"id"`
+	}) (*struct{}, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return EmptyOut{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 		defer put()
 
-		err = q.ContactDelete(conn, id)
-		if err != nil {
-			return EmptyOut{}, errors.WithStack(err)
-		}
-
-		return EmptyOut{}, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("delete"),
-	)
-
-	fuego.Get(g, "/{id}", func(c fuego.ContextNoBody) (models.Contact, error) {
-		ctx := c.Context()
-
-		conn, put, err := db.Take(ctx)
-		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
-		}
-		defer put()
-
-		r, err := q.ContactRead(conn, int64(c.PathParamInt("id")))
+		_, err = q.ContactRead(conn, int64(in.ID))
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return models.Contact{}, fuego.NotFoundError{}
+				return nil, huma.Error404NotFound("")
 			}
-			return models.Contact{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 
-		out := models.Contact{
+		err = q.ContactDelete(conn, int64(in.ID))
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		return nil, nil
+	})
+
+	huma.Get(g, "/{id}", func(ctx context.Context, in *struct {
+		ID int `path:"id"`
+	}) (*GetContactOut, error) {
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		defer put()
+
+		r, err := q.ContactRead(conn, int64(in.ID))
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, huma.Error404NotFound("")
+			}
+			return nil, errors.WithStack(err)
+		}
+
+		out := &GetContactOut{}
+		out.Body = models.Contact{
 			CreatedAt: r.CreatedAt,
 			Email:     r.Email,
 			ID:        int(r.Id),
@@ -152,47 +161,39 @@ func Contacts(s *fuego.Server, db db.DB) {
 		}
 
 		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("get"),
-	)
+	})
 
-	fuego.Put(g, "/{id}", func(c fuego.ContextWithBody[ContactUpdateIn]) (models.Contact, error) {
-		ctx := c.Request().Context()
-
-		id := int64(c.PathParamInt("id"))
-
-		in, err := c.Body()
-		if err != nil {
-			return models.Contact{}, err
-		}
-
+	huma.Put(g, "/{id}", func(ctx context.Context, in *struct {
+		Body ContactUpdateIn
+		ID   int64 `path:"id"`
+	}) (*GetContactOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 		defer put()
 
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
-			Email: in.Email,
-			Id:    id,
-			Info:  in.Info,
-			Name:  in.Name,
-			Phone: in.Phone,
+			Email: in.Body.Email,
+			Id:    in.ID,
+			Info:  in.Body.Info,
+			Name:  in.Body.Name,
+			Phone: in.Body.Phone,
 		})
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 
-		r, err := q.ContactRead(conn, id)
+		r, err := q.ContactRead(conn, in.ID)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return models.Contact{}, fuego.NotFoundError{}
+				return nil, huma.Error404NotFound("")
 			}
-			return models.Contact{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 
-		out := models.Contact{
+		out := &GetContactOut{}
+		out.Body = models.Contact{
 			CreatedAt: r.CreatedAt,
 			Email:     r.Email,
 			ID:        int(r.Id),
@@ -203,8 +204,5 @@ func Contacts(s *fuego.Server, db db.DB) {
 		}
 
 		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("update"),
-	)
+	})
 }

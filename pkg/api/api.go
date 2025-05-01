@@ -3,47 +3,54 @@ package api
 import (
 	"context"
 	"log/slog"
+	"net/http"
+	"strings"
 	"time"
 
-	"github.com/go-fuego/fuego"
-	"github.com/go-fuego/fuego/option"
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/nzoschke/codon/pkg/db"
 	"github.com/olekukonko/errors"
 )
 
 //go:generate ./oapi.sh
 
-func NewServer(addr string, db db.DB, options ...func(*fuego.Server)) *fuego.Server {
-	s := fuego.NewServer(append(
-		options,
-		fuego.WithAddr("localhost"+addr),
-	)...)
-
-	fuego.Get(s, "/api/health", func(c fuego.ContextNoBody) (string, error) {
-		return "ok", nil
-	},
-		option.OverrideDescription(""),
-		option.Summary("health"),
-	)
-
-	Contacts(s, db)
-
-	return s
+type HealthOut struct {
+	ContentType string `header:"Content-Type"`
+	Body        []byte `example:"ok"`
 }
 
 func New(ctx context.Context, addr string, db db.DB, dev bool) error {
-	s := NewServer(addr, db, fuego.WithEngineOptions(
-		fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
-			DisableLocalSave: true,
-		}),
-	),
-	)
+	mux := http.NewServeMux()
 
-	dist(s.Mux, dev)
+	cfg := huma.DefaultConfig("Codon", "1.0.0")
+	cfg.DocsPath = "/spec"
+	a := humago.New(mux, cfg)
+	g := huma.NewGroup(a, "/api")
+
+	a.UseMiddleware(func(ctx huma.Context, next func(huma.Context)) {
+		next(ctx)
+		slog.Info("api", "method", ctx.Method(), "path", ctx.URL().Path, "status", ctx.Status())
+	})
+
+	gs := huma.GenerateSummary
+	huma.GenerateSummary = func(method, path string, response any) string {
+		s := gs(method, path, response)
+		return strings.Replace(s, "API ", "", 1)
+	}
+
+	dist(mux, dev)
+	contacts(g, db)
+	health(g)
+
+	s := &http.Server{
+		Addr:    addr,
+		Handler: mux,
+	}
 
 	go func() {
 		slog.Info("api", "serve", addr)
-		if err := s.Run(); err != nil {
+		if err := s.ListenAndServe(); err != nil {
 			slog.Error("api", "err", err)
 		}
 	}()
