@@ -12,7 +12,7 @@
 
   onMount(async () => {
     const res = await client.GET("/api/contacts");
-    contacts = res.data;
+    contacts = res.data?.contacts ?? [];
   });
 </script>
 

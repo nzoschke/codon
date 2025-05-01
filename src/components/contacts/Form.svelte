@@ -4,7 +4,7 @@
 
   let {
     cancel,
-    contact = $bindable({}),
+    contact = $bindable(),
     onsubmit,
   }: {
     cancel: string;

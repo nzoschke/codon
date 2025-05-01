@@ -8,9 +8,21 @@
   type Contact = components["schemas"]["Contact"];
   const client = createClient<paths>({});
 
-  const id = new URLSearchParams(location.search).get("id") ?? "0";
+  const id = parseInt(
+    new URLSearchParams(location.search).get("id") ?? "0",
+  );
 
-  let contact = $state<Contact>({});
+  let contact = $state<Contact>({
+    created_at: "",
+    email: "",
+    id: 0,
+    info: {
+      age: 0,
+    },
+    name: "",
+    phone: "",
+    updated_at: "",
+  });
 
   onMount(async () => {
     const res = await client.GET("/api/contacts/{id}", {

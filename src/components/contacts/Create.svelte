@@ -7,7 +7,17 @@
   type Contact = components["schemas"]["Contact"];
   const client = createClient<paths>({});
 
-  let contact = $state<Contact>({});
+  let contact = $state<Contact>({
+    created_at: "",
+    email: "",
+    id: 0,
+    info: {
+      age: 0,
+    },
+    name: "",
+    phone: "",
+    updated_at: "",
+  });
   const onsubmit = async (e: SubmitEvent) => {
     e.preventDefault();
     const res = await client.POST("/api/contacts", {

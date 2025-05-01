@@ -11,11 +11,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** list */
-    get: operations["GET_/api/contacts"];
+    /** Get contacts */
+    get: operations["get-api-contacts"];
     put?: never;
-    /** create */
-    post: operations["POST_/api/contacts"];
+    /** Post contacts */
+    post: operations["post-api-contacts"];
     delete?: never;
     options?: never;
     head?: never;
@@ -29,13 +29,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** get */
-    get: operations["GET_/api/contacts/:id"];
-    /** update */
-    put: operations["PUT_/api/contacts/:id"];
+    /** Get contacts by ID */
+    get: operations["get-api-contacts-by-id"];
+    /** Put contacts by ID */
+    put: operations["put-api-contacts-by-id"];
     post?: never;
-    /** delete */
-    delete: operations["DELETE_/api/contacts/:id"];
+    /** Delete contacts by ID */
+    delete: operations["delete-api-contacts-by-id"];
     options?: never;
     head?: never;
     patch?: never;
@@ -48,8 +48,40 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** health */
-    get: operations["GET_/api/health"];
+    /**
+     * Get health
+     * @description Returns 200 if healthy, indeterminate response if not.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            "Content-Type"?: string;
+            [name: string]: unknown;
+          };
+          content: {
+            "text/plain": unknown;
+          };
+        };
+        /** @description Error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/problem+json": components["schemas"]["ErrorModel"];
+          };
+        };
+      };
+    };
     put?: never;
     post?: never;
     delete?: never;
@@ -62,69 +94,108 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** @description Contact schema */
     Contact: {
-      /** Format: date-time */
-      created_at?: string;
-      email?: string;
-      id?: number;
-      info?: {
-        age?: number;
-      };
-      name?: string;
-      phone?: string;
-      /** Format: date-time */
-      updated_at?: string;
-    };
-    /** @description ContactCreateIn schema */
-    ContactCreateIn: {
-      email?: string;
-      info?: {
-        age?: number;
-      };
-      name?: string;
-      phone?: string;
-    };
-    /** @description ContactUpdateIn schema */
-    ContactUpdateIn: {
-      email?: string;
-      info?: {
-        age?: number;
-      };
-      name?: string;
-      phone?: string;
-    };
-    /** @description EmptyOut schema */
-    EmptyOut: unknown;
-    /** @description HTTPError schema */
-    HTTPError: {
-      /** @description Human readable error message */
-      detail?: string | null;
-      errors?: {
-        /** @description Additional information about the error */
-        more?: {
-          [key: string]: unknown;
-        } | null;
-        /** @description For example, name of the parameter that caused the error */
-        name?: string;
-        /** @description Human readable error message */
-        reason?: string;
-      }[] | null;
-      instance?: string | null;
       /**
-       * @description HTTP status code
-       * @example 403
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/Contact.json
        */
-      status?: number | null;
-      /** @description Short title of the error */
-      title?: string | null;
-      /** @description URL of the error type. Can be used to lookup the error in a documentation */
-      type?: string | null;
+      readonly $schema?: string;
+      /** Format: date-time */
+      created_at: string;
+      email: string;
+      /** Format: int64 */
+      id: number;
+      info: components["schemas"]["ContactInfo"];
+      name: string;
+      phone: string;
+      /** Format: date-time */
+      updated_at: string;
     };
-    /** @description string schema */
-    string: string;
-    /** @description unknown-interface schema */
-    "unknown-interface": unknown;
+    ContactCreateIn: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/ContactCreateIn.json
+       */
+      readonly $schema?: string;
+      email: string;
+      info: components["schemas"]["ContactInfo"];
+      name: string;
+      phone: string;
+    };
+    ContactInfo: {
+      /** Format: int64 */
+      age: number;
+    };
+    ContactUpdateIn: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/ContactUpdateIn.json
+       */
+      readonly $schema?: string;
+      email: string;
+      info: components["schemas"]["ContactInfo"];
+      name: string;
+      phone: string;
+    };
+    ErrorDetail: {
+      /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
+      location?: string;
+      /** @description Error message text */
+      message?: string;
+      /** @description The value at the given location */
+      value?: unknown;
+    };
+    ErrorModel: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/ErrorModel.json
+       */
+      readonly $schema?: string;
+      /**
+       * @description A human-readable explanation specific to this occurrence of the problem.
+       * @example Property foo is required but is missing.
+       */
+      detail?: string;
+      /** @description Optional list of individual error details */
+      errors?: components["schemas"]["ErrorDetail"][] | null;
+      /**
+       * Format: uri
+       * @description A URI reference that identifies the specific occurrence of the problem.
+       * @example https://example.com/error-log/abc123
+       */
+      instance?: string;
+      /**
+       * Format: int64
+       * @description HTTP status code
+       * @example 400
+       */
+      status?: number;
+      /**
+       * @description A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
+       * @example Bad Request
+       */
+      title?: string;
+      /**
+       * Format: uri
+       * @description A URI reference to human-readable documentation for the error.
+       * @default about:blank
+       * @example https://example.com/errors/example
+       */
+      type: string;
+    };
+    ListContactsOutBody: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/ListContactsOutBody.json
+       */
+      readonly $schema?: string;
+      contacts: components["schemas"]["Contact"][] | null;
+    };
   };
   responses: never;
   parameters: never;
@@ -134,12 +205,10 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  "GET_/api/contacts": {
+  "get-api-contacts": {
     parameters: {
       query?: never;
-      header?: {
-        Accept?: string;
-      };
+      header?: never;
       path?: never;
       cookie?: never;
     };
@@ -151,51 +220,30 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Contact"][];
-          "application/xml": components["schemas"]["Contact"][];
+          "application/json": components["schemas"]["ListContactsOutBody"];
         };
       };
-      /** @description Bad Request _(validation or deserialization error)_ */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      /** @description Internal Server Error _(panics)_ */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
+      /** @description Error */
       default: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
       };
     };
   };
-  "POST_/api/contacts": {
+  "post-api-contacts": {
     parameters: {
       query?: never;
-      header?: {
-        Accept?: string;
-      };
+      header?: never;
       path?: never;
       cookie?: never;
     };
-    /** @description Request body for api.ContactCreateIn */
     requestBody: {
       content: {
-        "*/*": components["schemas"]["ContactCreateIn"];
+        "application/json": components["schemas"]["ContactCreateIn"];
       };
     };
     responses: {
@@ -206,45 +254,25 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Contact"];
-          "application/xml": components["schemas"]["Contact"];
         };
       };
-      /** @description Bad Request _(validation or deserialization error)_ */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      /** @description Internal Server Error _(panics)_ */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
+      /** @description Error */
       default: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
       };
     };
   };
-  "GET_/api/contacts/:id": {
+  "get-api-contacts-by-id": {
     parameters: {
       query?: never;
-      header?: {
-        Accept?: string;
-      };
+      header?: never;
       path: {
-        id: string;
+        id: number;
       };
       cookie?: never;
     };
@@ -257,52 +285,31 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Contact"];
-          "application/xml": components["schemas"]["Contact"];
         };
       };
-      /** @description Bad Request _(validation or deserialization error)_ */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      /** @description Internal Server Error _(panics)_ */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
+      /** @description Error */
       default: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
       };
     };
   };
-  "PUT_/api/contacts/:id": {
+  "put-api-contacts-by-id": {
     parameters: {
       query?: never;
-      header?: {
-        Accept?: string;
-      };
+      header?: never;
       path: {
-        id: string;
+        id: number;
       };
       cookie?: never;
     };
-    /** @description Request body for api.ContactUpdateIn */
     requestBody: {
       content: {
-        "*/*": components["schemas"]["ContactUpdateIn"];
+        "application/json": components["schemas"]["ContactUpdateIn"];
       };
     };
     responses: {
@@ -313,134 +320,45 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Contact"];
-          "application/xml": components["schemas"]["Contact"];
         };
       };
-      /** @description Bad Request _(validation or deserialization error)_ */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      /** @description Internal Server Error _(panics)_ */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
+      /** @description Error */
       default: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
       };
     };
   };
-  "DELETE_/api/contacts/:id": {
+  "delete-api-contacts-by-id": {
     parameters: {
       query?: never;
-      header?: {
-        Accept?: string;
-      };
+      header?: never;
       path: {
-        id: string;
+        id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["EmptyOut"];
-          "application/xml": components["schemas"]["EmptyOut"];
-        };
-      };
-      /** @description Bad Request _(validation or deserialization error)_ */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      /** @description Internal Server Error _(panics)_ */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      default: {
+      /** @description No Content */
+      204: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
       };
-    };
-  };
-  "GET_/api/health": {
-    parameters: {
-      query?: never;
-      header?: {
-        Accept?: string;
-      };
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["string"];
-          "application/xml": components["schemas"]["string"];
-        };
-      };
-      /** @description Bad Request _(validation or deserialization error)_ */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
-      /** @description Internal Server Error _(panics)_ */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPError"];
-          "application/xml": components["schemas"]["HTTPError"];
-        };
-      };
+      /** @description Error */
       default: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
       };
     };
   };

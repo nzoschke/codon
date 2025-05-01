@@ -67,17 +67,9 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout 
 func Sub(arg string) error {
 	switch arg {
 	case "openapi":
-		// s := api.NewServer(
-		// 	"",
-		// 	db.DB{},
-		// 	fuego.WithEngineOptions(
-		// 		fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
-		// 			PrettyFormatJSON: true,
-		// 			JSONFilePath:     "doc/openapi.json",
-		// 		}),
-		// 	),
-		// )
-		// s.OutputOpenAPISpec()
+		a := api.NewAPI(http.NewServeMux(), db.DB{}, false)
+		b, _ := a.OpenAPI().Downgrade()
+		os.WriteFile("doc/openapi.json", b, 0644)
 	}
 
 	return nil
