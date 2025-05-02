@@ -5,7 +5,7 @@
   import Form from "./Form.svelte";
   import { onMount } from "svelte";
 
-  type Contact = components["schemas"]["Contact"];
+  type Contact = components["schemas"]["ContactUpdateIn"];
   const client = createClient<paths>({});
 
   const id = parseInt(
@@ -13,15 +13,12 @@
   );
 
   let contact = $state<Contact>({
-    created_at: "",
     email: "",
-    id: 0,
     info: {
       age: 0,
     },
     name: "",
     phone: "",
-    updated_at: "",
   });
 
   onMount(async () => {

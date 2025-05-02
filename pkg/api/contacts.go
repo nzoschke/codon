@@ -83,6 +83,8 @@ func contacts(a huma.API, db db.DB) {
 		}
 		defer put()
 
+		return nil, errors.New("TEST")
+
 		r, err := q.ContactCreate(conn, q.ContactCreateIn{
 			Email: in.Body.Email,
 			Info:  in.Body.Info,

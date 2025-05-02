@@ -46,8 +46,12 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
 	cfg := huma.DefaultConfig("Codon", "1.0.0")
 	cfg.DocsPath = "/spec"
-
-	a := humago.New(m, cfg)
+	cfg.Transformers = append(cfg.Transformers, func(ctx huma.Context, status string, v any) (any, error) {
+		if err, ok := v.(error); ok {
+			slog.Error("api", "err", err)
+		}
+		return v, nil
+	})
 
 	gs := huma.GenerateSummary
 	huma.GenerateSummary = func(method, path string, response any) string {
@@ -55,6 +59,7 @@ func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
 		return strings.Replace(s, "API ", "", 1)
 	}
 
+	a := humago.New(m, cfg)
 	a.UseMiddleware(func(ctx huma.Context, next func(huma.Context)) {
 		next(ctx)
 		slog.Info("api", "method", ctx.Method(), "path", ctx.URL().Path, "status", ctx.Status())
