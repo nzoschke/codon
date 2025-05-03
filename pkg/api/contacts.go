@@ -15,6 +15,13 @@ type ContactListOut struct {
 	Contacts []models.Contact `json:"contacts"`
 }
 
+type ContactUpdateIn struct {
+	Email string             `json:"email"`
+	Info  models.ContactInfo `json:"info"`
+	Name  string             `json:"name"`
+	Phone string             `json:"phone"`
+}
+
 func contacts(a huma.API, db db.DB) {
 	g := NewGroup(a, "/contacts")
 
@@ -35,15 +42,7 @@ func contacts(a huma.API, db db.DB) {
 		}
 
 		for _, r := range rows {
-			out.Contacts = append(out.Contacts, models.Contact{
-				CreatedAt: r.CreatedAt,
-				Email:     r.Email,
-				ID:        int(r.Id),
-				Info:      r.Info,
-				Name:      r.Name,
-				Phone:     r.Phone,
-				UpdatedAt: r.UpdatedAt,
-			})
+			out.Contacts = append(out.Contacts, models.Contact(r))
 		}
 
 		return out, nil
@@ -61,29 +60,17 @@ func contacts(a huma.API, db db.DB) {
 			return models.Contact{}, errors.WithStack(err)
 		}
 
-		out := models.Contact{
-			CreatedAt: r.CreatedAt,
-			Email:     r.Email,
-			ID:        int(r.Id),
-			Info:      r.Info,
-			Name:      r.Name,
-			Phone:     r.Phone,
-			UpdatedAt: r.UpdatedAt,
-		}
-
-		return out, nil
+		return models.Contact(*r), nil
 	})
 
-	Delete(g, "/{id}", func(ctx context.Context, in struct {
-		ID int `path:"id"`
-	}) error {
+	Delete(g, "/{id}", func(ctx context.Context, id int64) error {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 		defer put()
 
-		_, err = q.ContactRead(conn, int64(in.ID))
+		_, err = q.ContactRead(conn, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return huma.Error404NotFound("")
@@ -91,7 +78,7 @@ func contacts(a huma.API, db db.DB) {
 			return errors.WithStack(err)
 		}
 
-		err = q.ContactDelete(conn, int64(in.ID))
+		err = q.ContactDelete(conn, id)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -99,16 +86,14 @@ func contacts(a huma.API, db db.DB) {
 		return nil
 	})
 
-	Get(g, "/{id}", func(ctx context.Context, in struct {
-		ID int `path:"id"`
-	}) (models.Contact, error) {
+	Get(g, "/{id}", func(ctx context.Context, id int64) (models.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return models.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
-		r, err := q.ContactRead(conn, int64(in.ID))
+		r, err := q.ContactRead(conn, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return models.Contact{}, huma.Error404NotFound("")
@@ -116,23 +101,10 @@ func contacts(a huma.API, db db.DB) {
 			return models.Contact{}, errors.WithStack(err)
 		}
 
-		out := models.Contact{
-			CreatedAt: r.CreatedAt,
-			Email:     r.Email,
-			ID:        int(r.Id),
-			Info:      r.Info,
-			Name:      r.Name,
-			Phone:     r.Phone,
-			UpdatedAt: r.UpdatedAt,
-		}
-
-		return out, nil
+		return models.Contact(*r), nil
 	})
 
-	Put(g, "/{id}", func(ctx context.Context, in struct {
-		Body q.ContactUpdateIn
-		ID   int64 `path:"id"`
-	}) (models.Contact, error) {
+	Put(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (models.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return models.Contact{}, errors.WithStack(err)
@@ -140,17 +112,17 @@ func contacts(a huma.API, db db.DB) {
 		defer put()
 
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
-			Email: in.Body.Email,
-			Id:    in.ID,
-			Info:  in.Body.Info,
-			Name:  in.Body.Name,
-			Phone: in.Body.Phone,
+			Email: in.Email,
+			Id:    id,
+			Info:  in.Info,
+			Name:  in.Name,
+			Phone: in.Phone,
 		})
 		if err != nil {
 			return models.Contact{}, errors.WithStack(err)
 		}
 
-		r, err := q.ContactRead(conn, in.ID)
+		r, err := q.ContactRead(conn, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return models.Contact{}, huma.Error404NotFound("")
@@ -158,16 +130,6 @@ func contacts(a huma.API, db db.DB) {
 			return models.Contact{}, errors.WithStack(err)
 		}
 
-		out := models.Contact{
-			CreatedAt: r.CreatedAt,
-			Email:     r.Email,
-			ID:        int(r.Id),
-			Info:      r.Info,
-			Name:      r.Name,
-			Phone:     r.Phone,
-			UpdatedAt: r.UpdatedAt,
-		}
-
-		return out, nil
+		return models.Contact(*r), nil
 	})
 }

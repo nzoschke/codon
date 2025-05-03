@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nzoschke/codon/pkg/api"
 	"github.com/nzoschke/codon/pkg/models"
 	"github.com/nzoschke/codon/pkg/run"
 	"github.com/nzoschke/codon/pkg/sql/q"
@@ -50,7 +51,7 @@ func TestContact(t *testing.T) {
 			path:   "/api/contacts",
 			want: models.Contact{
 				Email: "a@example.com",
-				ID:    1,
+				Id:    1,
 				Info: models.ContactInfo{
 					Age: 21,
 				},
@@ -63,7 +64,7 @@ func TestContact(t *testing.T) {
 			path:   "/api/contacts/1",
 			want: models.Contact{
 				Email: "a@example.com",
-				ID:    1,
+				Id:    1,
 				Info: models.ContactInfo{
 					Age: 21,
 				},
@@ -71,7 +72,7 @@ func TestContact(t *testing.T) {
 			},
 		},
 		{
-			in: q.ContactUpdateIn{
+			in: api.ContactUpdateIn{
 				Email: "a@new.com",
 				Info: models.ContactInfo{
 					Age: 22,
@@ -82,7 +83,7 @@ func TestContact(t *testing.T) {
 			path:   "/api/contacts/1",
 			want: models.Contact{
 				Email: "a@new.com",
-				ID:    1,
+				Id:    1,
 				Info: models.ContactInfo{
 					Age: 22,
 				},
