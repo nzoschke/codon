@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"database/sql"
-	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/nzoschke/codon/pkg/db"
@@ -12,53 +11,31 @@ import (
 	"github.com/olekukonko/errors"
 )
 
-type ContactCreateIn struct {
-	Email string             `json:"email"`
-	Info  models.ContactInfo `json:"info"`
-	Name  string             `json:"name"`
-	Phone string             `json:"phone"`
-}
-
-type ContactUpdateIn struct {
-	Email string             `json:"email"`
-	Info  models.ContactInfo `json:"info"`
-	Name  string             `json:"name"`
-	Phone string             `json:"phone"`
-}
-
-type GetContactOut struct {
-	Body models.Contact `json:"contact"`
-}
-
-type ListContactsOut struct {
-	Body struct {
-		Contacts []models.Contact `json:"contacts"`
-	}
+type ContactListOut struct {
+	Contacts []models.Contact `json:"contacts"`
 }
 
 func contacts(a huma.API, db db.DB) {
-	g := huma.NewGroup(a, "/contacts")
-	g.UseModifier(func(op *huma.Operation, next func(*huma.Operation)) {
-		op.Path = strings.TrimSuffix(op.Path, "/")
-		op.Tags = []string{"Contacts"}
-		next(op)
-	})
+	g := NewGroup(a, "/contacts")
 
-	huma.Get(g, "/", func(ctx context.Context, in *struct{}) (*ListContactsOut, error) {
+	List(g, "", func(ctx context.Context, in struct{}) (ContactListOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return ContactListOut{}, errors.WithStack(err)
 		}
 		defer put()
 
 		rows, err := q.ContactList(conn, 10)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return ContactListOut{}, errors.WithStack(err)
 		}
 
-		contacts := []models.Contact{}
+		out := ContactListOut{
+			Contacts: []models.Contact{},
+		}
+
 		for _, r := range rows {
-			contacts = append(contacts, models.Contact{
+			out.Contacts = append(out.Contacts, models.Contact{
 				CreatedAt: r.CreatedAt,
 				Email:     r.Email,
 				ID:        int(r.Id),
@@ -69,32 +46,22 @@ func contacts(a huma.API, db db.DB) {
 			})
 		}
 
-		out := &ListContactsOut{}
-		out.Body.Contacts = contacts
 		return out, nil
 	})
 
-	huma.Post(g, "/", func(ctx context.Context, in *struct {
-		Body ContactCreateIn
-	}) (*GetContactOut, error) {
+	Post(g, "", func(ctx context.Context, in q.ContactCreateIn) (models.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return models.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
-		r, err := q.ContactCreate(conn, q.ContactCreateIn{
-			Email: in.Body.Email,
-			Info:  in.Body.Info,
-			Name:  in.Body.Name,
-			Phone: in.Body.Phone,
-		})
+		r, err := q.ContactCreate(conn, in)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return models.Contact{}, errors.WithStack(err)
 		}
 
-		out := GetContactOut{}
-		out.Body = models.Contact{
+		out := models.Contact{
 			CreatedAt: r.CreatedAt,
 			Email:     r.Email,
 			ID:        int(r.Id),
@@ -104,53 +71,52 @@ func contacts(a huma.API, db db.DB) {
 			UpdatedAt: r.UpdatedAt,
 		}
 
-		return &out, nil
+		return out, nil
 	})
 
-	huma.Delete(g, "/{id}", func(ctx context.Context, in *struct {
+	Delete(g, "/{id}", func(ctx context.Context, in struct {
 		ID int `path:"id"`
-	}) (*struct{}, error) {
+	}) error {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return errors.WithStack(err)
 		}
 		defer put()
 
 		_, err = q.ContactRead(conn, int64(in.ID))
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return nil, huma.Error404NotFound("")
+				return huma.Error404NotFound("")
 			}
-			return nil, errors.WithStack(err)
+			return errors.WithStack(err)
 		}
 
 		err = q.ContactDelete(conn, int64(in.ID))
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return errors.WithStack(err)
 		}
 
-		return nil, nil
+		return nil
 	})
 
-	huma.Get(g, "/{id}", func(ctx context.Context, in *struct {
+	Get(g, "/{id}", func(ctx context.Context, in struct {
 		ID int `path:"id"`
-	}) (*GetContactOut, error) {
+	}) (models.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return models.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
 		r, err := q.ContactRead(conn, int64(in.ID))
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return nil, huma.Error404NotFound("")
+				return models.Contact{}, huma.Error404NotFound("")
 			}
-			return nil, errors.WithStack(err)
+			return models.Contact{}, errors.WithStack(err)
 		}
 
-		out := &GetContactOut{}
-		out.Body = models.Contact{
+		out := models.Contact{
 			CreatedAt: r.CreatedAt,
 			Email:     r.Email,
 			ID:        int(r.Id),
@@ -163,13 +129,13 @@ func contacts(a huma.API, db db.DB) {
 		return out, nil
 	})
 
-	huma.Put(g, "/{id}", func(ctx context.Context, in *struct {
-		Body ContactUpdateIn
+	Put(g, "/{id}", func(ctx context.Context, in struct {
+		Body q.ContactUpdateIn
 		ID   int64 `path:"id"`
-	}) (*GetContactOut, error) {
+	}) (models.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return models.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
@@ -181,19 +147,18 @@ func contacts(a huma.API, db db.DB) {
 			Phone: in.Body.Phone,
 		})
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return models.Contact{}, errors.WithStack(err)
 		}
 
 		r, err := q.ContactRead(conn, in.ID)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return nil, huma.Error404NotFound("")
+				return models.Contact{}, huma.Error404NotFound("")
 			}
-			return nil, errors.WithStack(err)
+			return models.Contact{}, errors.WithStack(err)
 		}
 
-		out := &GetContactOut{}
-		out.Body = models.Contact{
+		out := models.Contact{
 			CreatedAt: r.CreatedAt,
 			Email:     r.Email,
 			ID:        int(r.Id),

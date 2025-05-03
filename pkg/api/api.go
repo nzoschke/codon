@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -46,18 +45,18 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
 	cfg := huma.DefaultConfig("Codon", "1.0.0")
 	cfg.DocsPath = "/spec"
-	cfg.Transformers = append(cfg.Transformers, func(ctx huma.Context, status string, v any) (any, error) {
-		if err, ok := v.(error); ok {
-			slog.Error("api", "err", err)
-		}
-		return v, nil
-	})
+	// cfg.Transformers = append(cfg.Transformers, func(ctx huma.Context, status string, v any) (any, error) {
+	// 	if err, ok := v.(error); ok {
+	// 		slog.Error("api", "err", err)
+	// 	}
+	// 	return v, nil
+	// })
 
-	gs := huma.GenerateSummary
-	huma.GenerateSummary = func(method, path string, response any) string {
-		s := gs(method, path, response)
-		return strings.Replace(s, "API ", "", 1)
-	}
+	// gs := huma.GenerateSummary
+	// huma.GenerateSummary = func(method, path string, response any) string {
+	// 	s := gs(method, path, response)
+	// 	return strings.Replace(s, "API ", "", 1)
+	// }
 
 	a := humago.New(m, cfg)
 	a.UseMiddleware(func(ctx huma.Context, next func(huma.Context)) {
