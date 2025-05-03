@@ -18,7 +18,7 @@ type ContactListOut struct {
 func contacts(a huma.API, db db.DB) {
 	g := NewGroup(a, "/contacts")
 
-	List(g, "", func(ctx context.Context, in struct{}) (ContactListOut, error) {
+	List(g, func(ctx context.Context, in struct{}) (ContactListOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return ContactListOut{}, errors.WithStack(err)
@@ -49,7 +49,7 @@ func contacts(a huma.API, db db.DB) {
 		return out, nil
 	})
 
-	Post(g, "", func(ctx context.Context, in q.ContactCreateIn) (models.Contact, error) {
+	Post(g, func(ctx context.Context, in q.ContactCreateIn) (models.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return models.Contact{}, errors.WithStack(err)

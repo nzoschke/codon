@@ -53,15 +53,15 @@ func Get[I, O any](g Group, path string, handler func(context.Context, I) (O, er
 	})
 }
 
-func List[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
-	convenience(g, "list", http.MethodGet, path, func(ctx context.Context, in *I) (*OutBody[O], error) {
+func List[I, O any](g Group, handler func(context.Context, I) (O, error)) {
+	convenience(g, "list", http.MethodGet, "/", func(ctx context.Context, in *I) (*OutBody[O], error) {
 		out, err := handler(ctx, *in)
 		return &OutBody[O]{Body: &out}, err
 	})
 }
 
-func Post[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
-	convenience(g, "post", http.MethodPost, path, func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
+func Post[I, O any](g Group, handler func(context.Context, I) (O, error)) {
+	convenience(g, "post", http.MethodPost, "/", func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, *in.Body)
 		return &OutBody[O]{Body: &out}, err
 	})
@@ -75,10 +75,6 @@ func Put[I, O any](g Group, path string, handler func(context.Context, I) (O, er
 }
 
 func convenience[I, O any](g Group, action, method, path string, handler func(context.Context, *I) (*O, error)) {
-	if path == "" {
-		path = "/"
-	}
-
 	var o *O
 	operation := huma.Operation{
 		OperationID: huma.GenerateOperationID(action, filepath.Join(g.prefix, path), o),
