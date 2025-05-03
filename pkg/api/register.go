@@ -4,28 +4,28 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"path/filepath"
+	"path"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/casing"
 )
 
-type BodyIn[I any] struct {
-	Body *I
+type InBody[B any] struct {
+	Body *B
 }
 
-type IDIn[I any] struct {
+type InID[I any] struct {
 	ID I `path:"id"`
 }
 
-type AllIn[B any, I any] struct {
+type InBodyID[B any, I any] struct {
 	Body *B
 	ID   I `path:"id"`
 }
 
-type BodyOut[O any] struct {
-	Body *O
+type OutBody[B any] struct {
+	Body *B
 }
 
 type Group struct {
@@ -49,47 +49,47 @@ func NewGroup(a huma.API, prefix string) Group {
 }
 
 func Delete[I any](g Group, path string, handler func(context.Context, I) error) {
-	convenience(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *IDIn[I]) (*struct{}, error) {
+	convenience(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *InID[I]) (*struct{}, error) {
 		err := handler(ctx, in.ID)
 		return nil, err
 	})
 }
 
 func Get[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
-	convenience(g, "get", http.MethodGet, path, func(ctx context.Context, in *IDIn[I]) (*BodyOut[O], error) {
+	convenience(g, "get", http.MethodGet, path, func(ctx context.Context, in *InID[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, in.ID)
-		return &BodyOut[O]{Body: &out}, err
+		return &OutBody[O]{Body: &out}, err
 	})
 }
 
 func List[I, O any](g Group, handler func(context.Context, I) (O, error)) {
-	convenience(g, "list", http.MethodGet, "/", func(ctx context.Context, in *I) (*BodyOut[O], error) {
+	convenience(g, "list", http.MethodGet, "/", func(ctx context.Context, in *I) (*OutBody[O], error) {
 		out, err := handler(ctx, *in)
-		return &BodyOut[O]{Body: &out}, err
+		return &OutBody[O]{Body: &out}, err
 	})
 }
 
 func Post[I, O any](g Group, handler func(context.Context, I) (O, error)) {
-	convenience(g, "post", http.MethodPost, "/", func(ctx context.Context, in *BodyIn[I]) (*BodyOut[O], error) {
+	convenience(g, "create", http.MethodPost, "/", func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, *in.Body)
-		return &BodyOut[O]{Body: &out}, err
+		return &OutBody[O]{Body: &out}, err
 	})
 }
 
 func Put[I, B, O any](g Group, path string, handler func(context.Context, I, B) (O, error)) {
-	convenience(g, "put", http.MethodPut, path, func(ctx context.Context, in *AllIn[B, I]) (*BodyOut[O], error) {
+	convenience(g, "update", http.MethodPut, path, func(ctx context.Context, in *InBodyID[B, I]) (*OutBody[O], error) {
 		out, err := handler(ctx, in.ID, *in.Body)
-		return &BodyOut[O]{Body: &out}, err
+		return &OutBody[O]{Body: &out}, err
 	})
 }
 
-func convenience[I, O any](g Group, action, method, path string, handler func(context.Context, *I) (*O, error)) {
+func convenience[I, O any](g Group, action, method, p string, handler func(context.Context, *I) (*O, error)) {
 	var o *O
 	operation := huma.Operation{
-		OperationID: huma.GenerateOperationID(action, filepath.Join(g.prefix, path), o),
-		Summary:     huma.GenerateSummary(action, filepath.Join(g.prefix, path), o),
+		OperationID: huma.GenerateOperationID(action, path.Join(g.prefix, p), o),
+		Summary:     huma.GenerateSummary(action, path.Join(g.prefix, p), o),
 		Method:      method,
-		Path:        path,
+		Path:        p,
 		Metadata:    map[string]any{},
 	}
 
