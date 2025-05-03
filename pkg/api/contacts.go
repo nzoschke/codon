@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/nzoschke/codon/pkg/db"
-	"github.com/nzoschke/codon/pkg/models"
+	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/olekukonko/errors"
 )

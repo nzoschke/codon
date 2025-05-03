@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/api"
-	"github.com/nzoschke/codon/pkg/models"
 	"github.com/nzoschke/codon/pkg/run"
+	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
