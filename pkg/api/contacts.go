@@ -12,7 +12,7 @@ import (
 )
 
 type ContactListOut struct {
-	Contacts []models.Contact `json:"contacts"`
+	Contacts []q.Contact `json:"contacts"`
 }
 
 type ContactUpdateIn struct {
@@ -38,29 +38,29 @@ func contacts(a huma.API, db db.DB) {
 		}
 
 		out := ContactListOut{
-			Contacts: []models.Contact{},
+			Contacts: []q.Contact{},
 		}
 
 		for _, r := range rows {
-			out.Contacts = append(out.Contacts, models.Contact(r))
+			out.Contacts = append(out.Contacts, q.Contact(r))
 		}
 
 		return out, nil
 	})
 
-	Post(g, func(ctx context.Context, in q.ContactCreateIn) (models.Contact, error) {
+	Post(g, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
 		r, err := q.ContactCreate(conn, in)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 
-		return models.Contact(*r), nil
+		return q.Contact(*r), nil
 	})
 
 	Delete(g, "/{id}", func(ctx context.Context, id int64) error {
@@ -86,28 +86,28 @@ func contacts(a huma.API, db db.DB) {
 		return nil
 	})
 
-	Get(g, "/{id}", func(ctx context.Context, id int64) (models.Contact, error) {
+	Get(g, "/{id}", func(ctx context.Context, id int64) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
 		r, err := q.ContactRead(conn, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return models.Contact{}, huma.Error404NotFound("")
+				return q.Contact{}, huma.Error404NotFound("")
 			}
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 
-		return models.Contact(*r), nil
+		return q.Contact(*r), nil
 	})
 
-	Put(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (models.Contact, error) {
+	Put(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
@@ -119,17 +119,17 @@ func contacts(a huma.API, db db.DB) {
 			Phone: in.Phone,
 		})
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 
 		r, err := q.ContactRead(conn, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return models.Contact{}, huma.Error404NotFound("")
+				return q.Contact{}, huma.Error404NotFound("")
 			}
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 
-		return models.Contact(*r), nil
+		return q.Contact(*r), nil
 	})
 }

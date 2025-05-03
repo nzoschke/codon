@@ -49,7 +49,7 @@ func TestContact(t *testing.T) {
 			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
-			want: models.Contact{
+			want: q.Contact{
 				Email: "a@example.com",
 				ID:    1,
 				Info: models.ContactInfo{
@@ -62,7 +62,7 @@ func TestContact(t *testing.T) {
 			in:     nil,
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
-			want: models.Contact{
+			want: q.Contact{
 				Email: "a@example.com",
 				ID:    1,
 				Info: models.ContactInfo{
@@ -81,7 +81,7 @@ func TestContact(t *testing.T) {
 			},
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
-			want: models.Contact{
+			want: q.Contact{
 				Email: "a@new.com",
 				ID:    1,
 				Info: models.ContactInfo{
