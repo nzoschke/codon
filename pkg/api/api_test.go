@@ -51,7 +51,7 @@ func TestContact(t *testing.T) {
 			path:   "/api/contacts",
 			want: models.Contact{
 				Email: "a@example.com",
-				Id:    1,
+				ID:    1,
 				Info: models.ContactInfo{
 					Age: 21,
 				},
@@ -64,7 +64,7 @@ func TestContact(t *testing.T) {
 			path:   "/api/contacts/1",
 			want: models.Contact{
 				Email: "a@example.com",
-				Id:    1,
+				ID:    1,
 				Info: models.ContactInfo{
 					Age: 21,
 				},
@@ -83,7 +83,7 @@ func TestContact(t *testing.T) {
 			path:   "/api/contacts/1",
 			want: models.Contact{
 				Email: "a@new.com",
-				Id:    1,
+				ID:    1,
 				Info: models.ContactInfo{
 					Age: 22,
 				},

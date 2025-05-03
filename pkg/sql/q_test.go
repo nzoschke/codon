@@ -33,7 +33,7 @@ func TestCRUD(t *testing.T) {
 	a.Equal(&q.ContactCreateOut{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
-		Id:        1,
+		ID:        1,
 		Info:      models.ContactInfo{},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
@@ -45,7 +45,7 @@ func TestCRUD(t *testing.T) {
 	a.Equal(&q.ContactReadOut{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
-		Id:        1,
+		ID:        1,
 		Info:      models.ContactInfo{},
 		Name:      "Ann",
 		UpdatedAt: res.UpdatedAt,
@@ -57,7 +57,7 @@ func TestCRUD(t *testing.T) {
 	err = q.ContactUpdate(conn, q.ContactUpdateIn{
 		Email: "a@new.com",
 		Name:  "Ann",
-		Id:    1,
+		ID:    1,
 	})
 	a.NoError(err)
 
@@ -67,7 +67,7 @@ func TestCRUD(t *testing.T) {
 	a.Equal(&q.ContactReadOut{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@new.com",
-		Id:        1,
+		ID:        1,
 		Info:      models.ContactInfo{},
 		Name:      "Ann",
 		UpdatedAt: rres.UpdatedAt,
@@ -106,7 +106,7 @@ func TestJSON(t *testing.T) {
 	a.Equal(&q.ContactCreateOut{
 		CreatedAt: res.CreatedAt,
 		Email:     "a@example.com",
-		Id:        1,
+		ID:        1,
 		Info: models.ContactInfo{
 			Age: 21,
 		},

@@ -11,7 +11,7 @@ import (
 type Contact struct {
 	CreatedAt time.Time          `json:"created_at"`
 	Email     string             `json:"email"`
-	Id        int64              `json:"id"`
+	ID        int64              `json:"id"`
 	Info      models.ContactInfo `json:"info"`
 	Name      string             `json:"name"`
 	Phone     string             `json:"phone"`

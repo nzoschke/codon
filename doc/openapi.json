@@ -54,6 +54,25 @@
         "required": ["age"],
         "type": "object"
       },
+      "ContactListOut": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "example": "https://example.com/schemas/ContactListOut.json",
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "contacts": {
+            "items": { "$ref": "#/components/schemas/Contact" },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "required": ["contacts"],
+        "type": "object"
+      },
       "ContactUpdateIn": {
         "additionalProperties": false,
         "properties": {
@@ -131,25 +150,6 @@
           }
         },
         "type": "object"
-      },
-      "ListContactsOutBody": {
-        "additionalProperties": false,
-        "properties": {
-          "$schema": {
-            "description": "A URL to the JSON Schema for this object.",
-            "example": "https://example.com/schemas/ListContactsOutBody.json",
-            "format": "uri",
-            "readOnly": true,
-            "type": "string"
-          },
-          "contacts": {
-            "items": { "$ref": "#/components/schemas/Contact" },
-            "nullable": true,
-            "type": "array"
-          }
-        },
-        "required": ["contacts"],
-        "type": "object"
       }
     }
   },
@@ -158,12 +158,12 @@
   "paths": {
     "/api/contacts": {
       "get": {
-        "operationId": "get-api-contacts",
+        "operationId": "list-contacts",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ListContactsOutBody" }
+                "schema": { "$ref": "#/components/schemas/ContactListOut" }
               }
             },
             "description": "OK"
@@ -177,18 +177,17 @@
             "description": "Error"
           }
         },
-        "summary": "Get contacts",
+        "summary": "List contacts",
         "tags": ["Contacts"]
       },
       "post": {
-        "operationId": "post-api-contacts",
+        "operationId": "post-contacts",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": { "$ref": "#/components/schemas/ContactCreateIn" }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -214,7 +213,7 @@
     },
     "/api/contacts/{id}": {
       "delete": {
-        "operationId": "delete-api-contacts-by-id",
+        "operationId": "delete-contacts-by-id",
         "parameters": [
           {
             "in": "path",
@@ -238,7 +237,7 @@
         "tags": ["Contacts"]
       },
       "get": {
-        "operationId": "get-api-contacts-by-id",
+        "operationId": "get-contacts-by-id",
         "parameters": [
           {
             "in": "path",
@@ -269,7 +268,7 @@
         "tags": ["Contacts"]
       },
       "put": {
-        "operationId": "put-api-contacts-by-id",
+        "operationId": "put-contacts-by-id",
         "parameters": [
           {
             "in": "path",
@@ -283,8 +282,7 @@
             "application/json": {
               "schema": { "$ref": "#/components/schemas/ContactUpdateIn" }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {

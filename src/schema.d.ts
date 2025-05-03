@@ -11,11 +11,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get contacts */
-    get: operations["get-api-contacts"];
+    /** List contacts */
+    get: operations["list-contacts"];
     put?: never;
     /** Post contacts */
-    post: operations["post-api-contacts"];
+    post: operations["post-contacts"];
     delete?: never;
     options?: never;
     head?: never;
@@ -30,12 +30,12 @@ export interface paths {
       cookie?: never;
     };
     /** Get contacts by ID */
-    get: operations["get-api-contacts-by-id"];
+    get: operations["get-contacts-by-id"];
     /** Put contacts by ID */
-    put: operations["put-api-contacts-by-id"];
+    put: operations["put-contacts-by-id"];
     post?: never;
     /** Delete contacts by ID */
-    delete: operations["delete-api-contacts-by-id"];
+    delete: operations["delete-contacts-by-id"];
     options?: never;
     head?: never;
     patch?: never;
@@ -128,6 +128,15 @@ export interface components {
       /** Format: int64 */
       age: number;
     };
+    ContactListOut: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/ContactListOut.json
+       */
+      readonly $schema?: string;
+      contacts: components["schemas"]["Contact"][] | null;
+    };
     ContactUpdateIn: {
       /**
        * Format: uri
@@ -187,15 +196,6 @@ export interface components {
        */
       type: string;
     };
-    ListContactsOutBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ListContactsOutBody.json
-       */
-      readonly $schema?: string;
-      contacts: components["schemas"]["Contact"][] | null;
-    };
   };
   responses: never;
   parameters: never;
@@ -205,7 +205,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  "get-api-contacts": {
+  "list-contacts": {
     parameters: {
       query?: never;
       header?: never;
@@ -220,7 +220,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ListContactsOutBody"];
+          "application/json": components["schemas"]["ContactListOut"];
         };
       };
       /** @description Error */
@@ -234,14 +234,14 @@ export interface operations {
       };
     };
   };
-  "post-api-contacts": {
+  "post-contacts": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    requestBody: {
+    requestBody?: {
       content: {
         "application/json": components["schemas"]["ContactCreateIn"];
       };
@@ -267,7 +267,7 @@ export interface operations {
       };
     };
   };
-  "get-api-contacts-by-id": {
+  "get-contacts-by-id": {
     parameters: {
       query?: never;
       header?: never;
@@ -298,7 +298,7 @@ export interface operations {
       };
     };
   };
-  "put-api-contacts-by-id": {
+  "put-contacts-by-id": {
     parameters: {
       query?: never;
       header?: never;
@@ -307,7 +307,7 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
+    requestBody?: {
       content: {
         "application/json": components["schemas"]["ContactUpdateIn"];
       };
@@ -333,7 +333,7 @@ export interface operations {
       };
     };
   };
-  "delete-api-contacts-by-id": {
+  "delete-contacts-by-id": {
     parameters: {
       query?: never;
       header?: never;

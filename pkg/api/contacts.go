@@ -113,7 +113,7 @@ func contacts(a huma.API, db db.DB) {
 
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
-			Id:    id,
+			ID:    id,
 			Info:  in.Info,
 			Name:  in.Name,
 			Phone: in.Phone,
