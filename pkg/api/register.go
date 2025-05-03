@@ -11,22 +11,8 @@ import (
 	"github.com/danielgtaylor/huma/v2/casing"
 )
 
-type In struct {
-	Name string `query:"name"`
-}
-
-type Out struct {
-	Body struct {
-		Message string `json:"message"`
-	}
-}
-
 type InBody[O any] struct {
 	Body *O
-}
-
-type InID[I any] struct {
-	ID I `path:"id"`
 }
 
 type OutBody[O any] struct {
@@ -53,7 +39,6 @@ func NewGroup(a huma.API, prefix string) Group {
 	}
 }
 
-// Delete takes an ID and returns an error if succesful
 func Delete[I any](g Group, path string, handler func(context.Context, I) error) {
 	convenience(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *I) (*struct{}, error) {
 		err := handler(ctx, *in)
