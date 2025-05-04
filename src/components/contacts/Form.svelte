@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { components } from "~/src/schema";
-  type Contact = components["schemas"]["Contact"];
+  type Contact = components["schemas"]["ContactCreateIn"];
 
   let {
     cancel,
-    contact = $bindable({}),
+    contact = $bindable(),
     onsubmit,
   }: {
     cancel: string;

@@ -11,7 +11,7 @@ sql:
           overrides:
             - column: contacts.info
               go_type:
-                import: github.com/nzoschke/codon/pkg
+                import: github.com/nzoschke/codon/pkg/sql
                 package: models
                 type: ContactInfo
         out: q

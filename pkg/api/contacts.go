@@ -1,20 +1,19 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 
-	"github.com/go-fuego/fuego"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/nzoschke/codon/pkg/db"
-	"github.com/nzoschke/codon/pkg/models"
+	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/olekukonko/errors"
+	"zombiezen.com/go/sqlite"
 )
 
-type ContactCreateIn struct {
-	Email string             `form:"email" json:"email"`
-	Info  models.ContactInfo `form:"info" json:"info"`
-	Name  string             `form:"name" json:"name"`
-	Phone string             `form:"phone" json:"phone"`
+type ContactListOut struct {
+	Contacts []q.Contact `json:"contacts"`
 }
 
 type ContactUpdateIn struct {
@@ -24,187 +23,117 @@ type ContactUpdateIn struct {
 	Phone string             `json:"phone"`
 }
 
-type EmptyOut struct{}
+func contacts(a huma.API, db db.DB) {
+	g := NewGroup(a, "/contacts")
 
-func Contacts(s *fuego.Server, db db.DB) {
-	g := fuego.Group(s, "/api/contacts")
-
-	fuego.Get(g, "", func(c fuego.ContextNoBody) ([]models.Contact, error) {
-		ctx := c.Context()
-
+	Delete(g, "/{id}", func(ctx context.Context, id int64) error {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return errors.WithStack(err)
+		}
+		defer put()
+
+		_, err = contactRead(conn, id)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		err = q.ContactDelete(conn, id)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		return nil
+	})
+
+	Get(g, "/{id}", func(ctx context.Context, id int64) (q.Contact, error) {
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return q.Contact{}, errors.WithStack(err)
+		}
+		defer put()
+
+		c, err := contactRead(conn, id)
+		if err != nil {
+			return q.Contact{}, errors.WithStack(err)
+		}
+
+		return c, nil
+	})
+
+	List(g, func(ctx context.Context, in struct{}) (ContactListOut, error) {
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return ContactListOut{}, errors.WithStack(err)
 		}
 		defer put()
 
 		rows, err := q.ContactList(conn, 10)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return ContactListOut{}, errors.WithStack(err)
 		}
 
-		out := []models.Contact{}
+		out := ContactListOut{
+			Contacts: []q.Contact{},
+		}
+
 		for _, r := range rows {
-			out = append(out, models.Contact{
-				CreatedAt: r.CreatedAt,
-				Email:     r.Email,
-				ID:        int(r.Id),
-				Info:      r.Info,
-				Name:      r.Name,
-				Phone:     r.Phone,
-				UpdatedAt: r.UpdatedAt,
-			})
+			out.Contacts = append(out.Contacts, q.Contact(r))
 		}
 
 		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("list"),
-	)
+	})
 
-	fuego.Post(g, "", func(c fuego.ContextWithBody[ContactCreateIn]) (models.Contact, error) {
-		ctx := c.Context()
-
-		in, err := c.Body()
-		if err != nil {
-			return models.Contact{}, err
-		}
-
+	Post(g, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
-		r, err := q.ContactCreate(conn, q.ContactCreateIn{
-			Email: in.Email,
-			Info:  in.Info,
-			Name:  in.Name,
-			Phone: in.Phone,
-		})
+		r, err := q.ContactCreate(conn, in)
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 
-		out := models.Contact{
-			CreatedAt: r.CreatedAt,
-			Email:     r.Email,
-			ID:        int(r.Id),
-			Info:      r.Info,
-			Name:      r.Name,
-			Phone:     r.Phone,
-			UpdatedAt: r.UpdatedAt,
-		}
+		return q.Contact(*r), nil
+	})
 
-		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("create"),
-	)
-
-	fuego.Delete(g, "/{id}", func(c fuego.ContextNoBody) (EmptyOut, error) {
-		ctx := c.Request().Context()
-
-		id := int64(c.PathParamInt("id"))
-
+	Put(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return EmptyOut{}, errors.WithStack(err)
-		}
-		defer put()
-
-		err = q.ContactDelete(conn, id)
-		if err != nil {
-			return EmptyOut{}, errors.WithStack(err)
-		}
-
-		return EmptyOut{}, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("delete"),
-	)
-
-	fuego.Get(g, "/{id}", func(c fuego.ContextNoBody) (models.Contact, error) {
-		ctx := c.Context()
-
-		conn, put, err := db.Take(ctx)
-		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
-		}
-		defer put()
-
-		r, err := q.ContactRead(conn, int64(c.PathParamInt("id")))
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return models.Contact{}, fuego.NotFoundError{}
-			}
-			return models.Contact{}, errors.WithStack(err)
-		}
-
-		out := models.Contact{
-			CreatedAt: r.CreatedAt,
-			Email:     r.Email,
-			ID:        int(r.Id),
-			Info:      r.Info,
-			Name:      r.Name,
-			Phone:     r.Phone,
-			UpdatedAt: r.UpdatedAt,
-		}
-
-		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("get"),
-	)
-
-	fuego.Put(g, "/{id}", func(c fuego.ContextWithBody[ContactUpdateIn]) (models.Contact, error) {
-		ctx := c.Request().Context()
-
-		id := int64(c.PathParamInt("id"))
-
-		in, err := c.Body()
-		if err != nil {
-			return models.Contact{}, err
-		}
-
-		conn, put, err := db.Take(ctx)
-		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 		defer put()
 
 		err = q.ContactUpdate(conn, q.ContactUpdateIn{
 			Email: in.Email,
-			Id:    id,
+			ID:    id,
 			Info:  in.Info,
 			Name:  in.Name,
 			Phone: in.Phone,
 		})
 		if err != nil {
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 
-		r, err := q.ContactRead(conn, id)
+		c, err := contactRead(conn, id)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				return models.Contact{}, fuego.NotFoundError{}
-			}
-			return models.Contact{}, errors.WithStack(err)
+			return q.Contact{}, errors.WithStack(err)
 		}
 
-		out := models.Contact{
-			CreatedAt: r.CreatedAt,
-			Email:     r.Email,
-			ID:        int(r.Id),
-			Info:      r.Info,
-			Name:      r.Name,
-			Phone:     r.Phone,
-			UpdatedAt: r.UpdatedAt,
-		}
+		return c, nil
+	})
+}
 
-		return out, nil
-	},
-		fuego.OptionOverrideDescription(""),
-		fuego.OptionSummary("update"),
-	)
+func contactRead(conn *sqlite.Conn, id int64) (q.Contact, error) {
+	r, err := q.ContactRead(conn, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return q.Contact{}, huma.Error404NotFound("")
+		}
+		return q.Contact{}, errors.WithStack(err)
+	}
+
+	return q.Contact(*r), nil
 }

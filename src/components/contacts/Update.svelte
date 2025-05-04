@@ -5,12 +5,21 @@
   import Form from "./Form.svelte";
   import { onMount } from "svelte";
 
-  type Contact = components["schemas"]["Contact"];
+  type Contact = components["schemas"]["ContactUpdateIn"];
   const client = createClient<paths>({});
 
-  const id = new URLSearchParams(location.search).get("id") ?? "0";
+  const id = parseInt(
+    new URLSearchParams(location.search).get("id") ?? "0",
+  );
 
-  let contact = $state<Contact>({});
+  let contact = $state<Contact>({
+    email: "",
+    info: {
+      age: 0,
+    },
+    name: "",
+    phone: "",
+  });
 
   onMount(async () => {
     const res = await client.GET("/api/contacts/{id}", {

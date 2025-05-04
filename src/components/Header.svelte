@@ -43,7 +43,7 @@
           </a>
         </li>
         <li>
-          <a href="http://localhost:1234/swagger/index.html">
+          <a href="http://localhost:1234/spec">
             <Icon src={Document} theme="solid" class="h-5" />
             Spec
           </a>
@@ -79,7 +79,7 @@
         </a>
       </li>
       <li>
-        <a href="http://localhost:1234/swagger/index.html">
+        <a href="http://localhost:1234/spec">
           <Icon src={Document} theme="solid" class="h-5" />
           Spec
         </a>

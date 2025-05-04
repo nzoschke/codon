@@ -4,10 +4,18 @@
   import Layout from "../Layout.svelte";
   import Form from "./Form.svelte";
 
-  type Contact = components["schemas"]["Contact"];
+  type Contact = components["schemas"]["ContactCreateIn"];
   const client = createClient<paths>({});
 
-  let contact = $state<Contact>({});
+  let contact = $state<Contact>({
+    email: "",
+    info: {
+      age: 0,
+    },
+    name: "",
+    phone: "",
+  });
+
   const onsubmit = async (e: SubmitEvent) => {
     e.preventDefault();
     const res = await client.POST("/api/contacts", {

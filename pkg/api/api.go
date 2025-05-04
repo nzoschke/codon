@@ -3,47 +3,29 @@ package api
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"time"
 
-	"github.com/go-fuego/fuego"
-	"github.com/go-fuego/fuego/option"
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/nzoschke/codon/pkg/db"
 	"github.com/olekukonko/errors"
 )
 
 //go:generate ./oapi.sh
 
-func NewServer(addr string, db db.DB, options ...func(*fuego.Server)) *fuego.Server {
-	s := fuego.NewServer(append(
-		options,
-		fuego.WithAddr("localhost"+addr),
-	)...)
-
-	fuego.Get(s, "/api/health", func(c fuego.ContextNoBody) (string, error) {
-		return "ok", nil
-	},
-		option.OverrideDescription(""),
-		option.Summary("health"),
-	)
-
-	Contacts(s, db)
-
-	return s
-}
-
 func New(ctx context.Context, addr string, db db.DB, dev bool) error {
-	s := NewServer(addr, db, fuego.WithEngineOptions(
-		fuego.WithOpenAPIConfig(fuego.OpenAPIConfig{
-			DisableLocalSave: true,
-		}),
-	),
-	)
+	m := http.NewServeMux()
+	NewAPI(m, db, dev)
 
-	dist(s.Mux, dev)
+	s := &http.Server{
+		Addr:    addr,
+		Handler: m,
+	}
 
 	go func() {
 		slog.Info("api", "serve", addr)
-		if err := s.Run(); err != nil {
+		if err := s.ListenAndServe(); err != nil {
 			slog.Error("api", "err", err)
 		}
 	}()
@@ -58,4 +40,23 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 	}
 
 	return nil
+}
+
+func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
+	cfg := huma.DefaultConfig("Codon", "1.0.0")
+	cfg.DocsPath = "/spec"
+
+	a := humago.New(m, cfg)
+	a.UseMiddleware(func(ctx huma.Context, next func(huma.Context)) {
+		next(ctx)
+		slog.Info("api", "method", ctx.Method(), "path", ctx.URL().Path, "status", ctx.Status())
+	})
+
+	g := huma.NewGroup(a, "/api")
+
+	dist(m, dev)
+	contacts(g, db)
+	health(g)
+
+	return a
 }

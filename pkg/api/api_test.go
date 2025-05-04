@@ -13,8 +13,9 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/api"
-	"github.com/nzoschke/codon/pkg/models"
 	"github.com/nzoschke/codon/pkg/run"
+	"github.com/nzoschke/codon/pkg/sql/models"
+	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,7 +40,7 @@ func TestContact(t *testing.T) {
 		want   any
 	}{
 		{
-			in: api.ContactCreateIn{
+			in: q.ContactCreateIn{
 				Email: "a@example.com",
 				Info: models.ContactInfo{
 					Age: 21,
@@ -48,7 +49,7 @@ func TestContact(t *testing.T) {
 			},
 			method: http.MethodPost,
 			path:   "/api/contacts",
-			want: models.Contact{
+			want: q.Contact{
 				Email: "a@example.com",
 				ID:    1,
 				Info: models.ContactInfo{
@@ -61,7 +62,7 @@ func TestContact(t *testing.T) {
 			in:     nil,
 			method: http.MethodGet,
 			path:   "/api/contacts/1",
-			want: models.Contact{
+			want: q.Contact{
 				Email: "a@example.com",
 				ID:    1,
 				Info: models.ContactInfo{
@@ -80,7 +81,7 @@ func TestContact(t *testing.T) {
 			},
 			method: http.MethodPut,
 			path:   "/api/contacts/1",
-			want: models.Contact{
+			want: q.Contact{
 				Email: "a@new.com",
 				ID:    1,
 				Info: models.ContactInfo{
@@ -93,7 +94,7 @@ func TestContact(t *testing.T) {
 			in:     nil,
 			method: http.MethodDelete,
 			path:   "/api/contacts/1",
-			want:   api.EmptyOut{},
+			want:   "",
 		},
 	}
 
@@ -131,6 +132,12 @@ func timeAny() time.Time {
 func JSONEq(a *assert.Assertions, expected any, actual any, msgAndArgs ...any) {
 	be, err := json.Marshal(expected)
 	a.NoError(err)
+
+	// remove $schema
+	if m, ok := actual.(map[string]any); ok {
+		delete(m, "$schema")
+		actual = m
+	}
 
 	ba, err := json.Marshal(actual)
 	a.NoError(err)

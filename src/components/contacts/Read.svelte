@@ -9,7 +9,17 @@
   type Contact = components["schemas"]["Contact"];
   const client = createClient<paths>({});
 
-  let contact = $state<Contact>({});
+  let contact = $state<Contact>({
+    created_at: "",
+    email: "",
+    id: 0,
+    info: {
+      age: 0,
+    },
+    name: "",
+    phone: "",
+    updated_at: "",
+  });
 
   let topic = "apps";
 
@@ -20,7 +30,9 @@
     const res = await client.DELETE("/api/contacts/{id}", {
       params: {
         path: {
-          id: new URLSearchParams(location.search).get("id") ?? "0",
+          id: parseInt(
+            new URLSearchParams(location.search).get("id") ?? "0",
+          ),
         },
       },
     });
@@ -31,7 +43,9 @@
     const res = await client.GET("/api/contacts/{id}", {
       params: {
         path: {
-          id: new URLSearchParams(location.search).get("id") ?? "0",
+          id: parseInt(
+            new URLSearchParams(location.search).get("id") ?? "0",
+          ),
         },
       },
     });

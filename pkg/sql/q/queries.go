@@ -9,7 +9,7 @@ import (
 
 	"zombiezen.com/go/sqlite"
 
-	"github.com/nzoschke/codon/pkg/models"
+	"github.com/nzoschke/codon/pkg/sql/models"
 )
 
 type ContactCreateIn struct {
@@ -22,7 +22,7 @@ type ContactCreateIn struct {
 type ContactCreateOut struct {
 	CreatedAt time.Time          `json:"created_at"`
 	Email     string             `json:"email"`
-	Id        int64              `json:"id"`
+	ID        int64              `json:"id"`
 	Info      models.ContactInfo `json:"info"`
 	Name      string             `json:"name"`
 	Phone     string             `json:"phone"`
@@ -54,7 +54,7 @@ RETURNING
 	out := ContactCreateOut{}
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
-	out.Id = stmt.ColumnInt64(2)
+	out.ID = stmt.ColumnInt64(2)
 	out.Info = jsonUnmarshalModelsContactInfo([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
@@ -67,7 +67,7 @@ RETURNING
 type ContactReadOut struct {
 	CreatedAt time.Time          `json:"created_at"`
 	Email     string             `json:"email"`
-	Id        int64              `json:"id"`
+	ID        int64              `json:"id"`
 	Info      models.ContactInfo `json:"info"`
 	Name      string             `json:"name"`
 	Phone     string             `json:"phone"`
@@ -98,7 +98,7 @@ LIMIT
 	out := ContactReadOut{}
 	out.CreatedAt = timeParse(stmt.ColumnText(0))
 	out.Email = stmt.ColumnText(1)
-	out.Id = stmt.ColumnInt64(2)
+	out.ID = stmt.ColumnInt64(2)
 	out.Info = jsonUnmarshalModelsContactInfo([]byte(stmt.ColumnText(3)))
 	out.Name = stmt.ColumnText(4)
 	out.Phone = stmt.ColumnText(5)
@@ -113,7 +113,7 @@ type ContactUpdateIn struct {
 	Info  models.ContactInfo `json:"info"`
 	Name  string             `json:"name"`
 	Phone string             `json:"phone"`
-	Id    int64              `json:"id"`
+	ID    int64              `json:"id"`
 }
 
 func ContactUpdate(tx *sqlite.Conn, in ContactUpdateIn) error {
@@ -133,7 +133,7 @@ WHERE
 	stmt.BindBytes(2, jsonMarshal(in.Info))
 	stmt.BindText(3, in.Name)
 	stmt.BindText(4, in.Phone)
-	stmt.BindInt64(5, in.Id)
+	stmt.BindInt64(5, in.ID)
 
 	_, err := stmt.Step()
 	if err != nil {
@@ -165,7 +165,7 @@ type ContactListOut []ContactListRow
 type ContactListRow struct {
 	CreatedAt time.Time          `json:"created_at"`
 	Email     string             `json:"email"`
-	Id        int64              `json:"id"`
+	ID        int64              `json:"id"`
 	Info      models.ContactInfo `json:"info"`
 	Name      string             `json:"name"`
 	Phone     string             `json:"phone"`
@@ -198,7 +198,7 @@ LIMIT
 		row := ContactListRow{}
 		row.CreatedAt = timeParse(stmt.ColumnText(0))
 		row.Email = stmt.ColumnText(1)
-		row.Id = stmt.ColumnInt64(2)
+		row.ID = stmt.ColumnInt64(2)
 		row.Info = jsonUnmarshalModelsContactInfo([]byte(stmt.ColumnText(3)))
 		row.Name = stmt.ColumnText(4)
 		row.Phone = stmt.ColumnText(5)
