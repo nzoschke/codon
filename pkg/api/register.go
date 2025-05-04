@@ -11,6 +11,11 @@ import (
 	"github.com/danielgtaylor/huma/v2/casing"
 )
 
+type Group struct {
+	g      *huma.Group
+	prefix string
+}
+
 type InBody[B any] struct {
 	Body *B
 }
@@ -26,11 +31,6 @@ type InBodyID[B any, I any] struct {
 
 type OutBody[B any] struct {
 	Body *B
-}
-
-type Group struct {
-	g      *huma.Group
-	prefix string
 }
 
 func NewGroup(a huma.API, prefix string) Group {
@@ -49,48 +49,47 @@ func NewGroup(a huma.API, prefix string) Group {
 }
 
 func Delete[I any](g Group, path string, handler func(context.Context, I) error) {
-	convenience(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *InID[I]) (*struct{}, error) {
+	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *InID[I]) (*struct{}, error) {
 		err := handler(ctx, in.ID)
 		return nil, err
 	})
 }
 
 func Get[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
-	convenience(g, "get", http.MethodGet, path, func(ctx context.Context, in *InID[I]) (*OutBody[O], error) {
+	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *InID[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, in.ID)
 		return &OutBody[O]{Body: &out}, err
 	})
 }
 
 func List[I, O any](g Group, handler func(context.Context, I) (O, error)) {
-	convenience(g, "list", http.MethodGet, "/", func(ctx context.Context, in *I) (*OutBody[O], error) {
+	register(g, "list", http.MethodGet, "/", func(ctx context.Context, in *I) (*OutBody[O], error) {
 		out, err := handler(ctx, *in)
 		return &OutBody[O]{Body: &out}, err
 	})
 }
 
 func Post[I, O any](g Group, handler func(context.Context, I) (O, error)) {
-	convenience(g, "create", http.MethodPost, "/", func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
+	register(g, "create", http.MethodPost, "/", func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, *in.Body)
 		return &OutBody[O]{Body: &out}, err
 	})
 }
 
 func Put[I, B, O any](g Group, path string, handler func(context.Context, I, B) (O, error)) {
-	convenience(g, "update", http.MethodPut, path, func(ctx context.Context, in *InBodyID[B, I]) (*OutBody[O], error) {
+	register(g, "update", http.MethodPut, path, func(ctx context.Context, in *InBodyID[B, I]) (*OutBody[O], error) {
 		out, err := handler(ctx, in.ID, *in.Body)
 		return &OutBody[O]{Body: &out}, err
 	})
 }
 
-func convenience[I, O any](g Group, action, method, p string, handler func(context.Context, *I) (*O, error)) {
+func register[I, O any](g Group, action, method, p string, handler func(context.Context, *I) (*O, error)) {
 	var o *O
 	operation := huma.Operation{
 		OperationID: huma.GenerateOperationID(action, path.Join(g.prefix, p), o),
 		Summary:     huma.GenerateSummary(action, path.Join(g.prefix, p), o),
 		Method:      method,
 		Path:        p,
-		Metadata:    map[string]any{},
 	}
 
 	huma.Register(g.g, operation, func(ctx context.Context, in *I) (*O, error) {
