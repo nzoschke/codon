@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"path"
@@ -11,6 +12,7 @@ import (
 	"github.com/a-h/rest"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/casing"
+	"github.com/olekukonko/errors"
 )
 
 type Group struct {
@@ -65,14 +67,35 @@ func Get[I, O any](g Group, path string, handler func(context.Context, I) (O, er
 }
 
 func List[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
-	r.Get("/api/contacts").
+	p := path.Join("/api", g.prefix)
+
+	r.Get(p).
 		HasRequestModel(rest.ModelOf[I]()).
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
 		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
-	register(g, "list", http.MethodGet, "/", func(ctx context.Context, in *I) (*OutBody[O], error) {
-		out, err := handler(ctx, *in)
-		return &OutBody[O]{Body: &out}, err
+	m.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
+		if err := func() error {
+			var in I
+			out, err := handler(r.Context(), in)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			if err := json.NewEncoder(w).Encode(out); err != nil {
+				return errors.WithStack(err)
+			}
+
+			return nil
+		}(); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			if err := json.NewEncoder(w).Encode(respond.Error{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}); err != nil {
+				slog.Error("register.List", "path", p, "error", err)
+			}
+		}
 	})
 }
 
