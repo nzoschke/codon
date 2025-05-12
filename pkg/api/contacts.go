@@ -53,7 +53,7 @@ func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 		return nil
 	})
 
-	Get(g, "/{id}", func(ctx context.Context, id int64) (q.Contact, error) {
+	GetID(g, "/{id}", m, r, func(ctx context.Context, id int64) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)

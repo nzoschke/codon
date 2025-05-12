@@ -3,9 +3,12 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"path"
+	pth "path"
+	"strconv"
 	"strings"
 
 	"github.com/a-h/respond"
@@ -59,15 +62,49 @@ func Delete[I any](g Group, path string, handler func(context.Context, I) error)
 	})
 }
 
-func Get[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
-	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *InID[I]) (*OutBody[O], error) {
-		out, err := handler(ctx, in.ID)
-		return &OutBody[O]{Body: &out}, err
+func GetID[I, O any](g Group, path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
+	p := pth.Join("/api", g.prefix, path)
+
+	r.Get(p).
+		HasPathParameter("id", rest.PathParam{
+			Description: "id",
+			Regexp:      `\d+`,
+		}).
+		HasRequestModel(rest.ModelOf[I]()).
+		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
+		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
+
+	m.HandleFunc(fmt.Sprintf("GET %s", p), func(w http.ResponseWriter, r *http.Request) {
+		if err := func() error {
+			in, err := convertID[I](r.PathValue("id"))
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			out, err := handler(r.Context(), in)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			if err := json.NewEncoder(w).Encode(out); err != nil {
+				return errors.WithStack(err)
+			}
+
+			return nil
+		}(); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			if err := json.NewEncoder(w).Encode(respond.Error{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}); err != nil {
+				slog.Error("register.List", "path", p, "error", err)
+			}
+		}
 	})
 }
 
 func List[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
-	p := path.Join("/api", g.prefix)
+	p := pth.Join("/api", g.prefix)
 
 	r.Get(p).
 		HasRequestModel(rest.ModelOf[I]()).
@@ -77,6 +114,10 @@ func List[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context
 	m.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
 			var in I
+			if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+				return errors.WithStack(err)
+			}
+
 			out, err := handler(r.Context(), in)
 			if err != nil {
 				return errors.WithStack(err)
@@ -130,4 +171,26 @@ func register[I, O any](g Group, action, method, p string, handler func(context.
 
 		return out, err
 	})
+}
+
+func convertID[I any](id string) (I, error) {
+	var result I
+	switch any(result).(type) {
+	case int64:
+		val, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			return result, errors.WithStack(err)
+		}
+		return any(val).(I), nil
+	case int:
+		val, err := strconv.Atoi(id)
+		if err != nil {
+			return result, errors.WithStack(err)
+		}
+		return any(val).(I), nil
+	case string:
+		return any(id).(I), nil
+	default:
+		return result, fmt.Errorf("unsupported ID type: %T", result)
+	}
 }
