@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"path"
 	pth "path"
 	"strconv"
 	"strings"
@@ -69,12 +68,12 @@ func DeleteID[I any](g Group, path string, m *http.ServeMux, r *rest.API, handle
 
 	m.HandleFunc(fmt.Sprintf("DELETE %s", p), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
-			in, err := convertID[I](r.PathValue("id"))
+			id, err := convertID[I](r.PathValue("id"))
 			if err != nil {
 				return errors.WithStack(err)
 			}
 
-			if err := handler(r.Context(), in); err != nil {
+			if err := handler(r.Context(), id); err != nil {
 				return errors.WithStack(err)
 			}
 
@@ -99,18 +98,17 @@ func GetID[I, O any](g Group, path string, m *http.ServeMux, r *rest.API, handle
 			Description: "id",
 			Regexp:      `\d+`,
 		}).
-		HasRequestModel(rest.ModelOf[I]()).
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
 		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
 	m.HandleFunc(fmt.Sprintf("GET %s", p), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
-			in, err := convertID[I](r.PathValue("id"))
+			id, err := convertID[I](r.PathValue("id"))
 			if err != nil {
 				return errors.WithStack(err)
 			}
 
-			out, err := handler(r.Context(), in)
+			out, err := handler(r.Context(), id)
 			if err != nil {
 				return errors.WithStack(err)
 			}
@@ -213,29 +211,51 @@ func Post[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context
 	})
 }
 
-func Put[I, B, O any](g Group, path string, handler func(context.Context, I, B) (O, error)) {
-	register(g, "update", http.MethodPut, path, func(ctx context.Context, in *InBodyID[B, I]) (*OutBody[O], error) {
-		out, err := handler(ctx, in.ID, *in.Body)
-		return &OutBody[O]{Body: &out}, err
-	})
-}
+func Put[I, B, O any](g Group, path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I, B) (O, error)) {
+	p := pth.Join("/api", g.prefix, path)
 
-func register[I, O any](g Group, action, method, p string, handler func(context.Context, *I) (*O, error)) {
-	var o *O
-	operation := huma.Operation{
-		OperationID: huma.GenerateOperationID(action, path.Join(g.prefix, p), o),
-		Summary:     huma.GenerateSummary(action, path.Join(g.prefix, p), o),
-		Method:      method,
-		Path:        p,
-	}
+	r.Put(p).
+		HasPathParameter("id", rest.PathParam{
+			Description: "id",
+			Regexp:      `\d+`,
+		}).
+		HasRequestModel(rest.ModelOf[B]()).
+		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
+		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
-	huma.Register(g.g, operation, func(ctx context.Context, in *I) (*O, error) {
-		out, err := handler(ctx, in)
-		if err != nil {
-			slog.Error("handler", "err", err)
+	m.HandleFunc(fmt.Sprintf("PUT %s", p), func(w http.ResponseWriter, r *http.Request) {
+		if err := func() error {
+			id, err := convertID[I](r.PathValue("id"))
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			var in B
+			if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+				return errors.WithStack(err)
+			}
+
+			out, err := handler(r.Context(), id, in)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			if err := json.NewEncoder(w).Encode(out); err != nil {
+				return errors.WithStack(err)
+			}
+
+			return nil
+		}(); err != nil {
+			slog.Error("register.Put", "path", p, "error", err)
+
+			w.WriteHeader(http.StatusInternalServerError)
+			if err := json.NewEncoder(w).Encode(respond.Error{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}); err != nil {
+				slog.Error("register.Put", "path", p, "error", err)
+			}
 		}
-
-		return out, err
 	})
 }
 

@@ -106,7 +106,7 @@ func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 		return q.Contact(*r), nil
 	})
 
-	Put(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
+	Put(g, "/{id}", m, r, func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
