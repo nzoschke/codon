@@ -150,6 +150,7 @@ func JSONEq(a *assert.Assertions, expected any, actual any, msgAndArgs ...any) {
 	be, err := json.Marshal(expected)
 	a.NoError(err)
 
+	// FIXME remove
 	// remove $schema
 	if m, ok := actual.(map[string]any); ok {
 		delete(m, "$schema")

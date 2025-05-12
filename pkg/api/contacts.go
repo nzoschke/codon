@@ -33,7 +33,7 @@ type ContactUpdateIn struct {
 func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 	g := NewGroup(a, "/contacts")
 
-	Delete(g, "/{id}", func(ctx context.Context, id int64) error {
+	DeleteID(g, "/{id}", m, r, func(ctx context.Context, id int64) error {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
@@ -91,7 +91,7 @@ func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 		return out, nil
 	})
 
-	Post(g, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
+	Post(g, m, r, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
