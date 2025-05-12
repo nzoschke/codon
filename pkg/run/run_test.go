@@ -19,6 +19,6 @@ func TestHealth(t *testing.T) {
 
 	port := "11234"
 	go run.Run(ctx, []string{"test", "-db", "", "-port", port}, func(string) string { return "DEBUG" }, os.Stdout)
-	err := run.Health(ctx, 100*time.Millisecond, port)
+	err := run.Health(ctx, 1000*time.Millisecond, port)
 	a.NoError(err)
 }

@@ -23,7 +23,7 @@ func dist(mux *http.ServeMux, dev bool) error {
 
 		// proxy all non-api routes to bun
 		p := httputil.NewSingleHostReverseProxy(url)
-		paths := []string{"/api", "/spec"}
+		paths := []string{"/api", "/spec", "/swagger"}
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			for _, p := range paths {
 				if strings.HasPrefix(r.URL.Path, p) {

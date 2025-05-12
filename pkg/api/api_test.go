@@ -30,7 +30,7 @@ func TestContact(t *testing.T) {
 
 	port := "11234"
 	go run.Run(ctx, []string{"test", "-db", "file::memory:?mode=memory&cache=shared", "-port", port}, func(string) string { return "DEBUG" }, os.Stdout)
-	err := run.Health(ctx, 100*time.Millisecond, port)
+	err := run.Health(ctx, 1000*time.Millisecond, port)
 	a.NoError(err)
 
 	tests := []struct {
@@ -69,6 +69,23 @@ func TestContact(t *testing.T) {
 					Age: 21,
 				},
 				Name: "Ann",
+			},
+		},
+		{
+			in:     nil,
+			method: http.MethodGet,
+			path:   "/api/contacts",
+			want: api.ContactListOut{
+				Contacts: []q.Contact{
+					{
+						Email: "a@example.com",
+						ID:    1,
+						Info: models.ContactInfo{
+							Age: 21,
+						},
+						Name: "Ann",
+					},
+				},
 			},
 		},
 		{

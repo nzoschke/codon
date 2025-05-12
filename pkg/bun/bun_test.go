@@ -20,9 +20,9 @@ func TestBun(t *testing.T) {
 
 	a := assert.New(t)
 
-	port := "11234"
+	port := "21234"
 	go run.Run(ctx, []string{"test", "-db", "file::memory:?mode=memory&cache=shared", "-port", port}, func(string) string { return "DEBUG" }, os.Stdout)
-	err := run.Health(ctx, 100*time.Millisecond, port)
+	err := run.Health(ctx, 1000*time.Millisecond, port)
 	a.NoError(err)
 
 	_, b, _, _ := runtime.Caller(0)
