@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/nzoschke/codon/pkg/api"
-	"github.com/nzoschke/codon/pkg/bun"
 	"github.com/nzoschke/codon/pkg/db"
 	"github.com/nzoschke/codon/pkg/log"
 	"github.com/olekukonko/errors"
@@ -52,7 +51,7 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	}
 
 	if *dev {
-		if err := bun.Dev(ctx); err != nil {
+		if err := Dev(ctx); err != nil {
 			return errors.WithStack(err)
 		}
 	}
