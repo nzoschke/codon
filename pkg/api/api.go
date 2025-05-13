@@ -21,9 +21,25 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 		return errors.WithStack(err)
 	}
 
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rw := &responseWriter{
+			ResponseWriter: w,
+			code:           http.StatusOK,
+		}
+
+		m.ServeHTTP(rw, r)
+
+		slog.Info("api",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", rw.code,
+			"remote_addr", r.RemoteAddr,
+		)
+	})
+
 	s := &http.Server{
 		Addr:    addr,
-		Handler: m,
+		Handler: h,
 	}
 
 	go func() {
@@ -35,7 +51,7 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 
 	<-ctx.Done()
 
-	sctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	sctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	if err := s.Shutdown(sctx); err != nil {
