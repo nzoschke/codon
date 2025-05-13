@@ -9,9 +9,6 @@ import (
 
 	"github.com/a-h/respond"
 	"github.com/a-h/rest"
-	"github.com/a-h/rest/swaggerui"
-	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/nzoschke/codon/pkg/db"
 	"github.com/olekukonko/errors"
@@ -21,7 +18,9 @@ import (
 
 func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 	m := http.NewServeMux()
-	NewAPI(m, db, dev)
+	if err := NewAPI(m, db, dev); err != nil {
+		return errors.WithStack(err)
+	}
 
 	s := &http.Server{
 		Addr:    addr,
@@ -47,7 +46,7 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 	return nil
 }
 
-func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
+func NewAPI(m *http.ServeMux, db db.DB, dev bool) error {
 	r := rest.NewAPI("Codon")
 	r.StripPkgPaths = []string{"github.com/a-h/rest/example", "github.com/a-h/respond", "github.com/nzoschke/codon"}
 	r.RegisterModel(rest.ModelOf[respond.Error](), rest.WithDescription("Standard JSON error"), func(s *openapi3.Schema) {
@@ -55,41 +54,22 @@ func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
 		status.Value.WithMin(100).WithMax(600)
 	})
 
-	cfg := huma.DefaultConfig("Codon", "1.0.0")
-	cfg.DocsPath = "/spec"
-
-	a := humago.New(m, cfg)
-	a.UseMiddleware(func(ctx huma.Context, next func(huma.Context)) {
-		next(ctx)
-		slog.Info("api", "method", ctx.Method(), "path", ctx.URL().Path, "status", ctx.Status())
-	})
-
-	g := huma.NewGroup(a, "/api")
-
 	dist(m, dev)
-	contacts(g, db, m, r)
-	health(g)
+	contacts(db, m, r)
+	health(m)
 
 	spec, err := r.Spec()
 	if err != nil {
-		panic(err)
+		return errors.WithStack(err)
 	}
 
-	ui, err := swaggerui.New(spec)
-	if err != nil {
-		panic(err)
-	}
-
-	m.Handle("/swagger-ui", ui)
-	m.Handle("/swagger-ui/", ui)
-
-	m.Handle("/spec.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	m.Handle("/openapi.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(spec)
 	}))
 
-	m.Handle("/spec2", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		specURL := "/spec.json"
+	m.Handle("/spec", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		specURL := "/openapi.json"
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write([]byte(`<!doctype html>
@@ -115,5 +95,5 @@ func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
 		</html>`))
 	}))
 
-	return a
+	return nil
 }

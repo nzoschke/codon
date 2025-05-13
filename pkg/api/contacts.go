@@ -14,6 +14,7 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
+// FIXME
 type ContactListIn struct {
 	Offset int `json:"offset"`
 	Limit  int `json:"limit"`
@@ -30,10 +31,8 @@ type ContactUpdateIn struct {
 	Phone string             `json:"phone"`
 }
 
-func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
-	g := NewGroup(a, "/contacts")
-
-	DeleteID(g, "/{id}", m, r, func(ctx context.Context, id int64) error {
+func contacts(db db.DB, m *http.ServeMux, r *rest.API) {
+	DeleteID("/api/contacts/{id}", m, r, func(ctx context.Context, id int64) error {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
@@ -53,7 +52,7 @@ func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 		return nil
 	})
 
-	GetID(g, "/{id}", m, r, func(ctx context.Context, id int64) (q.Contact, error) {
+	GetID("/api/contacts/{id}", m, r, func(ctx context.Context, id int64) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -68,7 +67,7 @@ func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 		return c, nil
 	})
 
-	List(g, m, r, func(ctx context.Context, in ContactListIn) (ContactListOut, error) {
+	List("/api/contacts", m, r, func(ctx context.Context, in ContactListIn) (ContactListOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return ContactListOut{}, errors.WithStack(err)
@@ -91,7 +90,7 @@ func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 		return out, nil
 	})
 
-	Post(g, m, r, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
+	Post("/api/contacts", m, r, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -106,7 +105,7 @@ func contacts(a huma.API, db db.DB, m *http.ServeMux, r *rest.API) {
 		return q.Contact(*r), nil
 	})
 
-	Put(g, "/{id}", m, r, func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
+	Put("/api/contacts/{id}", m, r, func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)

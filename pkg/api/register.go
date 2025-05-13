@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	pth "path"
 	"strconv"
 	"strings"
 
@@ -54,10 +53,8 @@ func NewGroup(a huma.API, prefix string) Group {
 	}
 }
 
-func DeleteID[I any](g Group, path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) error) {
-	p := pth.Join("/api", g.prefix, path)
-
-	r.Delete(p).
+func DeleteID[I any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) error) {
+	r.Delete(path).
 		HasPathParameter("id", rest.PathParam{
 			Description: "id",
 			Regexp:      `\d+`,
@@ -66,7 +63,7 @@ func DeleteID[I any](g Group, path string, m *http.ServeMux, r *rest.API, handle
 		HasResponseModel(http.StatusOK, rest.ModelOf[string]()).
 		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
-	m.HandleFunc(fmt.Sprintf("DELETE %s", p), func(w http.ResponseWriter, r *http.Request) {
+	m.HandleFunc(fmt.Sprintf("DELETE %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
 			id, err := convertID[I](r.PathValue("id"))
 			if err != nil {
@@ -84,16 +81,14 @@ func DeleteID[I any](g Group, path string, m *http.ServeMux, r *rest.API, handle
 				Message:    err.Error(),
 				StatusCode: http.StatusInternalServerError,
 			}); err != nil {
-				slog.Error("register.List", "path", p, "error", err)
+				slog.Error("register.List", "path", path, "error", err)
 			}
 		}
 	})
 }
 
-func GetID[I, O any](g Group, path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
-	p := pth.Join("/api", g.prefix, path)
-
-	r.Get(p).
+func GetID[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
+	r.Get(path).
 		HasPathParameter("id", rest.PathParam{
 			Description: "id",
 			Regexp:      `\d+`,
@@ -101,7 +96,7 @@ func GetID[I, O any](g Group, path string, m *http.ServeMux, r *rest.API, handle
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
 		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
-	m.HandleFunc(fmt.Sprintf("GET %s", p), func(w http.ResponseWriter, r *http.Request) {
+	m.HandleFunc(fmt.Sprintf("GET %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
 			id, err := convertID[I](r.PathValue("id"))
 			if err != nil {
@@ -119,23 +114,21 @@ func GetID[I, O any](g Group, path string, m *http.ServeMux, r *rest.API, handle
 
 			return nil
 		}(); err != nil {
-			slog.Error("register.GetID", "path", p, "error", err)
+			slog.Error("register.GetID", "path", path, "error", err)
 
 			w.WriteHeader(http.StatusInternalServerError)
 			if err := json.NewEncoder(w).Encode(respond.Error{
 				Message:    err.Error(),
 				StatusCode: http.StatusInternalServerError,
 			}); err != nil {
-				slog.Error("register.GetID", "path", p, "error", err)
+				slog.Error("register.GetID", "path", path, "error", err)
 			}
 		}
 	})
 }
 
-func List[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
-	p := pth.Join("/api", g.prefix)
-
-	r.Get(p).
+func List[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
+	r.Get(path).
 		HasQueryParameter("limit", rest.QueryParam{ // FIXME
 			Regexp: `\d+`,
 		}).
@@ -145,7 +138,7 @@ func List[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
 		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
-	m.HandleFunc(fmt.Sprintf("GET %s", p), func(w http.ResponseWriter, r *http.Request) {
+	m.HandleFunc(fmt.Sprintf("GET %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
 			var in I
 			out, err := handler(r.Context(), in)
@@ -159,28 +152,26 @@ func List[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context
 
 			return nil
 		}(); err != nil {
-			slog.Error("register.List", "path", p, "error", err)
+			slog.Error("register.List", "path", path, "error", err)
 
 			w.WriteHeader(http.StatusInternalServerError)
 			if err := json.NewEncoder(w).Encode(respond.Error{
 				Message:    err.Error(),
 				StatusCode: http.StatusInternalServerError,
 			}); err != nil {
-				slog.Error("register.List", "path", p, "error", err)
+				slog.Error("register.List", "path", path, "error", err)
 			}
 		}
 	})
 }
 
-func Post[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
-	p := pth.Join("/api", g.prefix)
-
-	r.Post(p).
+func Post[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) (O, error)) {
+	r.Post(path).
 		HasRequestModel(rest.ModelOf[I]()).
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
 		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
-	m.HandleFunc(fmt.Sprintf("POST %s", p), func(w http.ResponseWriter, r *http.Request) {
+	m.HandleFunc(fmt.Sprintf("POST %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
 			var in I
 			if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
@@ -198,23 +189,21 @@ func Post[I, O any](g Group, m *http.ServeMux, r *rest.API, handler func(context
 
 			return nil
 		}(); err != nil {
-			slog.Error("register.Post", "path", p, "error", err)
+			slog.Error("register.Post", "path", path, "error", err)
 
 			w.WriteHeader(http.StatusInternalServerError)
 			if err := json.NewEncoder(w).Encode(respond.Error{
 				Message:    err.Error(),
 				StatusCode: http.StatusInternalServerError,
 			}); err != nil {
-				slog.Error("register.Post", "path", p, "error", err)
+				slog.Error("register.Post", "path", path, "error", err)
 			}
 		}
 	})
 }
 
-func Put[I, B, O any](g Group, path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I, B) (O, error)) {
-	p := pth.Join("/api", g.prefix, path)
-
-	r.Put(p).
+func Put[I, B, O any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I, B) (O, error)) {
+	r.Put(path).
 		HasPathParameter("id", rest.PathParam{
 			Description: "id",
 			Regexp:      `\d+`,
@@ -223,7 +212,7 @@ func Put[I, B, O any](g Group, path string, m *http.ServeMux, r *rest.API, handl
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
 		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
 
-	m.HandleFunc(fmt.Sprintf("PUT %s", p), func(w http.ResponseWriter, r *http.Request) {
+	m.HandleFunc(fmt.Sprintf("PUT %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
 			id, err := convertID[I](r.PathValue("id"))
 			if err != nil {
@@ -246,14 +235,14 @@ func Put[I, B, O any](g Group, path string, m *http.ServeMux, r *rest.API, handl
 
 			return nil
 		}(); err != nil {
-			slog.Error("register.Put", "path", p, "error", err)
+			slog.Error("register.Put", "path", path, "error", err)
 
 			w.WriteHeader(http.StatusInternalServerError)
 			if err := json.NewEncoder(w).Encode(respond.Error{
 				Message:    err.Error(),
 				StatusCode: http.StatusInternalServerError,
 			}); err != nil {
-				slog.Error("register.Put", "path", p, "error", err)
+				slog.Error("register.Put", "path", path, "error", err)
 			}
 		}
 	})
