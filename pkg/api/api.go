@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/a-h/respond"
 	"github.com/a-h/rest"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/nzoschke/codon/pkg/db"
@@ -64,7 +63,7 @@ func New(ctx context.Context, addr string, db db.DB, dev bool) error {
 func NewAPI(m *http.ServeMux, db db.DB, dev bool) (*rest.API, error) {
 	r := rest.NewAPI("Codon")
 	r.StripPkgPaths = []string{"github.com/a-h/respond", "github.com/nzoschke/codon"}
-	r.RegisterModel(rest.ModelOf[respond.Error](), rest.WithDescription("Standard JSON error"), func(s *openapi3.Schema) {
+	r.RegisterModel(rest.ModelOf[Error](), rest.WithDescription("Standard JSON error"), func(s *openapi3.Schema) {
 		status := s.Properties["statusCode"]
 		status.Value.WithMin(100).WithMax(600)
 	})

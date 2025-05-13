@@ -104,7 +104,7 @@ func contacts(db db.DB, m *http.ServeMux, r *rest.API) {
 		return q.Contact(*r), nil
 	})
 
-	Put("/api/contacts/{id}", m, r, func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
+	PutID("/api/contacts/{id}", m, r, func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -135,7 +135,7 @@ func contactRead(conn *sqlite.Conn, id int64) (q.Contact, error) {
 	r, err := q.ContactRead(conn, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return q.Contact{}, errors.New("Not found") // FIXME
+			return q.Contact{}, Error{Message: "Not found", StatusCode: http.StatusNotFound}
 		}
 		return q.Contact{}, errors.WithStack(err)
 	}

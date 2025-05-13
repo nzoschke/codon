@@ -8,22 +8,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/a-h/respond"
 	"github.com/a-h/rest"
 	"github.com/olekukonko/errors"
 )
-
-func writeErr(w http.ResponseWriter, err error) {
-	slog.Error("api", "err", err)
-
-	w.WriteHeader(http.StatusInternalServerError)
-	if err := json.NewEncoder(w).Encode(respond.Error{
-		Message:    err.Error(),
-		StatusCode: http.StatusInternalServerError,
-	}); err != nil {
-		slog.Error("writeErr", "error", err)
-	}
-}
 
 func DeleteID[I any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) error) {
 	r.Delete(path).
@@ -32,7 +19,7 @@ func DeleteID[I any](path string, m *http.ServeMux, r *rest.API, handler func(co
 		}).
 		HasRequestModel(rest.ModelOf[I]()).
 		HasResponseModel(http.StatusOK, rest.ModelOf[string]()).
-		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
+		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[Error]())
 
 	m.HandleFunc(fmt.Sprintf("DELETE %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
@@ -59,7 +46,7 @@ func GetID[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(co
 			Regexp:      `\d+`,
 		}).
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
-		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
+		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[Error]())
 
 	m.HandleFunc(fmt.Sprintf("GET %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
@@ -73,7 +60,7 @@ func GetID[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(co
 				return errors.WithStack(err)
 			}
 
-			if err := json.NewEncoder(w).Encode(out); err != nil {
+			if err := writeJSON(w, out); err != nil {
 				return errors.WithStack(err)
 			}
 
@@ -93,7 +80,7 @@ func List[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(con
 			Regexp: `\d+`,
 		}).
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
-		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
+		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[Error]())
 
 	m.HandleFunc(fmt.Sprintf("GET %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
@@ -103,7 +90,7 @@ func List[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(con
 				return errors.WithStack(err)
 			}
 
-			if err := json.NewEncoder(w).Encode(out); err != nil {
+			if err := writeJSON(w, out); err != nil {
 				return errors.WithStack(err)
 			}
 
@@ -118,7 +105,7 @@ func Post[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(con
 	r.Post(path).
 		HasRequestModel(rest.ModelOf[I]()).
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
-		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
+		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[Error]())
 
 	m.HandleFunc(fmt.Sprintf("POST %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
@@ -132,7 +119,7 @@ func Post[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(con
 				return errors.WithStack(err)
 			}
 
-			if err := json.NewEncoder(w).Encode(out); err != nil {
+			if err := writeJSON(w, out); err != nil {
 				return errors.WithStack(err)
 			}
 
@@ -143,7 +130,7 @@ func Post[I, O any](path string, m *http.ServeMux, r *rest.API, handler func(con
 	})
 }
 
-func Put[I, B, O any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I, B) (O, error)) {
+func PutID[I, B, O any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I, B) (O, error)) {
 	r.Put(path).
 		HasPathParameter("id", rest.PathParam{
 			Description: "id",
@@ -151,7 +138,7 @@ func Put[I, B, O any](path string, m *http.ServeMux, r *rest.API, handler func(c
 		}).
 		HasRequestModel(rest.ModelOf[B]()).
 		HasResponseModel(http.StatusOK, rest.ModelOf[O]()).
-		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[respond.Error]())
+		HasResponseModel(http.StatusInternalServerError, rest.ModelOf[Error]())
 
 	m.HandleFunc(fmt.Sprintf("PUT %s", path), func(w http.ResponseWriter, r *http.Request) {
 		if err := func() error {
@@ -170,7 +157,7 @@ func Put[I, B, O any](path string, m *http.ServeMux, r *rest.API, handler func(c
 				return errors.WithStack(err)
 			}
 
-			if err := json.NewEncoder(w).Encode(out); err != nil {
+			if err := writeJSON(w, out); err != nil {
 				return errors.WithStack(err)
 			}
 
@@ -204,4 +191,30 @@ func convertID[I any](id string) (I, error) {
 	default:
 		return result, fmt.Errorf("unsupported ID type: %T", result)
 	}
+}
+
+func writeJSON(w http.ResponseWriter, v any) error {
+	w.Header().Add("Content-Type", "application/json")
+
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(v); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func writeErr(w http.ResponseWriter, err error) {
+	slog.Error("api", "err", err)
+
+	var rerr Error
+	if !errors.As(err, &rerr) {
+		rerr.Message = err.Error()
+		rerr.StatusCode = http.StatusInternalServerError
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(rerr.StatusCode)
+	json.NewEncoder(w).Encode(rerr)
 }
