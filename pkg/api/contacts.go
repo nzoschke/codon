@@ -3,14 +3,21 @@ package api
 import (
 	"context"
 	"database/sql"
+	"net/http"
 
-	"github.com/danielgtaylor/huma/v2"
+	"github.com/a-h/rest"
 	"github.com/nzoschke/codon/pkg/db"
 	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/olekukonko/errors"
 	"zombiezen.com/go/sqlite"
 )
+
+// FIXME
+type ContactListIn struct {
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
+}
 
 type ContactListOut struct {
 	Contacts []q.Contact `json:"contacts"`
@@ -23,10 +30,8 @@ type ContactUpdateIn struct {
 	Phone string             `json:"phone"`
 }
 
-func contacts(a huma.API, db db.DB) {
-	g := NewGroup(a, "/contacts")
-
-	Delete(g, "/{id}", func(ctx context.Context, id int64) error {
+func contacts(db db.DB, m *http.ServeMux, r *rest.API) {
+	DeleteID("/api/contacts/{id}", m, r, func(ctx context.Context, id int64) error {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
@@ -46,7 +51,7 @@ func contacts(a huma.API, db db.DB) {
 		return nil
 	})
 
-	Get(g, "/{id}", func(ctx context.Context, id int64) (q.Contact, error) {
+	GetID("/api/contacts/{id}", m, r, func(ctx context.Context, id int64) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -61,7 +66,7 @@ func contacts(a huma.API, db db.DB) {
 		return c, nil
 	})
 
-	List(g, func(ctx context.Context, in struct{}) (ContactListOut, error) {
+	List("/api/contacts", m, r, func(ctx context.Context, in ContactListIn) (ContactListOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return ContactListOut{}, errors.WithStack(err)
@@ -84,7 +89,7 @@ func contacts(a huma.API, db db.DB) {
 		return out, nil
 	})
 
-	Post(g, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
+	Post("/api/contacts", m, r, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -99,7 +104,7 @@ func contacts(a huma.API, db db.DB) {
 		return q.Contact(*r), nil
 	})
 
-	Put(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
+	PutID("/api/contacts/{id}", m, r, func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -130,7 +135,7 @@ func contactRead(conn *sqlite.Conn, id int64) (q.Contact, error) {
 	r, err := q.ContactRead(conn, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return q.Contact{}, huma.Error404NotFound("")
+			return q.Contact{}, Error{Message: "Not found", StatusCode: http.StatusNotFound}
 		}
 		return q.Contact{}, errors.WithStack(err)
 	}

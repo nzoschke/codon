@@ -1,10 +1,8 @@
 package api
 
 import (
-	"context"
+	"fmt"
 	"net/http"
-
-	"github.com/danielgtaylor/huma/v2"
 )
 
 type GetHealthOut struct {
@@ -12,25 +10,9 @@ type GetHealthOut struct {
 	Body        []byte `example:"ok"`
 }
 
-func health(g huma.API) {
-	huma.Register(g, huma.Operation{
-		Description: "Returns 200 if healthy, indeterminate response if not.",
-		Method:      http.MethodGet,
-		Path:        "/health",
-		Responses: map[string]*huma.Response{
-			"200": {
-				Content: map[string]*huma.MediaType{
-					"text/plain": {
-						Example: "ok",
-					},
-				},
-			},
-		},
-		Summary: "Get health",
-	}, func(ctx context.Context, in *struct{}) (*GetHealthOut, error) {
-		return &GetHealthOut{
-			ContentType: "text/plain",
-			Body:        []byte("ok"),
-		}, nil
+func health(m *http.ServeMux) {
+	m.HandleFunc(fmt.Sprintf("GET %s", "/api/health"), func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
 	})
 }
