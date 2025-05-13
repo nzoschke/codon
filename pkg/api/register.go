@@ -7,19 +7,11 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/a-h/respond"
 	"github.com/a-h/rest"
-	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/casing"
 	"github.com/olekukonko/errors"
 )
-
-type Group struct {
-	g      *huma.Group
-	prefix string
-}
 
 type InBody[B any] struct {
 	Body *B
@@ -36,21 +28,6 @@ type InBodyID[B any, I any] struct {
 
 type OutBody[B any] struct {
 	Body *B
-}
-
-func NewGroup(a huma.API, prefix string) Group {
-	g := huma.NewGroup(a, prefix)
-
-	g.UseModifier(func(op *huma.Operation, next func(*huma.Operation)) {
-		op.Path = strings.TrimSuffix(op.Path, "/")
-		op.Tags = []string{casing.Camel(prefix)}
-		next(op)
-	})
-
-	return Group{
-		g:      g,
-		prefix: prefix,
-	}
 }
 
 func DeleteID[I any](path string, m *http.ServeMux, r *rest.API, handler func(context.Context, I) error) {

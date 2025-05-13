@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/a-h/rest"
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/nzoschke/codon/pkg/db"
 	"github.com/nzoschke/codon/pkg/sql/models"
 	"github.com/nzoschke/codon/pkg/sql/q"
@@ -136,7 +135,7 @@ func contactRead(conn *sqlite.Conn, id int64) (q.Contact, error) {
 	r, err := q.ContactRead(conn, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return q.Contact{}, huma.Error404NotFound("")
+			return q.Contact{}, errors.New("Not found") // FIXME
 		}
 		return q.Contact{}, errors.WithStack(err)
 	}

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 
 	"github.com/nzoschke/codon/build"
 	"github.com/olekukonko/errors"
@@ -21,16 +20,8 @@ func dist(mux *http.ServeMux, dev bool) error {
 			return errors.WithStack(err)
 		}
 
-		// proxy all non-api routes to bun
 		p := httputil.NewSingleHostReverseProxy(url)
-		paths := []string{"/api", "/spec", "/swagger"}
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			for _, p := range paths {
-				if strings.HasPrefix(r.URL.Path, p) {
-					return
-				}
-			}
-
 			p.ServeHTTP(w, r)
 		})
 
