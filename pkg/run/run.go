@@ -2,6 +2,7 @@ package run
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -66,9 +67,24 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout 
 func Sub(arg string) error {
 	switch arg {
 	case "openapi":
-		// a := api.NewAPI(http.NewServeMux(), db.DB{}, false)
-		// b, _ := a.OpenAPI().Downgrade()
-		// os.WriteFile("doc/openapi.json", b, 0644)
+		r, err := api.NewAPI(http.NewServeMux(), db.DB{}, false)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		spec, err := r.Spec()
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		bs, err := json.Marshal(spec)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		if err := os.WriteFile("doc/openapi.json", bs, 0644); err != nil {
+			return errors.WithStack(err)
+		}
 	}
 
 	return nil
