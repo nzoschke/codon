@@ -1,5 +1,3 @@
-github.com/a-h/respond v0.0.2 h1:mhBwB2XuM+34gfIFs9LuXGfCCbu00rvaCWpTVNHvkPU=
-github.com/a-h/respond v0.0.2/go.mod h1:k9UvuVDWmHAb91OsdrqG0xFv7X+HelBpfMJIn9xMYWM=
 github.com/a-h/rest v0.0.0-20240504113546-6729b3328f85 h1:Lj+OmK3+dKMuR8OdlnUeIrgdt8JkcNlA9isS2Aey5Mg=
 github.com/a-h/rest v0.0.0-20240504113546-6729b3328f85/go.mod h1:5wH1imbpKnMjll8xpGRdg0Sb0HwH7nYiM5VPm0Zl5Bw=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=

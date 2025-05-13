@@ -3,7 +3,6 @@ module github.com/nzoschke/codon
 go 1.24.2
 
 require (
-	github.com/a-h/respond v0.0.2
 	github.com/a-h/rest v0.0.0-20240504113546-6729b3328f85
 	github.com/getkin/kin-openapi v0.124.0
 	github.com/olekukonko/errors v0.0.0-20250405072817-4e6d85265da6
