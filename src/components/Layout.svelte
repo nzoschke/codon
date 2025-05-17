@@ -14,11 +14,9 @@
     $props();
 </script>
 
-<div class={cls}>
+<div class={`flex flex-col min-h-screen ${cls}`}>
   {#if header}
-    <header
-      class="sticky top-0 z-10 bg-base-300/80 text-base-content backdrop-blur-sm"
-    >
+    <header class="sticky top-0 z-10 bg-base-300/80 text-base-content backdrop-blur-sm">
       {@render header()}
     </header>
   {/if}

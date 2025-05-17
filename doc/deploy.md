@@ -5,31 +5,36 @@ slug: deploy
 title: Deploy
 ---
 
-# Static Site
+# Deploy
 
-Build a static site and deploy under Caddy
+Apps are easy to deploy to Linux, either as a static site or a Go binary served
+with Caddy.
+
+## Caddy
+
+Install Caddy and configure it to serve multiple sites
 
 ```bash
-DOMAIN=example.com
-HOST=5.161.XX.XXX
-USER=root
-SITE=codon
+apt-get install caddy
 
-rm -rf build/dist
-bun run build
-rsync -avz -e ssh build/dist/* $USER@$HOST:/srv/$SITE
-
-cat <<EOF | ssh $USER@$HOST -T "cat > /etc/caddy/sites/codon; systemctl reload caddy"
-https://$SITE.lab.mixable.net {
-	file_server
-	root * /srv/codon
-}
+cat <<EOF >/etc/caddy/Caddyfile
+import sites/*
 EOF
+
+# view logs
+journalctl -f -u caddy
+
+# view config
+find /etc/caddy
+
+# view sites
+ls -al /srv
 ```
 
-## Go App
+## Go Binary
 
-Build a binary and deploy under Caddy and Systemd
+To deploy a Go binary, cross-compile for Linux, run under Systemd and serve with
+Caddy.
 
 ```bash
 DOMAIN=example.com
@@ -68,4 +73,26 @@ https://$DOMAIN {
 EOF
 ```
 
-Review logs with `journalctl -f -u app` and `journalctl -f -u caddy`
+Review logs with `journalctl -f -u app`.
+
+## Static Site
+
+To deploy a static site, build the directory and serve with Caddy.
+
+```bash
+DOMAIN=example.com
+HOST=5.161.XX.XXX
+USER=root
+SITE=codon
+
+rm -rf build/dist
+bun run build
+rsync -avz -e ssh build/dist/* $USER@$HOST:/srv/$SITE
+
+cat <<EOF | ssh $USER@$HOST -T "cat > /etc/caddy/sites/codon; systemctl reload caddy"
+https://$SITE.lab.mixable.net {
+	file_server
+	root * /srv/codon
+}
+EOF
+```
