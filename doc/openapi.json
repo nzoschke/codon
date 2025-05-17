@@ -159,6 +159,20 @@
     "/api/contacts": {
       "get": {
         "operationId": "list-contacts",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": { "format": "int64", "type": "integer" }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "offset",
+            "schema": { "format": "int64", "type": "integer" }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -181,7 +195,7 @@
         "tags": ["Contacts"]
       },
       "post": {
-        "operationId": "post-contacts",
+        "operationId": "create-contacts",
         "requestBody": {
           "content": {
             "application/json": {
@@ -207,7 +221,7 @@
             "description": "Error"
           }
         },
-        "summary": "Post contacts",
+        "summary": "Create contacts",
         "tags": ["Contacts"]
       }
     },
@@ -268,7 +282,7 @@
         "tags": ["Contacts"]
       },
       "put": {
-        "operationId": "put-contacts-by-id",
+        "operationId": "update-contacts-by-id",
         "parameters": [
           {
             "in": "path",
@@ -302,7 +316,7 @@
             "description": "Error"
           }
         },
-        "summary": "Put contacts by ID",
+        "summary": "Update contacts by ID",
         "tags": ["Contacts"]
       }
     },

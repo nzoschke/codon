@@ -48,16 +48,30 @@ func NewGroup(a huma.API, prefix string) Group {
 	}
 }
 
-func Delete[I any](g Group, path string, handler func(context.Context, I) error) {
+func DeleteID[I any](g Group, path string, handler func(context.Context, I) error) {
 	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *InID[I]) (*struct{}, error) {
 		err := handler(ctx, in.ID)
 		return nil, err
 	})
 }
 
-func Get[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
+func Get[O any](g Group, path string, handler func(context.Context) (O, error)) {
+	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *struct{}) (*OutBody[O], error) {
+		out, err := handler(ctx)
+		return &OutBody[O]{Body: &out}, err
+	})
+}
+
+func GetID[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
 	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *InID[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, in.ID)
+		return &OutBody[O]{Body: &out}, err
+	})
+}
+
+func GetIn[I any, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
+	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *I) (*OutBody[O], error) {
+		out, err := handler(ctx, *in)
 		return &OutBody[O]{Body: &out}, err
 	})
 }
@@ -69,14 +83,28 @@ func List[I, O any](g Group, handler func(context.Context, I) (O, error)) {
 	})
 }
 
-func Post[I, O any](g Group, handler func(context.Context, I) (O, error)) {
+func Post[O any](g Group, path string, handler func(context.Context) (O, error)) {
+	register(g, "create", http.MethodPost, path, func(ctx context.Context, in *struct{}) (*OutBody[O], error) {
+		out, err := handler(ctx)
+		return &OutBody[O]{Body: &out}, err
+	})
+}
+
+func PostBody[I, O any](g Group, handler func(context.Context, I) (O, error)) {
 	register(g, "create", http.MethodPost, "/", func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, *in.Body)
 		return &OutBody[O]{Body: &out}, err
 	})
 }
 
-func Put[I, B, O any](g Group, path string, handler func(context.Context, I, B) (O, error)) {
+func Put[B, O any](g Group, path string, handler func(context.Context, B) (O, error)) {
+	register(g, "update", http.MethodPut, path, func(ctx context.Context, in *InBody[B]) (*OutBody[O], error) {
+		out, err := handler(ctx, *in.Body)
+		return &OutBody[O]{Body: &out}, err
+	})
+}
+
+func PutID[I, B, O any](g Group, path string, handler func(context.Context, I, B) (O, error)) {
 	register(g, "update", http.MethodPut, path, func(ctx context.Context, in *InBodyID[B, I]) (*OutBody[O], error) {
 		out, err := handler(ctx, in.ID, *in.Body)
 		return &OutBody[O]{Body: &out}, err

@@ -31,7 +31,7 @@
     </ul>
   {/snippet}
 
-  <article class="prose">{@html section.html}</article>
+  <article class="prose w-full">{@html section.html}</article>
 
   {#snippet asideR()}
     aside right

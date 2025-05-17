@@ -14,8 +14,8 @@ export interface paths {
     /** List contacts */
     get: operations["list-contacts"];
     put?: never;
-    /** Post contacts */
-    post: operations["post-contacts"];
+    /** Create contacts */
+    post: operations["create-contacts"];
     delete?: never;
     options?: never;
     head?: never;
@@ -31,8 +31,8 @@ export interface paths {
     };
     /** Get contacts by ID */
     get: operations["get-contacts-by-id"];
-    /** Put contacts by ID */
-    put: operations["put-contacts-by-id"];
+    /** Update contacts by ID */
+    put: operations["update-contacts-by-id"];
     post?: never;
     /** Delete contacts by ID */
     delete: operations["delete-contacts-by-id"];
@@ -68,6 +68,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
+            /** @example ok */
             "text/plain": unknown;
           };
         };
@@ -207,7 +208,10 @@ export type $defs = Record<string, never>;
 export interface operations {
   "list-contacts": {
     parameters: {
-      query?: never;
+      query?: {
+        limit?: number;
+        offset?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -234,7 +238,7 @@ export interface operations {
       };
     };
   };
-  "post-contacts": {
+  "create-contacts": {
     parameters: {
       query?: never;
       header?: never;
@@ -298,7 +302,7 @@ export interface operations {
       };
     };
   };
-  "put-contacts-by-id": {
+  "update-contacts-by-id": {
     parameters: {
       query?: never;
       header?: never;

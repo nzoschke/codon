@@ -12,6 +12,11 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
+type ContactListIn struct {
+	Limit  int `query:"limit"`
+	Offset int `query:"offset"`
+}
+
 type ContactListOut struct {
 	Contacts []q.Contact `json:"contacts"`
 }
@@ -26,7 +31,7 @@ type ContactUpdateIn struct {
 func contacts(a huma.API, db db.DB) {
 	g := NewGroup(a, "/contacts")
 
-	Delete(g, "/{id}", func(ctx context.Context, id int64) error {
+	DeleteID(g, "/{id}", func(ctx context.Context, id int64) error {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
@@ -46,7 +51,7 @@ func contacts(a huma.API, db db.DB) {
 		return nil
 	})
 
-	Get(g, "/{id}", func(ctx context.Context, id int64) (q.Contact, error) {
+	GetID(g, "/{id}", func(ctx context.Context, id int64) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -61,7 +66,7 @@ func contacts(a huma.API, db db.DB) {
 		return c, nil
 	})
 
-	List(g, func(ctx context.Context, in struct{}) (ContactListOut, error) {
+	List(g, func(ctx context.Context, in ContactListIn) (ContactListOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return ContactListOut{}, errors.WithStack(err)
@@ -84,7 +89,7 @@ func contacts(a huma.API, db db.DB) {
 		return out, nil
 	})
 
-	Post(g, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
+	PostBody(g, func(ctx context.Context, in q.ContactCreateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)
@@ -99,7 +104,7 @@ func contacts(a huma.API, db db.DB) {
 		return q.Contact(*r), nil
 	})
 
-	Put(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
+	PutID(g, "/{id}", func(ctx context.Context, id int64, in ContactUpdateIn) (q.Contact, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.Contact{}, errors.WithStack(err)

@@ -8,5 +8,5 @@ slug: develop
 # Dev
 
 ```bash
-go tool gow run cmd/app/main.go -dev
+gow -v run cmd/app/main.go -dev
 ```
