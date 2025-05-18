@@ -1,0 +1,5 @@
+package api
+
+func auth() {
+
+}

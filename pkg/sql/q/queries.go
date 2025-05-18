@@ -239,6 +239,120 @@ LIMIT
 
 }
 
+type SessionCreateIn struct {
+	ID        string    `json:"id"`
+	UserId    int64     `json:"user_id"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
+type SessionCreateOut struct {
+	ID        string    `json:"id"`
+	UserId    int64     `json:"user_id"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
+func SessionCreate(tx *sqlite.Conn, in SessionCreateIn) (*SessionCreateOut, error) {
+	stmt := tx.Prep(`INSERT INTO session (id, user_id, expires_at) VALUES (?, ?, ?) RETURNING id, user_id, expires_at`)
+	defer stmt.Reset()
+
+	stmt.BindText(1, in.ID)
+	stmt.BindInt64(2, in.UserId)
+	stmt.BindText(3, in.ExpiresAt.Format("2006-01-02 15:04:05"))
+
+	ok, err := stmt.Step()
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, sql.ErrNoRows
+	}
+
+	out := SessionCreateOut{}
+	out.ID = stmt.ColumnText(0)
+	out.UserId = stmt.ColumnInt64(1)
+	out.ExpiresAt = timeParse(stmt.ColumnText(2))
+
+	return &out, nil
+
+}
+
+type SessionGetOut struct {
+	ID        string    `json:"id"`
+	UserId    int64     `json:"user_id"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
+func SessionGet(tx *sqlite.Conn, id string) (*SessionGetOut, error) {
+	stmt := tx.Prep(`SELECT session.id, session.user_id, session.expires_at FROM session INNER JOIN user ON user.id = session.user_id WHERE session.id = ?`)
+	defer stmt.Reset()
+
+	stmt.BindText(1, id)
+
+	ok, err := stmt.Step()
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, sql.ErrNoRows
+	}
+
+	out := SessionGetOut{}
+	out.ID = stmt.ColumnText(0)
+	out.UserId = stmt.ColumnInt64(1)
+	out.ExpiresAt = timeParse(stmt.ColumnText(2))
+
+	return &out, nil
+
+}
+
+func SessionDelete(tx *sqlite.Conn, id string) error {
+	stmt := tx.Prep(`DELETE FROM session WHERE id = ?`)
+	defer stmt.Reset()
+
+	stmt.BindText(1, id)
+
+	_, err := stmt.Step()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SessionDeleteUser(tx *sqlite.Conn, user_id int64) error {
+	stmt := tx.Prep(`DELETE FROM session WHERE user_id = ?`)
+	defer stmt.Reset()
+
+	stmt.BindInt64(1, user_id)
+
+	_, err := stmt.Step()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type SessionUpdateIn struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	ID        string    `json:"id"`
+}
+
+func SessionUpdate(tx *sqlite.Conn, in SessionUpdateIn) error {
+	stmt := tx.Prep(`UPDATE session SET expires_at = ? WHERE id = ?`)
+	defer stmt.Reset()
+
+	stmt.BindText(1, in.ExpiresAt.Format("2006-01-02 15:04:05"))
+	stmt.BindText(2, in.ID)
+
+	_, err := stmt.Step()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func jsonMarshal(v any) []byte {
 	bs, _ := json.Marshal(v)
 	return bs
