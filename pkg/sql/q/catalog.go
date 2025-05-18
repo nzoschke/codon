@@ -19,10 +19,12 @@ type Contact struct {
 }
 
 type User struct {
-	ID int64 `json:"id"`
+	ID           int64  `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
 }
 
-type UserSession struct {
+type Session struct {
 	ID        string    `json:"id"`
 	UserId    int64     `json:"user_id"`
 	ExpiresAt time.Time `json:"expires_at"`

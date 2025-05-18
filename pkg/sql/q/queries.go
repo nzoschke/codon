@@ -239,6 +239,46 @@ LIMIT
 
 }
 
+type UserCreateIn struct {
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+}
+
+type UserCreateOut struct {
+	ID           int64  `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+}
+
+func UserCreate(tx *sqlite.Conn, in UserCreateIn) (*UserCreateOut, error) {
+	stmt := tx.Prep(`INSERT INTO
+  users (email, password_hash)
+VALUES
+  (?, ?)
+RETURNING
+  id, email, password_hash`)
+	defer stmt.Reset()
+
+	stmt.BindText(1, in.Email)
+	stmt.BindText(2, in.PasswordHash)
+
+	ok, err := stmt.Step()
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, sql.ErrNoRows
+	}
+
+	out := UserCreateOut{}
+	out.ID = stmt.ColumnInt64(0)
+	out.Email = stmt.ColumnText(1)
+	out.PasswordHash = stmt.ColumnText(2)
+
+	return &out, nil
+
+}
+
 type SessionCreateIn struct {
 	ID        string    `json:"id"`
 	UserId    int64     `json:"user_id"`
@@ -253,7 +293,7 @@ type SessionCreateOut struct {
 
 func SessionCreate(tx *sqlite.Conn, in SessionCreateIn) (*SessionCreateOut, error) {
 	stmt := tx.Prep(`INSERT INTO
-  user_session (id, user_id, expires_at)
+  sessions (id, user_id, expires_at)
 VALUES
   (?, ?, ?)
 RETURNING
@@ -289,14 +329,13 @@ type SessionGetOut struct {
 
 func SessionGet(tx *sqlite.Conn, id string) (*SessionGetOut, error) {
 	stmt := tx.Prep(`SELECT
-  user_session.id,
-  user_session.user_id,
-  user_session.expires_at
+  sessions.id,
+  sessions.user_id,
+  sessions.expires_at
 FROM
-  user_session
-  INNER JOIN user ON user.id = SESSION.user_id
+  sessions
 WHERE
-  user_session.id = ?`)
+  sessions.id = ?`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, id)
@@ -320,7 +359,7 @@ WHERE
 
 func SessionDelete(tx *sqlite.Conn, id string) error {
 	stmt := tx.Prep(`DELETE FROM
-  user_session
+  sessions
 WHERE
   id = ?`)
 	defer stmt.Reset()
@@ -337,7 +376,7 @@ WHERE
 
 func SessionDeleteUser(tx *sqlite.Conn, user_id int64) error {
 	stmt := tx.Prep(`DELETE FROM
-  user_session
+  sessions
 WHERE
   user_id = ?`)
 	defer stmt.Reset()
@@ -359,7 +398,7 @@ type SessionUpdateIn struct {
 
 func SessionUpdate(tx *sqlite.Conn, in SessionUpdateIn) error {
 	stmt := tx.Prep(`UPDATE
-  user_session
+  sessions
 SET
   expires_at = ?
 WHERE
