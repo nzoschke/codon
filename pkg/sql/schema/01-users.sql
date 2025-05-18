@@ -6,6 +6,6 @@ CREATE TABLE users (
 
 CREATE TABLE sessions (
   id TEXT NOT NULL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES user(id),
+  user_id INTEGER NOT NULL REFERENCES users(id),
   expires_at TEXT NOT NULL
 ) STRICT;

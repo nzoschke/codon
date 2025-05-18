@@ -33,6 +33,10 @@ type OutBody[B any] struct {
 	Body *B
 }
 
+type OutCookie struct {
+	SetCookie http.Cookie `header:"Set-Cookie"`
+}
+
 func NewGroup(a huma.API, prefix string) Group {
 	g := huma.NewGroup(a, prefix)
 
@@ -94,6 +98,13 @@ func PostBody[I, O any](g Group, path string, handler func(context.Context, I) (
 	register(g, "create", http.MethodPost, path, func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, *in.Body)
 		return &OutBody[O]{Body: &out}, err
+	})
+}
+
+func PostCookie[I any](g Group, path string, handler func(context.Context, I) (http.Cookie, error)) {
+	register(g, "create", http.MethodPost, path, func(ctx context.Context, in *InBody[I]) (*OutCookie, error) {
+		out, err := handler(ctx, *in.Body)
+		return &OutCookie{SetCookie: out}, err
 	})
 }
 

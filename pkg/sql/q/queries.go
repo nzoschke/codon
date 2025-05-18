@@ -255,7 +255,8 @@ func UserCreate(tx *sqlite.Conn, in UserCreateIn) (*UserCreateOut, error) {
 VALUES
   (?, ?)
 RETURNING
-  id, email`)
+  id,
+  email`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.Email)
@@ -284,10 +285,14 @@ type UserGetOut struct {
 }
 
 func UserGet(tx *sqlite.Conn, email string) (*UserGetOut, error) {
-	stmt := tx.Prep(`SELECT id, email, password_hash
-FROM users
-WHERE email = ?
-LIMIT 1`)
+	stmt := tx.Prep(`SELECT
+  id, email, password_hash
+FROM
+  users
+WHERE
+  email = ?
+LIMIT
+  1`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, email)

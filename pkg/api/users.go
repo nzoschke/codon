@@ -3,8 +3,11 @@ package api
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/base32"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/nzoschke/codon/pkg/db"
@@ -44,7 +47,7 @@ func users(a huma.API, db db.DB) {
 		return *out, nil
 	})
 
-	PostBody(g, "/check", func(ctx context.Context, in UserCreateIn) (q.UserCreateOut, error) {
+	PostBody(g, "/auth", func(ctx context.Context, in UserCreateIn) (q.UserCreateOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return q.UserCreateOut{}, errors.WithStack(err)
@@ -53,6 +56,10 @@ func users(a huma.API, db db.DB) {
 
 		out, err := q.UserGet(conn, in.Email)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return q.UserCreateOut{}, huma.Error401Unauthorized("invalid email or password")
+			}
+
 			return q.UserCreateOut{}, errors.WithStack(err)
 		}
 
@@ -67,6 +74,50 @@ func users(a huma.API, db db.DB) {
 		return q.UserCreateOut{
 			Email: out.Email,
 			ID:    out.ID,
+		}, nil
+	})
+
+	PostCookie(g, "/session", func(ctx context.Context, in UserCreateIn) (http.Cookie, error) {
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return http.Cookie{}, errors.WithStack(err)
+		}
+		defer put()
+
+		u, err := q.UserGet(conn, in.Email)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return http.Cookie{}, huma.Error401Unauthorized("invalid email or password")
+			}
+
+			return http.Cookie{}, errors.WithStack(err)
+		}
+
+		if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(in.Password)); err != nil {
+			if err == bcrypt.ErrMismatchedHashAndPassword {
+				return http.Cookie{}, huma.Error401Unauthorized("invalid email or password")
+			}
+
+			return http.Cookie{}, errors.WithStack(err)
+		}
+
+		t, err := token()
+		if err != nil {
+			return http.Cookie{}, errors.WithStack(err)
+		}
+
+		out, err := q.SessionCreate(conn, q.SessionCreateIn{
+			ID:        t,
+			UserId:    u.ID,
+			ExpiresAt: time.Now().Add(30 * 24 * time.Hour),
+		})
+		if err != nil {
+			return http.Cookie{}, errors.WithStack(err)
+		}
+
+		return http.Cookie{
+			Name:  "session",
+			Value: out.ID,
 		}, nil
 	})
 
