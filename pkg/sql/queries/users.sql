@@ -1,6 +1,6 @@
 -- name: SessionCreate :one
 INSERT INTO
-  SESSION (id, user_id, expires_at)
+  user_session (id, user_id, expires_at)
 VALUES
   (?, ?, ?)
 RETURNING
@@ -8,30 +8,30 @@ RETURNING
 
 -- name: SessionGet :one
 SELECT
-  SESSION.id,
-  SESSION.user_id,
-  SESSION.expires_at
+  user_session.id,
+  user_session.user_id,
+  user_session.expires_at
 FROM
-  SESSION
+  user_session
   INNER JOIN user ON user.id = SESSION.user_id
 WHERE
-  SESSION.id = ?;
+  user_session.id = ?;
 
 -- name: SessionDelete :exec
 DELETE FROM
-  SESSION
+  user_session
 WHERE
   id = ?;
 
 -- name: SessionDeleteUser :exec
 DELETE FROM
-  SESSION
+  user_session
 WHERE
   user_id = ?;
 
 -- name: SessionUpdate :exec
 UPDATE
-  SESSION
+  user_session
 SET
   expires_at = ?
 WHERE

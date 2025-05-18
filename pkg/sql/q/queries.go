@@ -252,7 +252,12 @@ type SessionCreateOut struct {
 }
 
 func SessionCreate(tx *sqlite.Conn, in SessionCreateIn) (*SessionCreateOut, error) {
-	stmt := tx.Prep(`INSERT INTO session (id, user_id, expires_at) VALUES (?, ?, ?) RETURNING id, user_id, expires_at`)
+	stmt := tx.Prep(`INSERT INTO
+  user_session (id, user_id, expires_at)
+VALUES
+  (?, ?, ?)
+RETURNING
+  id, user_id, expires_at`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.ID)
@@ -283,7 +288,15 @@ type SessionGetOut struct {
 }
 
 func SessionGet(tx *sqlite.Conn, id string) (*SessionGetOut, error) {
-	stmt := tx.Prep(`SELECT session.id, session.user_id, session.expires_at FROM session INNER JOIN user ON user.id = session.user_id WHERE session.id = ?`)
+	stmt := tx.Prep(`SELECT
+  user_session.id,
+  user_session.user_id,
+  user_session.expires_at
+FROM
+  user_session
+  INNER JOIN user ON user.id = SESSION.user_id
+WHERE
+  user_session.id = ?`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, id)
@@ -306,7 +319,10 @@ func SessionGet(tx *sqlite.Conn, id string) (*SessionGetOut, error) {
 }
 
 func SessionDelete(tx *sqlite.Conn, id string) error {
-	stmt := tx.Prep(`DELETE FROM session WHERE id = ?`)
+	stmt := tx.Prep(`DELETE FROM
+  user_session
+WHERE
+  id = ?`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, id)
@@ -320,7 +336,10 @@ func SessionDelete(tx *sqlite.Conn, id string) error {
 }
 
 func SessionDeleteUser(tx *sqlite.Conn, user_id int64) error {
-	stmt := tx.Prep(`DELETE FROM session WHERE user_id = ?`)
+	stmt := tx.Prep(`DELETE FROM
+  user_session
+WHERE
+  user_id = ?`)
 	defer stmt.Reset()
 
 	stmt.BindInt64(1, user_id)
@@ -339,7 +358,12 @@ type SessionUpdateIn struct {
 }
 
 func SessionUpdate(tx *sqlite.Conn, in SessionUpdateIn) error {
-	stmt := tx.Prep(`UPDATE session SET expires_at = ? WHERE id = ?`)
+	stmt := tx.Prep(`UPDATE
+  user_session
+SET
+  expires_at = ?
+WHERE
+  id = ?`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.ExpiresAt.Format("2006-01-02 15:04:05"))
