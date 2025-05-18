@@ -405,16 +405,12 @@
         "tags": ["Users"]
       }
     },
-    "/api/users/auth": {
-      "post": {
-        "operationId": "create-users-auth",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/UserCreateIn" }
-            }
-          }
-        },
+    "/api/users/session": {
+      "get": {
+        "operationId": "get-users-session",
+        "parameters": [
+          { "in": "cookie", "name": "session", "schema": { "type": "string" } }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -422,7 +418,8 @@
                 "schema": { "$ref": "#/components/schemas/UserCreateOut" }
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": { "Session": { "schema": { "type": "string" } } }
           },
           "default": {
             "content": {
@@ -433,11 +430,9 @@
             "description": "Error"
           }
         },
-        "summary": "Create users auth",
+        "summary": "Get users session",
         "tags": ["Users"]
-      }
-    },
-    "/api/users/session": {
+      },
       "post": {
         "operationId": "create-users-session",
         "requestBody": {

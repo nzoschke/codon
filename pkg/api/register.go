@@ -52,9 +52,23 @@ func NewGroup(a huma.API, prefix string) Group {
 	}
 }
 
+func Delete(g Group, path string, handler func(context.Context) error) {
+	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *struct{}) (*struct{}, error) {
+		err := handler(ctx)
+		return nil, err
+	})
+}
+
 func DeleteID[I any](g Group, path string, handler func(context.Context, I) error) {
 	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *InID[I]) (*struct{}, error) {
 		err := handler(ctx, in.ID)
+		return nil, err
+	})
+}
+
+func DeleteIn[I any](g Group, path string, handler func(context.Context, I) error) {
+	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *I) (*struct{}, error) {
+		err := handler(ctx, *in)
 		return nil, err
 	})
 }
@@ -77,6 +91,13 @@ func GetIn[I any, O any](g Group, path string, handler func(context.Context, I) 
 	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *I) (*OutBody[O], error) {
 		out, err := handler(ctx, *in)
 		return &OutBody[O]{Body: &out}, err
+	})
+}
+
+func GetInOut[I any, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
+	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *I) (*O, error) {
+		out, err := handler(ctx, *in)
+		return &out, err
 	})
 }
 

@@ -108,23 +108,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/users/auth": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Create users auth */
-    post: operations["create-users-auth"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   "/api/users/session": {
     parameters: {
       query?: never;
@@ -132,7 +115,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Get users session */
+    get: operations["get-users-session"];
     put?: never;
     /** Create users session */
     post: operations["create-users-session"];
@@ -471,22 +455,21 @@ export interface operations {
       };
     };
   };
-  "create-users-auth": {
+  "get-users-session": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UserCreateIn"];
+      cookie?: {
+        session?: string;
       };
     };
+    requestBody?: never;
     responses: {
       /** @description OK */
       200: {
         headers: {
+          Session?: string;
           [name: string]: unknown;
         };
         content: {

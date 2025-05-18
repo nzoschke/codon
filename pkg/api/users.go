@@ -3,8 +3,11 @@ package api
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
+	"encoding/hex"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -16,9 +19,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const sessionDur = 30 * 24 * time.Hour
+
 type UserCreateIn struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type SessionGetIn struct {
+	Session http.Cookie `cookie:"session"`
+}
+
+type SessionGetOut struct {
+	Body    q.UserGetOut
+	Session http.Cookie `cookie:"session"`
+	Status  int
 }
 
 func users(a huma.API, db db.DB) {
@@ -47,34 +62,22 @@ func users(a huma.API, db db.DB) {
 		return *out, nil
 	})
 
-	PostBody(g, "/auth", func(ctx context.Context, in UserCreateIn) (q.UserCreateOut, error) {
+	DeleteIn(g, "/session", func(ctx context.Context, in SessionGetIn) error {
+		value := in.Session.Value
+		hash := sha256.Sum256([]byte(value))
+		id := hex.EncodeToString(hash[:])
+
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return q.UserCreateOut{}, errors.WithStack(err)
+			return errors.WithStack(err)
 		}
 		defer put()
 
-		out, err := q.UserGet(conn, in.Email)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return q.UserCreateOut{}, huma.Error401Unauthorized("invalid email or password")
-			}
-
-			return q.UserCreateOut{}, errors.WithStack(err)
+		if err := q.SessionDelete(conn, id); err != nil {
+			return errors.WithStack(err)
 		}
 
-		if err := bcrypt.CompareHashAndPassword([]byte(out.PasswordHash), []byte(in.Password)); err != nil {
-			if err == bcrypt.ErrMismatchedHashAndPassword {
-				return q.UserCreateOut{}, huma.Error401Unauthorized("invalid email or password")
-			}
-
-			return q.UserCreateOut{}, errors.WithStack(err)
-		}
-
-		return q.UserCreateOut{
-			Email: out.Email,
-			ID:    out.ID,
-		}, nil
+		return nil
 	})
 
 	PostCookie(g, "/session", func(ctx context.Context, in UserCreateIn) (http.Cookie, error) {
@@ -84,7 +87,7 @@ func users(a huma.API, db db.DB) {
 		}
 		defer put()
 
-		u, err := q.UserGet(conn, in.Email)
+		u, err := q.UserGetPasswordHash(conn, in.Email)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return http.Cookie{}, huma.Error401Unauthorized("invalid email or password")
@@ -106,44 +109,83 @@ func users(a huma.API, db db.DB) {
 			return http.Cookie{}, errors.WithStack(err)
 		}
 
+		hash := sha256.Sum256([]byte(t))
+		id := hex.EncodeToString(hash[:])
+
 		out, err := q.SessionCreate(conn, q.SessionCreateIn{
-			ID:        t,
+			ID:        id,
 			UserId:    u.ID,
-			ExpiresAt: time.Now().Add(30 * 24 * time.Hour),
+			ExpiresAt: time.Now().Add(sessionDur),
 		})
 		if err != nil {
 			return http.Cookie{}, errors.WithStack(err)
 		}
 
 		return http.Cookie{
-			Name:  "session",
-			Value: out.ID,
+			Expires: out.ExpiresAt,
+			Name:    "session",
+			Value:   t,
 		}, nil
 	})
 
-	// Post(g, "", func(ctx context.Context) (q.SessionCreateOut, error) {
-	// 	t, err := token()
-	// 	if err != nil {
-	// 		return q.SessionCreateOut{}, errors.WithStack(err)
-	// 	}
+	GetInOut(g, "/session", func(ctx context.Context, in SessionGetIn) (SessionGetOut, error) {
+		value := in.Session.Value
+		hash := sha256.Sum256([]byte(value))
+		id := hex.EncodeToString(hash[:])
 
-	// 	conn, put, err := db.Take(ctx)
-	// 	if err != nil {
-	// 		return q.SessionCreateOut{}, errors.WithStack(err)
-	// 	}
-	// 	defer put()
+		slog.Info("session", "value", in.Session.Value, "id", id)
 
-	// 	out, err := q.SessionCreate(conn, q.SessionCreateIn{
-	// 		ID:        t,
-	// 		UserId:    1,
-	// 		ExpiresAt: time.Now().Add(30 * 24 * time.Hour),
-	// 	})
-	// 	if err != nil {
-	// 		return q.SessionCreateOut{}, errors.WithStack(err)
-	// 	}
+		conn, put, err := db.Take(ctx)
+		if err != nil {
+			return SessionGetOut{}, errors.WithStack(err)
+		}
+		defer put()
 
-	// 	return *out, nil
-	// })
+		s, err := q.SessionGet(conn, id)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return SessionGetOut{}, huma.Error401Unauthorized("invalid session")
+			}
+
+			return SessionGetOut{}, errors.WithStack(err)
+		}
+
+		if s.ExpiresAt.Before(time.Now()) {
+			if err := q.SessionDelete(conn, id); err != nil {
+				return SessionGetOut{}, errors.WithStack(err)
+			}
+			return SessionGetOut{
+				Status: http.StatusUnauthorized,
+			}, nil
+		}
+
+		if s.ExpiresAt.Before(s.ExpiresAt.Add(-sessionDur / 2)) {
+			s.ExpiresAt = time.Now().Add(sessionDur)
+			if err := q.SessionUpdate(conn, q.SessionUpdateIn{
+				ExpiresAt: s.ExpiresAt,
+				ID:        s.ID,
+			}); err != nil {
+				return SessionGetOut{}, errors.WithStack(err)
+			}
+		}
+
+		u, err := q.UserGet(conn, s.UserId)
+		if err != nil {
+			return SessionGetOut{}, errors.WithStack(err)
+		}
+
+		slog.Info("session", "value", in.Session.Value, "id", id, "user_id", s.UserId)
+
+		return SessionGetOut{
+			Body: *u,
+			Session: http.Cookie{
+				Expires: s.ExpiresAt,
+				Name:    "session",
+				Value:   value,
+			},
+			Status: http.StatusOK,
+		}, nil
+	})
 }
 
 func token() (string, error) {

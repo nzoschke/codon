@@ -9,7 +9,19 @@ RETURNING
 
 -- name: UserGet :one
 SELECT
-  *
+  id,
+  email
+FROM
+  users
+WHERE
+  id = ?
+LIMIT
+  1;
+
+-- name: UserGetPasswordHash :one
+SELECT
+  id,
+  password_hash
 FROM
   users
 WHERE

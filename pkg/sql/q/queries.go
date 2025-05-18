@@ -279,14 +279,47 @@ RETURNING
 }
 
 type UserGetOut struct {
+	ID    int64  `json:"id"`
+	Email string `json:"email"`
+}
+
+func UserGet(tx *sqlite.Conn, id int64) (*UserGetOut, error) {
+	stmt := tx.Prep(`SELECT
+  id, email
+FROM
+  users
+WHERE
+  id = ?
+LIMIT
+  1`)
+	defer stmt.Reset()
+
+	stmt.BindInt64(1, id)
+
+	ok, err := stmt.Step()
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, sql.ErrNoRows
+	}
+
+	out := UserGetOut{}
+	out.ID = stmt.ColumnInt64(0)
+	out.Email = stmt.ColumnText(1)
+
+	return &out, nil
+
+}
+
+type UserGetPasswordHashOut struct {
 	ID           int64  `json:"id"`
-	Email        string `json:"email"`
 	PasswordHash string `json:"password_hash"`
 }
 
-func UserGet(tx *sqlite.Conn, email string) (*UserGetOut, error) {
+func UserGetPasswordHash(tx *sqlite.Conn, email string) (*UserGetPasswordHashOut, error) {
 	stmt := tx.Prep(`SELECT
-  id, email, password_hash
+  id, password_hash
 FROM
   users
 WHERE
@@ -305,10 +338,9 @@ LIMIT
 		return nil, sql.ErrNoRows
 	}
 
-	out := UserGetOut{}
+	out := UserGetPasswordHashOut{}
 	out.ID = stmt.ColumnInt64(0)
-	out.Email = stmt.ColumnText(1)
-	out.PasswordHash = stmt.ColumnText(2)
+	out.PasswordHash = stmt.ColumnText(1)
 
 	return &out, nil
 
