@@ -4,7 +4,18 @@ INSERT INTO
 VALUES
   (?, ?)
 RETURNING
-  *;
+  id,
+  email;
+
+-- name: UserGet :one
+SELECT
+  *
+FROM
+  users
+WHERE
+  email = ?
+LIMIT
+  1;
 
 -- name: SessionCreate :one
 INSERT INTO

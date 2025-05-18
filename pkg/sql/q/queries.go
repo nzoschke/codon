@@ -245,9 +245,8 @@ type UserCreateIn struct {
 }
 
 type UserCreateOut struct {
-	ID           int64  `json:"id"`
-	Email        string `json:"email"`
-	PasswordHash string `json:"password_hash"`
+	ID    int64  `json:"id"`
+	Email string `json:"email"`
 }
 
 func UserCreate(tx *sqlite.Conn, in UserCreateIn) (*UserCreateOut, error) {
@@ -256,7 +255,7 @@ func UserCreate(tx *sqlite.Conn, in UserCreateIn) (*UserCreateOut, error) {
 VALUES
   (?, ?)
 RETURNING
-  id, email, password_hash`)
+  id, email`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.Email)
@@ -271,6 +270,37 @@ RETURNING
 	}
 
 	out := UserCreateOut{}
+	out.ID = stmt.ColumnInt64(0)
+	out.Email = stmt.ColumnText(1)
+
+	return &out, nil
+
+}
+
+type UserGetOut struct {
+	ID           int64  `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+}
+
+func UserGet(tx *sqlite.Conn, email string) (*UserGetOut, error) {
+	stmt := tx.Prep(`SELECT id, email, password_hash
+FROM users
+WHERE email = ?
+LIMIT 1`)
+	defer stmt.Reset()
+
+	stmt.BindText(1, email)
+
+	ok, err := stmt.Step()
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, sql.ErrNoRows
+	}
+
+	out := UserGetOut{}
 	out.ID = stmt.ColumnInt64(0)
 	out.Email = stmt.ColumnText(1)
 	out.PasswordHash = stmt.ColumnText(2)

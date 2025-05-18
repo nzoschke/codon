@@ -90,8 +90,8 @@ func Post[O any](g Group, path string, handler func(context.Context) (O, error))
 	})
 }
 
-func PostBody[I, O any](g Group, handler func(context.Context, I) (O, error)) {
-	register(g, "create", http.MethodPost, "/", func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
+func PostBody[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
+	register(g, "create", http.MethodPost, path, func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, *in.Body)
 		return &OutBody[O]{Body: &out}, err
 	})
