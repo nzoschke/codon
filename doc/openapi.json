@@ -161,8 +161,8 @@
             "readOnly": true,
             "type": "string"
           },
-          "email": { "type": "string" },
-          "password": { "type": "string" }
+          "email": { "format": "email", "type": "string" },
+          "password": { "minLength": 8, "type": "string" }
         },
         "required": ["email", "password"],
         "type": "object"
@@ -178,9 +178,26 @@
             "type": "string"
           },
           "email": { "type": "string" },
+          "id": { "format": "int64", "type": "integer" },
+          "password_hash": { "type": "string" }
+        },
+        "required": ["email", "id", "password_hash"],
+        "type": "object"
+      },
+      "UserGetOut": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "example": "https://example.com/schemas/UserGetOut.json",
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "email": { "type": "string" },
           "id": { "format": "int64", "type": "integer" }
         },
-        "required": ["id", "email"],
+        "required": ["email", "id"],
         "type": "object"
       }
     }
@@ -406,6 +423,25 @@
       }
     },
     "/api/users/session": {
+      "delete": {
+        "operationId": "delete-users-session",
+        "parameters": [
+          { "in": "cookie", "name": "session", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content" },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/ErrorModel" }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Delete users session",
+        "tags": ["Users"]
+      },
       "get": {
         "operationId": "get-users-session",
         "parameters": [
@@ -415,7 +451,7 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/UserCreateOut" }
+                "schema": { "$ref": "#/components/schemas/UserGetOut" }
               }
             },
             "description": "OK",

@@ -4,13 +4,12 @@ INSERT INTO
 VALUES
   (?, ?)
 RETURNING
-  id,
-  email;
+  *;
 
 -- name: UserGet :one
 SELECT
-  id,
-  email
+  email,
+  id
 FROM
   users
 WHERE
@@ -18,10 +17,9 @@ WHERE
 LIMIT
   1;
 
--- name: UserGetPasswordHash :one
+-- name: UserGetByEmail :one
 SELECT
-  id,
-  password_hash
+  *
 FROM
   users
 WHERE
@@ -39,9 +37,7 @@ RETURNING
 
 -- name: SessionGet :one
 SELECT
-  sessions.id,
-  sessions.user_id,
-  sessions.expires_at
+  *
 FROM
   sessions
 WHERE

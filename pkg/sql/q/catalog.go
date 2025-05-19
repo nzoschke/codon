@@ -19,15 +19,15 @@ type Contact struct {
 }
 
 type User struct {
-	ID           int64  `json:"id"`
 	Email        string `json:"email"`
+	ID           int64  `json:"id"`
 	PasswordHash string `json:"password_hash"`
 }
 
 type Session struct {
+	ExpiresAt time.Time `json:"expires_at"`
 	ID        string    `json:"id"`
 	UserId    int64     `json:"user_id"`
-	ExpiresAt time.Time `json:"expires_at"`
 }
 
 func catalogImports() {

@@ -7,9 +7,7 @@ import (
 	"database/sql"
 	"encoding/base32"
 	"encoding/hex"
-	"log/slog"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -17,13 +15,14 @@ import (
 	"github.com/nzoschke/codon/pkg/sql/q"
 	"github.com/olekukonko/errors"
 	"golang.org/x/crypto/bcrypt"
+	"zombiezen.com/go/sqlite"
 )
 
 const sessionDur = 30 * 24 * time.Hour
 
 type UserCreateIn struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" format:"email"`
+	Password string `json:"password" minLength:"8"`
 }
 
 type SessionGetIn struct {
@@ -63,17 +62,18 @@ func users(a huma.API, db db.DB) {
 	})
 
 	DeleteIn(g, "/session", func(ctx context.Context, in SessionGetIn) error {
-		value := in.Session.Value
-		hash := sha256.Sum256([]byte(value))
-		id := hex.EncodeToString(hash[:])
-
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return errors.WithStack(err)
 		}
 		defer put()
 
-		if err := q.SessionDelete(conn, id); err != nil {
+		s, err := sessionGet(conn, in.Session.Value)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		if err := q.SessionDeleteUser(conn, s.UserId); err != nil {
 			return errors.WithStack(err)
 		}
 
@@ -87,7 +87,7 @@ func users(a huma.API, db db.DB) {
 		}
 		defer put()
 
-		u, err := q.UserGetPasswordHash(conn, in.Email)
+		u, err := q.UserGetByEmail(conn, in.Email)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return http.Cookie{}, huma.Error401Unauthorized("invalid email or password")
@@ -104,16 +104,12 @@ func users(a huma.API, db db.DB) {
 			return http.Cookie{}, errors.WithStack(err)
 		}
 
-		t, err := token()
-		if err != nil {
-			return http.Cookie{}, errors.WithStack(err)
-		}
-
-		hash := sha256.Sum256([]byte(t))
-		id := hex.EncodeToString(hash[:])
+		bs := make([]byte, 20)
+		rand.Read(bs)
+		id := base32.StdEncoding.EncodeToString(bs)
 
 		out, err := q.SessionCreate(conn, q.SessionCreateIn{
-			ID:        id,
+			ID:        sessionHash(id),
 			UserId:    u.ID,
 			ExpiresAt: time.Now().Add(sessionDur),
 		})
@@ -124,42 +120,33 @@ func users(a huma.API, db db.DB) {
 		return http.Cookie{
 			Expires: out.ExpiresAt,
 			Name:    "session",
-			Value:   t,
+			Value:   id,
 		}, nil
 	})
 
 	GetInOut(g, "/session", func(ctx context.Context, in SessionGetIn) (SessionGetOut, error) {
-		value := in.Session.Value
-		hash := sha256.Sum256([]byte(value))
-		id := hex.EncodeToString(hash[:])
-
-		slog.Info("session", "value", in.Session.Value, "id", id)
-
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return SessionGetOut{}, errors.WithStack(err)
 		}
 		defer put()
 
-		s, err := q.SessionGet(conn, id)
+		s, err := sessionGet(conn, in.Session.Value)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				return SessionGetOut{}, huma.Error401Unauthorized("invalid session")
-			}
-
 			return SessionGetOut{}, errors.WithStack(err)
 		}
 
-		if s.ExpiresAt.Before(time.Now()) {
-			if err := q.SessionDelete(conn, id); err != nil {
+		if time.Now().After(s.ExpiresAt) {
+			if err := q.SessionDelete(conn, s.ID); err != nil {
 				return SessionGetOut{}, errors.WithStack(err)
 			}
+
 			return SessionGetOut{
 				Status: http.StatusUnauthorized,
 			}, nil
 		}
 
-		if s.ExpiresAt.Before(s.ExpiresAt.Add(-sessionDur / 2)) {
+		if time.Now().After(s.ExpiresAt.Add(-sessionDur / 2)) {
 			s.ExpiresAt = time.Now().Add(sessionDur)
 			if err := q.SessionUpdate(conn, q.SessionUpdateIn{
 				ExpiresAt: s.ExpiresAt,
@@ -174,28 +161,32 @@ func users(a huma.API, db db.DB) {
 			return SessionGetOut{}, errors.WithStack(err)
 		}
 
-		slog.Info("session", "value", in.Session.Value, "id", id, "user_id", s.UserId)
-
 		return SessionGetOut{
 			Body: *u,
 			Session: http.Cookie{
 				Expires: s.ExpiresAt,
 				Name:    "session",
-				Value:   value,
+				Value:   in.Session.Value,
 			},
 			Status: http.StatusOK,
 		}, nil
 	})
 }
 
-func token() (string, error) {
-	bs := make([]byte, 20)
-	_, err := rand.Read(bs)
+func sessionGet(conn *sqlite.Conn, v string) (q.SessionGetOut, error) {
+	s, err := q.SessionGet(conn, sessionHash(v))
 	if err != nil {
-		return "", errors.WithStack(err)
+		if err == sql.ErrNoRows {
+			return q.SessionGetOut{}, huma.Error401Unauthorized("invalid session")
+		}
+
+		return q.SessionGetOut{}, errors.WithStack(err)
 	}
 
-	token := strings.ToLower(strings.TrimRight(base32.StdEncoding.EncodeToString(bs), "="))
+	return *s, nil
+}
 
-	return token, nil
+func sessionHash(v string) string {
+	hash := sha256.Sum256([]byte(v))
+	return hex.EncodeToString(hash[:])
 }

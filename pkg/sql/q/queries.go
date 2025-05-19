@@ -245,8 +245,9 @@ type UserCreateIn struct {
 }
 
 type UserCreateOut struct {
-	ID    int64  `json:"id"`
-	Email string `json:"email"`
+	Email        string `json:"email"`
+	ID           int64  `json:"id"`
+	PasswordHash string `json:"password_hash"`
 }
 
 func UserCreate(tx *sqlite.Conn, in UserCreateIn) (*UserCreateOut, error) {
@@ -255,8 +256,7 @@ func UserCreate(tx *sqlite.Conn, in UserCreateIn) (*UserCreateOut, error) {
 VALUES
   (?, ?)
 RETURNING
-  id,
-  email`)
+  email, id, password_hash`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.Email)
@@ -271,21 +271,22 @@ RETURNING
 	}
 
 	out := UserCreateOut{}
-	out.ID = stmt.ColumnInt64(0)
-	out.Email = stmt.ColumnText(1)
+	out.Email = stmt.ColumnText(0)
+	out.ID = stmt.ColumnInt64(1)
+	out.PasswordHash = stmt.ColumnText(2)
 
 	return &out, nil
 
 }
 
 type UserGetOut struct {
-	ID    int64  `json:"id"`
 	Email string `json:"email"`
+	ID    int64  `json:"id"`
 }
 
 func UserGet(tx *sqlite.Conn, id int64) (*UserGetOut, error) {
 	stmt := tx.Prep(`SELECT
-  id, email
+  email, id
 FROM
   users
 WHERE
@@ -305,21 +306,22 @@ LIMIT
 	}
 
 	out := UserGetOut{}
-	out.ID = stmt.ColumnInt64(0)
-	out.Email = stmt.ColumnText(1)
+	out.Email = stmt.ColumnText(0)
+	out.ID = stmt.ColumnInt64(1)
 
 	return &out, nil
 
 }
 
-type UserGetPasswordHashOut struct {
+type UserGetByEmailOut struct {
+	Email        string `json:"email"`
 	ID           int64  `json:"id"`
 	PasswordHash string `json:"password_hash"`
 }
 
-func UserGetPasswordHash(tx *sqlite.Conn, email string) (*UserGetPasswordHashOut, error) {
+func UserGetByEmail(tx *sqlite.Conn, email string) (*UserGetByEmailOut, error) {
 	stmt := tx.Prep(`SELECT
-  id, password_hash
+  email, id, password_hash
 FROM
   users
 WHERE
@@ -338,9 +340,10 @@ LIMIT
 		return nil, sql.ErrNoRows
 	}
 
-	out := UserGetPasswordHashOut{}
-	out.ID = stmt.ColumnInt64(0)
-	out.PasswordHash = stmt.ColumnText(1)
+	out := UserGetByEmailOut{}
+	out.Email = stmt.ColumnText(0)
+	out.ID = stmt.ColumnInt64(1)
+	out.PasswordHash = stmt.ColumnText(2)
 
 	return &out, nil
 
@@ -353,9 +356,9 @@ type SessionCreateIn struct {
 }
 
 type SessionCreateOut struct {
+	ExpiresAt time.Time `json:"expires_at"`
 	ID        string    `json:"id"`
 	UserId    int64     `json:"user_id"`
-	ExpiresAt time.Time `json:"expires_at"`
 }
 
 func SessionCreate(tx *sqlite.Conn, in SessionCreateIn) (*SessionCreateOut, error) {
@@ -364,7 +367,7 @@ func SessionCreate(tx *sqlite.Conn, in SessionCreateIn) (*SessionCreateOut, erro
 VALUES
   (?, ?, ?)
 RETURNING
-  id, user_id, expires_at`)
+  expires_at, id, user_id`)
 	defer stmt.Reset()
 
 	stmt.BindText(1, in.ID)
@@ -380,25 +383,23 @@ RETURNING
 	}
 
 	out := SessionCreateOut{}
-	out.ID = stmt.ColumnText(0)
-	out.UserId = stmt.ColumnInt64(1)
-	out.ExpiresAt = timeParse(stmt.ColumnText(2))
+	out.ExpiresAt = timeParse(stmt.ColumnText(0))
+	out.ID = stmt.ColumnText(1)
+	out.UserId = stmt.ColumnInt64(2)
 
 	return &out, nil
 
 }
 
 type SessionGetOut struct {
+	ExpiresAt time.Time `json:"expires_at"`
 	ID        string    `json:"id"`
 	UserId    int64     `json:"user_id"`
-	ExpiresAt time.Time `json:"expires_at"`
 }
 
 func SessionGet(tx *sqlite.Conn, id string) (*SessionGetOut, error) {
 	stmt := tx.Prep(`SELECT
-  sessions.id,
-  sessions.user_id,
-  sessions.expires_at
+  expires_at, id, user_id
 FROM
   sessions
 WHERE
@@ -416,9 +417,9 @@ WHERE
 	}
 
 	out := SessionGetOut{}
-	out.ID = stmt.ColumnText(0)
-	out.UserId = stmt.ColumnInt64(1)
-	out.ExpiresAt = timeParse(stmt.ColumnText(2))
+	out.ExpiresAt = timeParse(stmt.ColumnText(0))
+	out.ID = stmt.ColumnText(1)
+	out.UserId = stmt.ColumnInt64(2)
 
 	return &out, nil
 

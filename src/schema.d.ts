@@ -120,7 +120,8 @@ export interface paths {
     put?: never;
     /** Create users session */
     post: operations["create-users-session"];
-    delete?: never;
+    /** Delete users session */
+    delete: operations["delete-users-session"];
     options?: never;
     head?: never;
     patch?: never;
@@ -239,6 +240,7 @@ export interface components {
        * @example https://example.com/schemas/UserCreateIn.json
        */
       readonly $schema?: string;
+      /** Format: email */
       email: string;
       password: string;
     };
@@ -247,6 +249,18 @@ export interface components {
        * Format: uri
        * @description A URL to the JSON Schema for this object.
        * @example https://example.com/schemas/UserCreateOut.json
+       */
+      readonly $schema?: string;
+      email: string;
+      /** Format: int64 */
+      id: number;
+      password_hash: string;
+    };
+    UserGetOut: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/UserGetOut.json
        */
       readonly $schema?: string;
       email: string;
@@ -473,7 +487,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UserCreateOut"];
+          "application/json": components["schemas"]["UserGetOut"];
         };
       };
       /** @description Error */
@@ -504,6 +518,35 @@ export interface operations {
       204: {
         headers: {
           "Set-Cookie"?: string;
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-users-session": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        session?: string;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
           [name: string]: unknown;
         };
         content?: never;
