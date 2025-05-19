@@ -66,7 +66,7 @@ func contacts(a huma.API, db db.DB) {
 		return c, nil
 	})
 
-	List(g, func(ctx context.Context, in ContactListIn) (ContactListOut, error) {
+	List(g, "/", func(ctx context.Context, in ContactListIn) (ContactListOut, error) {
 		conn, put, err := db.Take(ctx)
 		if err != nil {
 			return ContactListOut{}, errors.WithStack(err)
