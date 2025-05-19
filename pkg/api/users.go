@@ -38,24 +38,29 @@ type SessionGetOut struct {
 func users(a huma.API, db db.DB) {
 	g := NewGroup(a, "/users")
 
-	PostBody(g, "/", func(ctx context.Context, in UserCreateIn) (q.UserCreateOut, error) {
+	PostBody(g, "/", func(ctx context.Context, in UserCreateIn) (q.UserGetOut, error) {
 		bs, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
 		if err != nil {
-			return q.UserCreateOut{}, errors.WithStack(err)
+			return q.UserGetOut{}, errors.WithStack(err)
 		}
 
 		conn, put, err := db.Take(ctx)
 		if err != nil {
-			return q.UserCreateOut{}, errors.WithStack(err)
+			return q.UserGetOut{}, errors.WithStack(err)
 		}
 		defer put()
 
-		out, err := q.UserCreate(conn, q.UserCreateIn{
+		u, err := q.UserCreate(conn, q.UserCreateIn{
 			Email:        in.Email,
 			PasswordHash: string(bs),
 		})
 		if err != nil {
-			return q.UserCreateOut{}, errors.WithStack(err)
+			return q.UserGetOut{}, errors.WithStack(err)
+		}
+
+		out, err := q.UserGet(conn, u.ID)
+		if err != nil {
+			return q.UserGetOut{}, errors.WithStack(err)
 		}
 
 		return *out, nil

@@ -128,5 +128,5 @@ func TestMigrate(t *testing.T) {
 
 	ts, err := db.Schema(ctx)
 	a.NoError(err)
-	a.Equal([]string{"table/contacts"}, ts)
+	a.Equal([]string{"index/sqlite_autoindex_sessions_1", "index/sqlite_autoindex_users_1", "table/contacts", "table/sessions", "table/users"}, ts)
 }
