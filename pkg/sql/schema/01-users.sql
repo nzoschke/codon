@@ -1,0 +1,11 @@
+CREATE TABLE users (
+  email TEXT NOT NULL UNIQUE,
+  id INTEGER PRIMARY KEY,
+  password_hash TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE sessions (
+  expires_at TEXT NOT NULL,
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id)
+) STRICT;

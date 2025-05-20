@@ -57,6 +57,7 @@ func NewAPI(m *http.ServeMux, db db.DB, dev bool) huma.API {
 	dist(m, dev)
 	contacts(g, db)
 	health(g)
+	users(g, db)
 
 	return a
 }

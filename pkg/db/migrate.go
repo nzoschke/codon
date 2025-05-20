@@ -12,7 +12,7 @@ import (
 )
 
 func (d *DB) migrate(ctx context.Context) error {
-	dir := "migrations"
+	dir := "schema"
 	entries, err := fs.ReadDir(sql.SQL, dir)
 	if err != nil {
 		return errors.WithStack(err)

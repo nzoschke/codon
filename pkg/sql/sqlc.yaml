@@ -18,4 +18,4 @@ sql:
         plugin: zz
     engine: "sqlite"
     queries: "./queries"
-    schema: "./migrations"
+    schema: "./schema"

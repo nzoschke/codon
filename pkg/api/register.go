@@ -33,6 +33,10 @@ type OutBody[B any] struct {
 	Body *B
 }
 
+type OutCookie struct {
+	SetCookie http.Cookie `header:"Set-Cookie"`
+}
+
 func NewGroup(a huma.API, prefix string) Group {
 	g := huma.NewGroup(a, prefix)
 
@@ -48,9 +52,23 @@ func NewGroup(a huma.API, prefix string) Group {
 	}
 }
 
+func Delete(g Group, path string, handler func(context.Context) error) {
+	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *struct{}) (*struct{}, error) {
+		err := handler(ctx)
+		return nil, err
+	})
+}
+
 func DeleteID[I any](g Group, path string, handler func(context.Context, I) error) {
 	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *InID[I]) (*struct{}, error) {
 		err := handler(ctx, in.ID)
+		return nil, err
+	})
+}
+
+func DeleteIn[I any](g Group, path string, handler func(context.Context, I) error) {
+	register(g, "delete", http.MethodDelete, path, func(ctx context.Context, in *I) (*struct{}, error) {
+		err := handler(ctx, *in)
 		return nil, err
 	})
 }
@@ -76,8 +94,15 @@ func GetIn[I any, O any](g Group, path string, handler func(context.Context, I) 
 	})
 }
 
-func List[I, O any](g Group, handler func(context.Context, I) (O, error)) {
-	register(g, "list", http.MethodGet, "/", func(ctx context.Context, in *I) (*OutBody[O], error) {
+func GetInOut[I any, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
+	register(g, "get", http.MethodGet, path, func(ctx context.Context, in *I) (*O, error) {
+		out, err := handler(ctx, *in)
+		return &out, err
+	})
+}
+
+func List[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
+	register(g, "list", http.MethodGet, path, func(ctx context.Context, in *I) (*OutBody[O], error) {
 		out, err := handler(ctx, *in)
 		return &OutBody[O]{Body: &out}, err
 	})
@@ -90,10 +115,17 @@ func Post[O any](g Group, path string, handler func(context.Context) (O, error))
 	})
 }
 
-func PostBody[I, O any](g Group, handler func(context.Context, I) (O, error)) {
-	register(g, "create", http.MethodPost, "/", func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
+func PostBody[I, O any](g Group, path string, handler func(context.Context, I) (O, error)) {
+	register(g, "create", http.MethodPost, path, func(ctx context.Context, in *InBody[I]) (*OutBody[O], error) {
 		out, err := handler(ctx, *in.Body)
 		return &OutBody[O]{Body: &out}, err
+	})
+}
+
+func PostCookie[I any](g Group, path string, handler func(context.Context, I) (http.Cookie, error)) {
+	register(g, "create", http.MethodPost, path, func(ctx context.Context, in *InBody[I]) (*OutCookie, error) {
+		out, err := handler(ctx, *in.Body)
+		return &OutCookie{SetCookie: out}, err
 	})
 }
 

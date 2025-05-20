@@ -18,6 +18,18 @@ type Contact struct {
 	UpdatedAt time.Time          `json:"updated_at"`
 }
 
+type User struct {
+	Email        string `json:"email"`
+	ID           int64  `json:"id"`
+	PasswordHash string `json:"password_hash"`
+}
+
+type Session struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	ID        string    `json:"id"`
+	UserId    int64     `json:"user_id"`
+}
+
 func catalogImports() {
 	_ = time.Time{}
 }
