@@ -167,23 +167,6 @@
         "required": ["email", "password"],
         "type": "object"
       },
-      "UserCreateOut": {
-        "additionalProperties": false,
-        "properties": {
-          "$schema": {
-            "description": "A URL to the JSON Schema for this object.",
-            "example": "https://example.com/schemas/UserCreateOut.json",
-            "format": "uri",
-            "readOnly": true,
-            "type": "string"
-          },
-          "email": { "type": "string" },
-          "id": { "format": "int64", "type": "integer" },
-          "password_hash": { "type": "string" }
-        },
-        "required": ["email", "id", "password_hash"],
-        "type": "object"
-      },
       "UserGetOut": {
         "additionalProperties": false,
         "properties": {
@@ -404,7 +387,7 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/UserCreateOut" }
+                "schema": { "$ref": "#/components/schemas/UserGetOut" }
               }
             },
             "description": "OK"

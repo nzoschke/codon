@@ -244,18 +244,6 @@ export interface components {
       email: string;
       password: string;
     };
-    UserCreateOut: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UserCreateOut.json
-       */
-      readonly $schema?: string;
-      email: string;
-      /** Format: int64 */
-      id: number;
-      password_hash: string;
-    };
     UserGetOut: {
       /**
        * Format: uri
@@ -455,7 +443,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UserCreateOut"];
+          "application/json": components["schemas"]["UserGetOut"];
         };
       };
       /** @description Error */

@@ -41,7 +41,7 @@ DOMAIN=example.com
 HOST=5.161.XX.XXX
 PORT=2234
 USER=root
-SITE=app
+SITE=codon
 
 go generate ./...
 mkdir -p build/app
@@ -73,7 +73,7 @@ https://$DOMAIN {
 EOF
 ```
 
-Review logs with `journalctl -f -u app`.
+Review logs with `journalctl -f -u $SITE`.
 
 ## Static Site
 
@@ -90,9 +90,9 @@ bun run build
 rsync -avz -e ssh build/dist/* $USER@$HOST:/srv/$SITE
 
 cat <<EOF | ssh $USER@$HOST -T "cat > /etc/caddy/sites/codon; systemctl reload caddy"
-https://$SITE.lab.mixable.net {
+https://$DOMAIN {
 	file_server
-	root * /srv/codon
+	root * /srv/$SITE
 }
 EOF
 ```

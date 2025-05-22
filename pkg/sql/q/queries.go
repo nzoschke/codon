@@ -286,7 +286,8 @@ type UserGetOut struct {
 
 func UserGet(tx *sqlite.Conn, id int64) (*UserGetOut, error) {
 	stmt := tx.Prep(`SELECT
-  email, id
+  email,
+  id
 FROM
   users
 WHERE
